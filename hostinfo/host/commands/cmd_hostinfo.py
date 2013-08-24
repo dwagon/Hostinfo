@@ -112,9 +112,9 @@ class Command(HostinfoCommand):
         hostids=set()	# hostids that match the criteria
         total=len(matches)
         if total==0:
-            return
+            return ""
         nummatch=0
-        kvlist=KeyValue.objects.filter(keyid__key=self.namespace.valuereport).values_list('hostid', 'value')
+        kvlist=KeyValue.objects.filter(keyid__key=self.namespace.valuereport[0]).values_list('hostid', 'value')
 
         for hostid,value in kvlist:
             if hostid not in matches:
@@ -131,8 +131,8 @@ class Command(HostinfoCommand):
 
         tmpvalues.sort()
 
-        outstr+="%s set: %d %0.2f%%\n" % (self.namespace.valuereport,nummatch,100.0*nummatch/total)
-        outstr+="%s unset: %d %0.2f%%\n" % (self.namespace.valuereport,numundef,100.0*numundef/total)
+        outstr+="%s set: %d %0.2f%%\n" % (self.namespace.valuereport[0],nummatch,100.0*nummatch/total)
+        outstr+="%s unset: %d %0.2f%%\n" % (self.namespace.valuereport[0],numundef,100.0*numundef/total)
         outstr+="\n"
         for k,v,p in tmpvalues:
             outstr+="%s %d %0.2f%%\n" % (k, v, p)
