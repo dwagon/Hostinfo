@@ -718,6 +718,19 @@ class test_cmd_hostinfo(unittest.TestCase):
         output=self.cmd.handle(namespace)
         # TODO - check output
 
+    ############################################################################
+    def test_hostinfo_valuereport(self):
+        namespace=self.parser.parse_args(['--valuereport', 'ak1'])
+        output=self.cmd.handle(namespace)
+        self.assertEquals(output[0],'ak1 set: 2 100.00%\nak1 unset: 0 0.00%\n\nkv1 1 50.00%\nkv2 1 50.00%\n')
+        self.assertEquals(output[1], 0)
+
+        # No matches
+        namespace=self.parser.parse_args(['--valuereport', 'ak1', 'ak2=novalue'])
+        output=self.cmd.handle(namespace)
+        self.assertEquals(output[0],'')
+        self.assertEquals(output[1], 1)
+
 ################################################################################
 class test_cmd_addalias(unittest.TestCase):
     ############################################################################
