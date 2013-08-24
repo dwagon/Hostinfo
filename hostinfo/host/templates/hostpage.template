@@ -1,0 +1,59 @@
+{#  $Id: hostpage.template 97 2012-06-23 09:47:43Z dougal.scott@gmail.com $ #}
+{#  $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templates/hostpage.template $ #}
+{#
+#    Copyright (C) 2012 Dougal Scott
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#}
+{% extends "base.html" %}
+{% block title %} Host {{host.hostname}} details {% endblock %}
+
+{% block content %}
+<table width=100% border=1>
+{% if links %}
+<tr>
+{%for link in links%}
+<td>{{link }}</td>
+{% endfor %}
+</tr>
+{%endif %}
+<tr>
+<td> <b>OS</b>: {{kvdict.os|title}} </td>
+<td> <b>Revision</b>:{{ kvdict.osrev}} </td>
+<td> <b>Release</b>: {{ kvdict.osrelease }} </td>
+</tr>
+<tr>
+<td> <b>Hardware</b>:{{ kvdict.hardware }} </td>
+<td> <b>Description</b>: {{ kvdict.hwdesc }} </td>
+<td> </td>
+</tr>
+<tr>
+<td> <b>Serial #</b>: {{kvdict.serial}} </td>
+<td> <b>Support</b>: {{kvdict.support|title}} </td>
+<td>  </td>
+</tr>
+<tr>
+<td> <b>Site</b>:{{kvdict.site}} </td>
+<td> <b>Rack</b>:<a href="http://hostinfo/hostinfo/rackreport/{{kvdict.site}}/{{kvdict.rack}}">{{kvdict.rack}}</a></td>
+<td> <b>Asset #</b>: {{kvdict.asset}} </td>
+</tr>
+<tr>
+<td> <b>Apps</b>:{%for v in kvdict.apps %}{{v}}{%endfor%} </td>
+<td> <b>Service</b>:{%for v in kvdict.service %}{{v}}{%endfor%} </td>
+<td> <b>Tier</b>:{%for v in kvdict.tier %}{{v}}{%endfor%} </td>
+</tr>
+</table>
+
+{% endblock %}
+{# EOF #}

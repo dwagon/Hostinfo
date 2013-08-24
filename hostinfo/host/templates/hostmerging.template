@@ -1,0 +1,63 @@
+<!-- $Id: hostmerging.template 97 2012-06-23 09:47:43Z dougal.scott@gmail.com $ -->
+<!-- $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templates/hostmerging.template $ -->
+<!---
+    Copyright (C) 2012 Dougal Scott
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<form action="/hostinfo/hostmerge/" method="POST">
+{% csrf_token %}
+<input type=hidden name=_srchost value={{srchost}}>
+<input type=hidden name=_dsthost value={{dsthost}}>
+<table border=1>
+    <tr><td></td><th colspan=2>Source: {{srchost}}</th> <th colspan=2>Dest: {{dsthost}}</th></tr>
+    {% for key,bits in keys %}
+	<tr>
+	<th align=right width=10%>{{key}}</th>
+	{% ifequal bits.src bits.dst %}
+	    <td colspan=4 align=right> Source and Dest both have the same value: 
+	    {% if bits.src|length_is:1 %} {{bits.src.0}} {% else %} <ul>{% for bit in bits.src%} <li> {{bit}} {% endfor %}</ul> {% endif %}
+	    <input type=hidden name={{key}} value="dst">
+	    </td>
+	{% else %}
+	    {% if bits.src|length_is:0 %}
+		<td colspan=4 align=right>
+		Taking {{dsthost}} values:
+		{% if bits.dst|length_is:1 %} {{bits.dst.0}} {% else %} <ul>{% for bit in bits.dst%} <li> {{bit}} {% endfor %}</ul> {% endif %}
+		<input type=hidden name={{key}} value="dst">
+		</td>
+	    {% else %}
+		{% if bits.dst|length_is:0 %}
+		    <td colspan=4 align=right>
+		    Taking {{srchost}} values:
+		    {% if bits.src|length_is:1 %} {{bits.src.0}} {% else %} <ul>{% for bit in bits.src%} <li> {{bit}} {% endfor %}</ul> {% endif %}
+		    <input type=hidden name={{key}} value="src">
+		    </td>
+		{% else %}
+		    <td> <input type=radio name={{key}} value="src"> </td>
+		    {% if bits.src|length_is:1 %} <td width=35%>{{bits.src.0}}</td> {% else %} <td width=35%><ul>{% for bit in bits.src%} <li> {{bit}} {% endfor %}</ul></td> {% endif %}
+		    <td> <input type=radio name={{key}} checked value="dst"> </td>
+		    {% if bits.dst|length_is:1 %} <td width=35%>{{bits.dst.0}}</td> {% else %} <td width=35%><ul>{% for bit in bits.dst%} <li> {{bit}} {% endfor %}</ul></td> {% endif %}
+		{% endif %}
+	    {% endif %}
+	{% endifequal %}
+	</tr>
+    {% endfor %}
+</table>
+Note that {{srchost}} will be permanently deleted if you go ahead.<br>
+<input name="_hostmerging" type="submit" value="Merge">
+<input type="reset">
+<form>
+hostmerging.contents
+{# EOF #}

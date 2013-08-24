@@ -1,0 +1,66 @@
+<!-- $Id: hostediting.template 97 2012-06-23 09:47:43Z dougal.scott@gmail.com $ -->
+<!-- $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templates/hostediting.template $ -->
+<!---
+    Copyright (C) 2012 Dougal Scott
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<h1>Editing {{host}}</h1>
+{% if errorbig %} <h2 style="color:red"> {{errorbig}} </h2> {% endif %}
+{% if errorsmall %} <span style="color:red"> {{errorsmall}} </span> {% endif %}
+
+<form action="/hostinfo/hostedit/{{host}}/" method="POST">
+{% csrf_token %}
+<input type=hidden name=_hostediting value="{{host}}">
+<table>
+{% for key,vallist,typ,rvals in kvlist %}
+    <tr>
+    <td align=right valign=top>{{ key }}</td>
+    <td>
+    {% for val in vallist %}
+    	{% if rvals %}
+	    	<select name={{key}}.{{forloop.counter0}} >
+		    {% for rv in rvals %}
+			<option {% ifequal rv val.value %}selected{% endifequal %} value={{rv}}> {{rv}} </option>
+		    {% endfor %}
+		</select>
+	{% else %}
+	    <input  type=text name={{ key }}.{{ forloop.counter0 }} value={{val.value}}>
+	{% endif %}
+    {% endfor %}
+    {% ifequal typ "list" %}
+    	{% if rvals %}
+	    <select name={{key}}.new >
+		{% for rv in rvals %}
+		    <option value={{rv}}> {{rv}} </option>
+		{% endfor %}
+	    </select>
+	{% else %}
+	    <input  type=text name={{ key }}.new>
+	{% endif %}
+    {% endifequal %}
+    </td></tr>
+{% endfor %}
+<tr><td>Enter new key</td><td>New Value</td></tr>
+<tr>
+<td><select id=_newkey name=_newkey.new> {% for key in keylist %}
+    <option value={{key.key}}>{{key.key}}</option>
+{% endfor %}
+</select> </td>
+<td><input type=text name=_newvalue.new value=''></td></tr>
+</table>
+<input type="submit" value="Change">
+<input type="reset">
+</form>
+{# EOF #}

@@ -1,0 +1,33 @@
+<!-- $Id: keylist.template 97 2012-06-23 09:47:43Z dougal.scott@gmail.com $ -->
+<!-- $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templates/keylist.template $ -->
+<!---
+    Copyright (C) 2012 Dougal Scott
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% extends "base.html" %}
+{% block title %} Values of {{ key }} {% endblock %}
+{% block content %}
+{% load local_escape %}
+<table>
+<tr><th>{{ key }}</th><td>({{ numkeys }} different values)</td></tr>
+ <tr><td></td> <td><a href="/hostinfo/hostcmp/{{ key }}.defined">{{key.title}} set</a> ({{ numdef }} instance{{numdef|pluralize}} - {{pctdef|floatformat:1}}%) </td></tr>
+ <tr><td></td> <td><a href="/hostinfo/hostcmp/{{ key }}.undefined">No {{key}} set</a> ({{ numundef }} instance{{numdef|pluralize}} - {{pctundef|floatformat:1}}%) </td></tr>
+ <tr><td></td> &nbsp; <td></td></tr>
+{% for kv in keylist %}
+ <tr><td></td> <td><a class="keyvalue" href="/hostinfo/hostcmp/{{ key }}.eq.{{ kv.0|local_escape }}">{{ kv.0 }}</a> ({{ kv.1 }} instance{{kv.1|pluralize}} {{kv.2|floatformat:1}}%) </td></tr>
+{% endfor %}
+</table>
+{% endblock %}
+<!-- EOF -->

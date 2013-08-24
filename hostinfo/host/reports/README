@@ -1,0 +1,12 @@
+You can develop reports and put them here without needing to change the code in the standard files (models and views).
+
+If you drop a file in here it will automatically get picked up - with a few provisos
+
+* The filename has to end in '.py'
+* There should be a 'reportname' attribute which is the name of the report
+* There should be a 'reportdesc' attribute which is the description of the report 
+* There has to be a method 'doReport' which handles the actuall running of the report
+** This method takes two arguments
+*** An http request object 
+*** A string with any arguments passed to it e.g. a url of report/foo/bar=30 will case 'bar=30' to be passed as the second argument to the foo report.
+*** It needs to return an http response

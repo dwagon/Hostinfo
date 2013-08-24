@@ -1,0 +1,9 @@
+This directory is to hold files that describe the keys that are
+stored in hostinfo, what else they are called and how to convert
+to them. This is primarily used for handling the importing of
+spreadsheets and other sources of data into hostinfo.
+
+The files should be named 'key_<KEYNAME>.py' and should contain two things
+
+* a list called 'aka' which contains other names used for this key
+* a function called 'convert' which should convert the supplied string into the value to be used for the key

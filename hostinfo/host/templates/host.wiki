@@ -1,0 +1,44 @@
+{% spaceless %}
+{#  $Id: host.wiki 97 2012-06-23 09:47:43Z dougal.scott@gmail.com $ 				#}
+{#										#}
+{#										#}
+{#    Copyright (C) 2012 Dougal Scott						#}
+{#										#}
+{#    This program is free software: you can redistribute it and/or modify	#}
+{#    it under the terms of the GNU General Public License as published by	#}
+{#    the Free Software Foundation, either version 3 of the License, or		#}
+{#    (at your option) any later version.					#}
+{#										#}
+{#    This program is distributed in the hope that it will be useful,		#}
+{#    but WITHOUT ANY WARRANTY; without even the implied warranty of		#}
+{#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the		#}
+{#    GNU General Public License for more details.				#}
+{#										#}
+{#    You should have received a copy of the GNU General Public License		#}
+{#    along with this program.  If not, see <http://www.gnu.org/licenses/>.	#}
+{% endspaceless %}
+{# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templates/host.wiki $ #}
+
+= {{host}} =
+
+== Details ==
+{|
+{% for key,vallist in kvlist %}
+|-
+|{{key}}
+|{% for val in vallist %}{{val.value}} {% endfor %}
+{% endfor %}
+|}
+
+== Other Bits ==
+=== Aliases ===
+{% for alias in aliases %}
+* {{alias}}
+{% endfor %}
+
+=== Links ===
+{% for link in hostlink %}
+* {{link}}
+{% endfor %}
+
+{# EOF #}

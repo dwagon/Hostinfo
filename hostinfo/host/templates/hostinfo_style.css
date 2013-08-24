@@ -1,0 +1,22 @@
+/* Value of keys */
+a.valuelink {
+}
+
+/* Names of keys */
+a.keyname {
+	font-variant: small-caps;
+	font-family: "Courier New", Courier, mono;
+}
+
+/* Links to hosts */
+a.hostname {
+	font-family: "Courier New", Courier, mono;
+}
+
+/* Text that makes up the hostinfo links */
+a.foreignlink {
+}
+
+input#txt {
+	padding: 5px;
+}

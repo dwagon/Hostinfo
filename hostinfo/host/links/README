@@ -1,0 +1,6 @@
+Scripts that are executable in this directory will generate links in the hostinfo web pages
+The script needs to take one argument which is the hostname involved
+It then needs to output space separated strings to stdout. The first is the URL the rest are the text tag
+Return code should be 0 for success, or 1 for don't include link
+
+If he script starts with 'bulk_' it will get invoked once with no arguments. It should generate its own list of hosts and output "host url tag" for every host
