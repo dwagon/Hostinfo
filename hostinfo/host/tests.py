@@ -1058,12 +1058,14 @@ class test_cmd_addvalue(unittest.TestCase):
         with self.assertRaises(RestrictedValueException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Cannot add rkey=value to a restricted key")
+        kv=KeyValue.objects.filter(keyid=key)
+        self.assertEquals(len(kv),0)
 
         namespace=self.parser.parse_args(['rkey=restrvalue','testhost'])
         retval=self.cmd.handle(namespace)
         self.assertEquals(retval,(None,0))
-        ak=AllowedKey.objects.get(key='rkey')
-        self.assertEquals(ak.value,'value')
+        kv=KeyValue.objects.get(keyid=key)
+        self.assertEquals(kv.value,'restrvalue')
 
         rv.delete()
         key.delete()

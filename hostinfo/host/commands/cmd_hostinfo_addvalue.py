@@ -47,7 +47,7 @@ class Command(HostinfoCommand):
             try:
                 retval=addKeytoHost(host, key, value, origin=namespace.origin, readonlyFlag=namespace.readonlyupdate, updateFlag=namespace.update, appendFlag=namespace.append)
             except RestrictedValueException:
-                raise RestrictedValueException("Cannot add %s=%s to a restricted key" % (key, value), retval=2)
+                raise RestrictedValueException(msg="Cannot add %s=%s to a restricted key" % (key, value), key=key, retval=2)
             except ReadonlyValueException:
                 raise ReadonlyValueException("Cannot add %s=%s to a readonly key" % (key, value), retval=3)
             except HostinfoException, err:
