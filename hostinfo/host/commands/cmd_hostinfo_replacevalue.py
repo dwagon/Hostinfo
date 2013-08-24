@@ -23,7 +23,7 @@
 # hosts or just a subset of hosts in the hostinfo database
 import re
 import sys
-from hostinfo.host.models import checkKey, RestrictedValueException
+from hostinfo.host.models import checkKey
 from hostinfo.host.models import HostinfoCommand, HostinfoException, KeyValue
 
 class Command(HostinfoCommand):
