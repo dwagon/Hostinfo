@@ -19,10 +19,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url
 import django.contrib.auth.views
 
-urlpatterns=patterns('hostinfo.host.views',
+urlpatterns=patterns('host.views',
     (r'^$', 'index'),
     (r'^handlePost/$', 'handlePost'),
 
