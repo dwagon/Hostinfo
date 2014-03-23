@@ -10,8 +10,9 @@ install:
   - pip install -r requirements.txt
   - pip install MySQL-python
   - pip install coverage
-# command to run tests
 script: ./runtests 
-# Required services
+before_script:
+  - mysql -e 'create database hostinfo'
+  - python hostinfo/manage.py syncdb --noinput
 services:
   - mysql
