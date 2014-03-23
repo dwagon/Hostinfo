@@ -20,10 +20,10 @@
     * ADMINS
     * DATABASE_ENGINE
     * DATABASE_NAME
-    * DATABASE_USER 
+    * DATABASE_USER
     * DATABASE_PASSWORD
     * SECRET_KEY
-  settings.py will generally be installed under where python installs new packages. 
+  settings.py will generally be installed under where python installs new packages.
   (E.g. /usr/local/lib/python/dist-packages)
 
 * Create the database to store data in:
@@ -31,13 +31,18 @@
     * MYSQL: "mysql> grant usage on *.* to 'django_script'@'localhost' identified by 'django_secret'"
     * MYSQL: "mysql> grant all on django.* to 'django_script'@'localhost'"
 
+    or
+
+    * Postgresql: psql -c 'create database <DATABASE_NAME>' -U postgres
+    * Postgresql: psql -c 'create role <DATABASE_USER> with createdb login;' -U postgres
+
 * Create all the database structures:
     % django-admin syncdb --settings hostinfo.settings
     ( it will also ask for a username/passwd - this is for the django admin interface)
 
 
 * Getting started after installation:
-    * Add keys: 
+    * Add keys:
         hostinfo_addkey rack single "What rack the server is in"
 
     * Add restricted keys ( keys for whom only specific values are permitted ):
@@ -56,7 +61,7 @@
         hostinfo --showall hostA
 
 * To get the web site working you will need to install mod_python
-    * Add the following to your apache config 
+    * Add the following to your apache config
 	<Location "/hostinfo">
 	    SetHandler python-program
 	    PythonHandler django.core.handlers.modpython
@@ -73,6 +78,6 @@
     * Change the email address in templates/base.html - this is where suggestions get sent to
     * Copy the images from TODO to TODO
 
-* To get the media wiki side working 
+* To get the media wiki side working
     * install contrib/hostinfo.php into the 'extensions' directory of your wiki installation
     * add 'require_once("$IP/extensions/hostinfo.php");' to your 'LocalSettings.php' file

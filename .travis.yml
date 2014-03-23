@@ -4,15 +4,15 @@ python:
   - "2.7"
   - "3.2"
   - "3.3"
-# command to install dependencies
 install:
   - pip install .
   - pip install -r requirements.txt
-  - pip install MySQL-python
+  - pip install psycopg2
   - pip install coverage
-script: ./runtests 
+addons:
+  postgresql: "9.3"
 before_script:
-  - mysql -e 'create database hostinfo'
+  - psql -c 'create database hostinfo;' -U postgres
+  - psql -c 'create role root with createdb login;' -U postgres
   - python hostinfo/manage.py syncdb --noinput
-services:
-  - mysql
+script: ./runtests 
