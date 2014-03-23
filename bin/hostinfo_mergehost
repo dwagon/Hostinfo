@@ -1,11 +1,1 @@
-#!/opt/local/bin/python
-
-import os, sys
-os.environ['DJANGO_SETTINGS_MODULE']='hostinfo.settings'
-from hostinfo.hostinfo.models import run_from_cmdline
-
-################################################################################
-if __name__=="__main__":
-    sys.exit(run_from_cmdline())
-
-#EOF
+hostinfo
