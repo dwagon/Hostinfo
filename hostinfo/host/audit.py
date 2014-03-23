@@ -1,8 +1,5 @@
 # This piece of awesomeness was taken from http://code.djangoproject.com/wiki/AuditTrail
 #
-# $Id: audit.py 92 2012-06-18 01:26:21Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/audit.py $
-#
 from django.dispatch import dispatcher
 from django.db import models
 from django.core.exceptions import ImproperlyConfigured

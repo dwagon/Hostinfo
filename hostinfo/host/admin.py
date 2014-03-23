@@ -3,9 +3,6 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: admin.py 85 2011-07-17 23:09:05Z dougal.scott $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/admin.py $
-#
 #    Copyright (C) 2008 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify

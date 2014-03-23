@@ -1,9 +1,6 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
 #    Copyright (C) 2012 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -21,10 +18,10 @@
 import sys
 import xml.etree.ElementTree
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from hostinfo.host.models import HostinfoCommand
-from hostinfo.host.models import HostinfoException
-from hostinfo.host.models import RestrictedValueException, RestrictedValue
-from hostinfo.host.models import Host, AllowedKey, KeyValue
+from host.models import HostinfoCommand
+from host.models import HostinfoException
+from host.models import RestrictedValueException, RestrictedValue
+from host.models import Host, AllowedKey, KeyValue
 
 class Command(HostinfoCommand):
     description='Import data from XML file'

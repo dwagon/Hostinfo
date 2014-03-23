@@ -1,5 +1,8 @@
 #!/bin/sh
-DA=/opt/local/bin/django-admin-2.7.py
-COV=coverage
 
-PYTHONPATH=. $COV run --omit $DA $DA test host --settings hostinfo.settings && $COV report -m
+TEST="manage.py test host --settings hostinfo.settings"
+cd hostinfo
+coverage run --include 'host/*,hostinfo/*' ${TEST}
+if [ $? == "0" ]; then
+    coverage report -m
+fi

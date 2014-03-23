@@ -2,8 +2,6 @@
 # instead of requiring to call shell scripts and parse the results
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id$
-# $HeadURL$
 
 import sys
 

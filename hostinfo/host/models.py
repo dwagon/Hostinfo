@@ -3,9 +3,6 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id$
-# $HeadURL$
-#
 #    Copyright (C) 2008 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify

@@ -898,7 +898,7 @@ class test_cmd_addkey(unittest.TestCase):
         namespace=self.parser.parse_args(['key_addkey_t6', 'date'])
         retval=self.cmd.handle(namespace)
         self.assertEquals(retval,(None,0))
-        key=AllowedKey.objects.get(key='key_Addkey_t6')
+        key=AllowedKey.objects.get(key='key_addkey_t6')
         self.assertEquals(key.get_validtype_display(),'date')
         key.delete()
 
