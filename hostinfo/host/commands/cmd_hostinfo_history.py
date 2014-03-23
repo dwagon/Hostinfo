@@ -1,9 +1,6 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
 #    Copyright (C) 2012 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -24,8 +21,8 @@
 # keys are deleted with the host
 from django.db import connection
 from django.core.exceptions import ObjectDoesNotExist
-from hostinfo.host.models import Host, KeyValue, AllowedKey
-from hostinfo.host.models import HostinfoCommand, HostinfoInternalException
+from host.models import Host, KeyValue, AllowedKey
+from host.models import HostinfoCommand, HostinfoInternalException
 
 class Command(HostinfoCommand):
     description='Add alias to a host'

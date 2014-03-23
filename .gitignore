@@ -1,4 +1,6 @@
-build
-.coverage
 *.pyc
+.coverage
+MANIFEST
+build
 db.sqlite3
+dist

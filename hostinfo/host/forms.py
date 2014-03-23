@@ -2,9 +2,6 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: forms.py 160 2013-06-23 05:14:12Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/host/forms.py $
-#
 #    Copyright (C) 2008 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify

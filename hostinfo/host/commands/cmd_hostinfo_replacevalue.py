@@ -1,9 +1,6 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
 #    Copyright (C) 2012 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -23,8 +20,8 @@
 # hosts or just a subset of hosts in the hostinfo database
 import re
 import sys
-from hostinfo.host.models import checkKey
-from hostinfo.host.models import HostinfoCommand, HostinfoException, KeyValue
+from host.models import checkKey
+from host.models import HostinfoCommand, HostinfoException, KeyValue
 
 class Command(HostinfoCommand):
     description='Add alias to a host'
