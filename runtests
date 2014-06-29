@@ -3,6 +3,6 @@
 TEST="manage.py test host --settings hostinfo.settings"
 cd hostinfo
 coverage run --include 'host/*,hostinfo/*' ${TEST}
-if [ $? == "0" ]; then
-    coverage report -m
-fi
+coverage report -m
+
+#EOF
