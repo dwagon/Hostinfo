@@ -42,13 +42,14 @@ from .views import doHostcmp, orderHostList, doHostwikiTable, doHostwiki, doCsvr
 from .views import getHostList, csvDump, getReports, index, doReport, module_from_path
 from .views import doRestrValList, doKeylist
 
+
 ################################################################################
 class test_SingleKey(unittest.TestCase):
     """ Test operations on a single values key """
     def setUp(self):
-        self.host=Host(hostname='host')
+        self.host = Host(hostname='host')
         self.host.save()
-        self.key=AllowedKey(key='single', validtype=1)
+        self.key = AllowedKey(key='single', validtype=1)
         self.key.save()
 
     ############################################################################
@@ -58,26 +59,26 @@ class test_SingleKey(unittest.TestCase):
 
     ############################################################################
     def checkValue(self, host, key):
-        keyid=checkKey(key)
-        hostid=getHost(host)
-        kv=KeyValue.objects.filter(hostid=hostid, keyid=keyid)
+        keyid = checkKey(key)
+        hostid = getHost(host)
+        kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
         return kv[0].value
 
     ############################################################################
     def test_adds(self):
         """Test adding a simple value """
         addKeytoHost(host='host', key='single', value='a')
-        self.assertEquals(self.checkValue('host','single'),'a')
+        self.assertEquals(self.checkValue('host', 'single'), 'a')
 
     ############################################################################
     def test_readonly(self):
         """ Test modifications to readonly keys """
-        self.rokey=AllowedKey(key='ro', validtype=1, readonlyFlag=True)
+        self.rokey = AllowedKey(key='ro', validtype=1, readonlyFlag=True)
         self.rokey.save()
         with self.assertRaises(ReadonlyValueException):
             addKeytoHost(host='host', key='ro', value='b')
         addKeytoHost(host='host', key='ro', value='a', readonlyFlag=True)
-        self.assertEquals(self.checkValue('host','ro'),'a')
+        self.assertEquals(self.checkValue('host', 'ro'), 'a')
         self.rokey.delete()
 
     ############################################################################
@@ -85,7 +86,7 @@ class test_SingleKey(unittest.TestCase):
         """ Test adding the same value again """
         addKeytoHost(host='host', key='single', value='a')
         addKeytoHost(host='host', key='single', value='a')
-        self.assertEquals(self.checkValue('host','single'),'a')
+        self.assertEquals(self.checkValue('host', 'single'), 'a')
 
     ############################################################################
     def test_changevalue(self):
@@ -93,14 +94,14 @@ class test_SingleKey(unittest.TestCase):
         addKeytoHost(host='host', key='single', value='a')
         with self.assertRaises(HostinfoException):
             addKeytoHost(host='host', key='single', value='b')
-        self.assertEquals(self.checkValue('host','single'),'a')
+        self.assertEquals(self.checkValue('host', 'single'), 'a')
 
     ############################################################################
     def test_override(self):
         """ Add a value with override"""
         addKeytoHost(host='host', key='single', value='a')
         addKeytoHost(host='host', key='single', value='b', updateFlag=True)
-        self.assertEquals(self.checkValue('host','single'),'b')
+        self.assertEquals(self.checkValue('host', 'single'), 'b')
 
     ############################################################################
     def test_nohost(self):
@@ -121,13 +122,14 @@ class test_SingleKey(unittest.TestCase):
         with self.assertRaises(HostinfoException):
             addKeytoHost(host='host', key='fake', value='b')
 
+
 ################################################################################
 class test_ListKey(unittest.TestCase):
     """ Test operations on a list of values key """
     def setUp(self):
-        self.host=Host(hostname='host')
+        self.host = Host(hostname='host')
         self.host.save()
-        self.key=AllowedKey(key='list', validtype=2)
+        self.key = AllowedKey(key='list', validtype=2)
         self.key.save()
 
     ############################################################################
@@ -137,29 +139,29 @@ class test_ListKey(unittest.TestCase):
 
     ############################################################################
     def checkValue(self, host, key):
-        keyid=checkKey(key)
-        hostid=getHost(host)
-        kv=KeyValue.objects.filter(hostid=hostid, keyid=keyid)
-        ans=[k.value for k in kv]
-        if len(ans)==1:
+        keyid = checkKey(key)
+        hostid = getHost(host)
+        kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
+        ans = [k.value for k in kv]
+        if len(ans) == 1:
             return ans[0]
         else:
-            return ans
+            return sorted(ans)
 
     ############################################################################
     def test_adds(self):
         """Test adding a simple value """
         addKeytoHost(host='host', key='list', value='a')
-        self.assertEquals(self.checkValue('host','list'),'a')
+        self.assertEquals(self.checkValue('host', 'list'), 'a')
 
     ############################################################################
     def test_readonly(self):
         """ Test modifications to readonly keys """
-        self.rokey=AllowedKey(key='ro', validtype=1, readonlyFlag=True)
+        self.rokey = AllowedKey(key='ro', validtype=1, readonlyFlag=True)
         self.rokey.save()
         addKeytoHost(host='host', key='ro', value='a', readonlyFlag=True)
         addKeytoHost(host='host', key='ro', value='a')
-        self.assertEquals(self.checkValue('host','ro'),'a')
+        self.assertEquals(self.checkValue('host', 'ro'), 'a')
         self.rokey.delete()
 
     ############################################################################
@@ -167,7 +169,7 @@ class test_ListKey(unittest.TestCase):
         """ Test adding the same value again """
         addKeytoHost(host='host', key='list', value='a')
         addKeytoHost(host='host', key='list', value='a')
-        self.assertEquals(self.checkValue('host','list'),'a')
+        self.assertEquals(self.checkValue('host', 'list'), 'a')
 
     ############################################################################
     def test_changevalue(self):
@@ -175,14 +177,14 @@ class test_ListKey(unittest.TestCase):
         addKeytoHost(host='host', key='list', value='a')
         with self.assertRaises(HostinfoException):
             addKeytoHost(host='host', key='list', value='b')
-        self.assertEquals(self.checkValue('host','list'),'a')
+        self.assertEquals(self.checkValue('host', 'list'), 'a')
 
     ############################################################################
     def test_override(self):
         """ Add a value with override"""
         addKeytoHost(host='host', key='list', value='a')
         addKeytoHost(host='host', key='list', value='b', updateFlag=True)
-        self.assertEquals(self.checkValue('host','list'),'b')
+        self.assertEquals(self.checkValue('host', 'list'), 'b')
 
     ############################################################################
     def test_nohost(self):
@@ -196,13 +198,14 @@ class test_ListKey(unittest.TestCase):
         """
         addKeytoHost(host='host', key='list', value='a')
         addKeytoHost(host='host', key='list', value='b', appendFlag=True)
-        self.assertEquals(self.checkValue('host','list'),['a','b'])
+        self.assertEquals(self.checkValue('host', 'list'), ['a', 'b'])
 
     ############################################################################
     def test_badkey(self):
         """ Test adding to a key that doesn't exist"""
         with self.assertRaises(HostinfoException):
             addKeytoHost(host='host', key='fake', value='b')
+
 
 ################################################################################
 class test_Restricted(unittest.TestCase):
@@ -230,6 +233,7 @@ class test_Restricted(unittest.TestCase):
         with self.assertRaises(RestrictedValueException):
             addKeytoHost(host='host', key='restr', value='forbidden')
         addKeytoHost(host='host', key='restr', value='allowed')
+
 
 ################################################################################
 class test_DateKey(unittest.TestCase):
@@ -259,6 +263,7 @@ class test_DateKey(unittest.TestCase):
         addKeytoHost(host='host', key='date', value='2012-12-31')
         self.assertEquals(self.checkValue('host','date'),'2012-12-31')
 
+
 ################################################################################
 class test_DateValidator(unittest.TestCase):
     """ Test validateDate()
@@ -276,6 +281,7 @@ class test_DateValidator(unittest.TestCase):
         now=time.strftime("%Y-%m-%d")
         self.assertEquals(validateDate("now") , now)
         self.assertEquals(validateDate("today") , now)
+
 
 ################################################################################
 class test_HostAlias(unittest.TestCase):
@@ -296,6 +302,7 @@ class test_HostAlias(unittest.TestCase):
         a=HostAlias.objects.all()[0]
         self.assertEquals(a.hostid,self.host)
         self.assertEquals(a.alias,'alias')
+
 
 ################################################################################
 class test_Links(unittest.TestCase):
@@ -321,10 +328,11 @@ class test_Links(unittest.TestCase):
         self.assertEquals(len(ls),2)
         self.assertEquals(ls[0].hostid,self.host)
 
+
 ################################################################################
 class test_parseQualifiers(unittest.TestCase):
     def setUp(self):
-        self.key=AllowedKey(key='kpq', validtype=1)
+        self.key = AllowedKey(key='kpq', validtype=1)
         self.key.save()
         getAkCache()
 
@@ -334,40 +342,40 @@ class test_parseQualifiers(unittest.TestCase):
 
     ############################################################################
     def test_singles(self):
-        self.assertEquals(parseQualifiers(['kpq!=value']), [('unequal','kpq','value')])
-        self.assertEquals(parseQualifiers(['kpq.ne.value']), [('unequal','kpq','value')])
-        self.assertEquals(parseQualifiers(['kpq=value']), [('equal','kpq','value')])
-        self.assertEquals(parseQualifiers(['kpq.eq.value']), [('equal','kpq','value')])
-        self.assertEquals(parseQualifiers(['kpq<value']), [('lessthan','kpq','value')])
-        self.assertEquals(parseQualifiers(['kpq.lt.value']), [('lessthan','kpq','value')])
-        self.assertEquals(parseQualifiers(['kpq>value']), [('greaterthan','kpq','value')])
-        self.assertEquals(parseQualifiers(['kpq.gt.value']), [('greaterthan','kpq','value')])
-        self.assertEquals(parseQualifiers(['kpq~value']), [('contains','kpq', 'value')])
-        self.assertEquals(parseQualifiers(['kpq.ss.value']), [('contains','kpq', 'value')])
-        self.assertEquals(parseQualifiers(['kpq%value']), [('notcontains','kpq', 'value')])
-        self.assertEquals(parseQualifiers(['kpq.ns.value']), [('notcontains','kpq', 'value')])
-        self.assertEquals(parseQualifiers(['kpq@value']), [('approx','kpq', 'value')])
-        self.assertEquals(parseQualifiers(['kpq.ap.value']), [('approx','kpq', 'value')])
-        self.assertEquals(parseQualifiers(['kpq.undef']), [('undef','kpq','')])
-        self.assertEquals(parseQualifiers(['kpq.unset']), [('undef','kpq','')])
-        self.assertEquals(parseQualifiers(['kpq.def']), [('def','kpq','')])
-        self.assertEquals(parseQualifiers(['kpq.set']), [('def','kpq','')])
-        self.assertEquals(parseQualifiers(['HOST.hostre']), [('hostre','host', '')])
-        self.assertEquals(parseQualifiers(['HOST']), [('host',None,'host')])
+        self.assertEquals(parseQualifiers(['kpq!=value']), [('unequal', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq.ne.value']), [('unequal', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq=value']), [('equal', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq.eq.value']), [('equal', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq<value']), [('lessthan', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq.lt.value']), [('lessthan', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq>value']), [('greaterthan', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq.gt.value']), [('greaterthan', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq~value']), [('contains', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq.ss.value']), [('contains', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq%value']), [('notcontains', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq.ns.value']), [('notcontains', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq@value']), [('approx', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq.ap.value']), [('approx', 'kpq', 'value')])
+        self.assertEquals(parseQualifiers(['kpq.undef']), [('undef', 'kpq', '')])
+        self.assertEquals(parseQualifiers(['kpq.unset']), [('undef', 'kpq', '')])
+        self.assertEquals(parseQualifiers(['kpq.def']), [('def', 'kpq', '')])
+        self.assertEquals(parseQualifiers(['kpq.set']), [('def', 'kpq', '')])
+        self.assertEquals(parseQualifiers(['HOST.hostre']), [('hostre', 'host', '')])
+        self.assertEquals(parseQualifiers(['HOST']), [('host', None, 'host')])
         self.assertEquals(parseQualifiers([]), [])
 
     ############################################################################
     def test_series(self):
-        self.assertEquals(parseQualifiers(['kpq!=value', 'kpq.def', 'kpq@value']), [('unequal', 'kpq', 'value'), ('def', 'kpq', ''), ('approx', 'kpq', 'value')])
+        self.assertEquals(
+            parseQualifiers(['kpq!=value', 'kpq.def', 'kpq@value']),
+            [('unequal', 'kpq', 'value'), ('def', 'kpq', ''), ('approx', 'kpq', 'value')]
+            )
 
     ############################################################################
     def test_badkey(self):
         with self.assertRaises(HostinfoException):
             parseQualifiers(['badkey=value'])
 
-################################################################################
-class test_getAliases(unittest.TestCase):
-    pass        # TODO
 
 ################################################################################
 class test_getMatches(unittest.TestCase):
@@ -376,25 +384,25 @@ class test_getMatches(unittest.TestCase):
     def setUp(self):
         # hostA: single=100, list==[alpha,beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.host=Host(hostname='hostA')
+        self.host = Host(hostname='hostgma')
         self.host.save()
 
-        self.host2=Host(hostname='hostB')
+        self.host2 = Host(hostname='hostgmb')
         self.host2.save()
 
-        self.singlekey=AllowedKey(key='single', validtype=1)
+        self.singlekey = AllowedKey(key='single', validtype=1)
         self.singlekey.save()
-        addKeytoHost(host='hostA', key='single', value='100')
+        addKeytoHost(host='hostgma', key='single', value='100')
 
-        self.listkey=AllowedKey(key='list', validtype=2)
+        self.listkey = AllowedKey(key='list', validtype=2)
         self.listkey.save()
-        addKeytoHost(host='hostA', key='list', value='alpha')
-        addKeytoHost(host='hostA', key='list', value='beta', appendFlag=True)
-        addKeytoHost(host='hostB', key='list', value='alpha')
+        addKeytoHost(host='hostgma', key='list', value='alpha')
+        addKeytoHost(host='hostgma', key='list', value='beta', appendFlag=True)
+        addKeytoHost(host='hostgmb', key='list', value='alpha')
 
-        self.datekey=AllowedKey(key='date', validtype=3)
+        self.datekey = AllowedKey(key='date', validtype=3)
         self.datekey.save()
-        addKeytoHost(host='hostA', key='date', value='2012/12/25')
+        addKeytoHost(host='hostgma', key='date', value='2012/12/25')
         getAkCache()
 
     ############################################################################
@@ -407,46 +415,73 @@ class test_getMatches(unittest.TestCase):
 
     ############################################################################
     def test_equals(self):
-        self.assertEquals(getMatches([('equal','single','100')]),[self.host.id])
-        self.assertEquals(set(getMatches([('equal','list','alpha')])),set([self.host.id, self.host2.id]))
-        self.assertEquals(getMatches([('equal','list','beta')]),[self.host.id])
-        self.assertEquals(getMatches([('equal','list','gamma')]),[])
-        self.assertEquals(getMatches([('equal','date','2012-12-25')]),[self.host.id])
-        self.assertEquals(getMatches([('equal','date','2012/12/25')]),[])       # Should fix this so dates are converted
-        self.assertEquals(getMatches([('equal','date','2012/12/26')]),[])
+        self.assertEquals(getMatches([('equal', 'single', '100')]), [self.host.id])
+        self.assertEquals(
+            set(getMatches([('equal', 'list', 'alpha')])),
+            set([self.host.id, self.host2.id])
+            )
+        self.assertEquals(getMatches([('equal', 'list', 'beta')]), [self.host.id])
+        self.assertEquals(getMatches([('equal', 'list', 'gamma')]), [])
+        self.assertEquals(
+            getMatches([('equal', 'date', '2012-12-25')]),
+            [self.host.id]
+            )
+        self.assertEquals(getMatches([('equal', 'date', '2012/12/25')]), [])
+        self.assertEquals(getMatches([('equal', 'date', '2012/12/26')]), [])
 
     ############################################################################
     def test_unequals(self):
         # hostA: single=100, list==[alpha,beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEquals(getMatches([('unequal','single','100')]),[self.host2.id])
-        self.assertEquals(getMatches([('unequal','list','alpha')]),[])
-        self.assertEquals(getMatches([('unequal','list','beta')]),[self.host2.id])
-        self.assertEquals(set(getMatches([('unequal','list','gamma')])),set([self.host.id, self.host2.id]))
-        self.assertEquals(getMatches([('unequal','date','2012-12-25')]),[self.host2.id])
-        self.assertEquals(set(getMatches([('unequal','date','2012-12-26')])),set([self.host.id,self.host2.id]))
+        self.assertEquals(getMatches([('unequal', 'single', '100')]), [self.host2.id])
+        self.assertEquals(getMatches([('unequal', 'list', 'alpha')]), [])
+        self.assertEquals(getMatches([('unequal', 'list', 'beta')]), [self.host2.id])
+        self.assertEquals(
+            set(getMatches([('unequal', 'list', 'gamma')])),
+            set([self.host.id,  self.host2.id])
+            )
+        self.assertEquals(
+            getMatches([('unequal', 'date', '2012-12-25')]),
+            [self.host2.id]
+            )
+        self.assertEquals(
+            set(getMatches([('unequal', 'date', '2012-12-26')])),
+            set([self.host.id, self.host2.id])
+            )
 
     ############################################################################
     def test_greaterthan(self):
         # hostA: single=100, list==[alpha,beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEquals(getMatches([('greaterthan','single','99')]),[])
-        self.assertEquals(getMatches([('greaterthan','single','101')]),[])
-        self.assertEquals(set(getMatches([('greaterthan','list','aaaaa')])),set([self.host.id, self.host2.id]))
-        self.assertEquals(getMatches([('greaterthan','list','zzzzz')]),[])
-        self.assertEquals(getMatches([('greaterthan','date','2012/12/24')]),[])
-        self.assertEquals(getMatches([('greaterthan','date','2012/12/26')]),[])
+        self.assertEquals(getMatches([('greaterthan', 'single', '99')]), [])
+        self.assertEquals(getMatches([('greaterthan', 'single', '101')]), [])
+        self.assertEquals(
+            set(getMatches([('greaterthan', 'list', 'aaaaa')])),
+            set([self.host.id,  self.host2.id])
+            )
+        self.assertEquals(getMatches([('greaterthan', 'list', 'zzzzz')]), [])
+        self.assertEquals(getMatches([('greaterthan', 'date', '2012/12/24')]), [])
+        self.assertEquals(getMatches([('greaterthan', 'date', '2012/12/26')]), [])
 
     ############################################################################
     def test_lessthan(self):
         # hostA: single=100, list==[alpha,beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEquals(getMatches([('lessthan','single','99')]),[self.host.id])
-        self.assertEquals(getMatches([('lessthan','single','101')]),[self.host.id])
-        self.assertEquals(getMatches([('lessthan','list','aaaaa')]),[])
-        self.assertEquals(set(getMatches([('lessthan','list','zzzzz')])),set([self.host.id, self.host2.id]))
-        self.assertEquals(getMatches([('lessthan','date','2012/12/24')]),[self.host.id])
-        self.assertEquals(getMatches([('lessthan','date','2012/12/26')]),[self.host.id])
+        self.assertEquals(getMatches([('lessthan', 'single', '99')]), [self.host.id])
+        self.assertEquals(getMatches([('lessthan', 'single', '101')]), [self.host.id])
+        self.assertEquals(getMatches([('lessthan', 'list', 'aaaaa')]), [])
+        self.assertEquals(
+            set(getMatches([('lessthan', 'list', 'zzzzz')])),
+            set([self.host.id,  self.host2.id])
+            )
+        self.assertEquals(
+            getMatches([('lessthan', 'date', '2012/12/24')]),
+            [self.host.id]
+            )
+        self.assertEquals(
+            getMatches([('lessthan', 'date', '2012/12/26')]),
+            [self.host.id]
+            )
 
     ############################################################################
     def test_contains(self):
@@ -511,13 +546,14 @@ class test_getMatches(unittest.TestCase):
         self.assertEquals(getMatches([('host',None,'host')]),[])
         self.assertEquals(getMatches([('host',None,'foo')]),[])
 
+
 ################################################################################
 class test_getHost(unittest.TestCase):
     ############################################################################
     def setUp(self):
-        self.h1=Host(hostname='h1')
+        self.h1 = Host(hostname='h1')
         self.h1.save()
-        self.al=HostAlias(hostid=self.h1, alias='a1')
+        self.al = HostAlias(hostid=self.h1, alias='a1')
         self.al.save()
 
     ############################################################################
@@ -528,20 +564,21 @@ class test_getHost(unittest.TestCase):
     ############################################################################
     def test_getbyhost(self):
         """ Test getting a host that exists"""
-        h=getHost('h1')
-        self.assertEquals(h,self.h1)
+        h = getHost('h1')
+        self.assertEquals(h, self.h1)
 
     ############################################################################
     def test_getbyalias(self):
         """ Test getting a host via an alias"""
-        h=getHost('a1')
-        self.assertEquals(h,self.h1)
+        h = getHost('a1')
+        self.assertEquals(h, self.h1)
 
     ############################################################################
     def test_nohost(self):
         """ Test getting a host that doesn't exist"""
-        h=getHost('a2')
-        self.assertEquals(h,None)
+        h = getHost('a2')
+        self.assertEquals(h, None)
+
 
 ################################################################################
 class test_checkKey(unittest.TestCase):
@@ -563,7 +600,7 @@ class test_checkKey(unittest.TestCase):
     def test_checknoexists(self):
         with self.assertRaises(HostinfoException) as cm:
             rc=checkKey('ak_badkey')
-        self.assertEquals(cm.exception.msg,"Must use an existing key, not ak_badkey")
+        self.assertEquals(cm.exception.msg, "Must use an existing key, not ak_badkey")
 
 ################################################################################
 class test_checkHost(unittest.TestCase):
@@ -595,9 +632,9 @@ class test_cmd_hostinfo(unittest.TestCase):
         self.cmd=Command()
         self.parser=argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.h1=Host(hostname='h1',origin='me')
+        self.h1=Host(hostname='h1', origin='me')
         self.h1.save()
-        self.h2=Host(hostname='h2',origin='you')
+        self.h2=Host(hostname='h2', origin='you')
         self.h2.save()
         self.ak1=AllowedKey(key='ak1')
         self.ak1.save()
@@ -1541,9 +1578,9 @@ class test_cmd_listalias(unittest.TestCase):
     ############################################################################
     def test_listhost(self):
         """ Test listing the aliases of a host"""
-        namespace=self.parser.parse_args(['host'])
-        output=self.cmd.handle(namespace)
-        self.assertEquals(output,("host\nfoo\nbar\n",0))
+        namespace = self.parser.parse_args(['host'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, ("host\nbar\nfoo\n", 0))
 
     ############################################################################
     def test_listnoaliases(self):
@@ -1984,25 +2021,26 @@ class test_hostviewrepr(unittest.TestCase):
         ans=hostviewrepr('hvrhost2')
         self.assertEquals(ans,[])
 
+
 ################################################################################
 class test_getHostMergeKeyData(unittest.TestCase):
     ############################################################################
     def setUp(self):
-        self.host1=Host(hostname='hmkdhost1')
+        self.host1 = Host(hostname='hmkdhost1')
         self.host1.save()
-        self.host2=Host(hostname='hmkdhost2')
+        self.host2 = Host(hostname='hmkdhost2')
         self.host2.save()
-        self.key1=AllowedKey(key='hmkdkey1', validtype=1)
+        self.key1 = AllowedKey(key='hmkdkey1', validtype=1)
         self.key1.save()
-        self.key2=AllowedKey(key='hmkdkey2', validtype=2)
+        self.key2 = AllowedKey(key='hmkdkey2', validtype=2)
         self.key2.save()
-        self.kv1=KeyValue(hostid=self.host1, keyid=self.key1, value='foo')
+        self.kv1 = KeyValue(hostid=self.host1, keyid=self.key1, value='foo')
         self.kv1.save()
-        self.kv2=KeyValue(hostid=self.host2, keyid=self.key1, value='bar')
+        self.kv2 = KeyValue(hostid=self.host2, keyid=self.key1, value='bar')
         self.kv2.save()
-        self.kv3=KeyValue(hostid=self.host1, keyid=self.key2, value='alpha')
+        self.kv3 = KeyValue(hostid=self.host1, keyid=self.key2, value='alpha')
         self.kv3.save()
-        self.kv4=KeyValue(hostid=self.host1, keyid=self.key2, value='beta')
+        self.kv4 = KeyValue(hostid=self.host1, keyid=self.key2, value='beta')
         self.kv4.save()
 
     ############################################################################
@@ -2018,8 +2056,14 @@ class test_getHostMergeKeyData(unittest.TestCase):
 
     ############################################################################
     def test_hmkd(self):
-        k=getHostMergeKeyData(self.host1, self.host2)
-        self.assertEquals(k,[('hmkdkey1', {'src': ['foo'], 'dst': ['bar']}), ('hmkdkey2', {'src': ['alpha', 'beta'], 'dst': []})])
+        k = getHostMergeKeyData(self.host1, self.host2)
+        self.assertEquals(k[0], ('hmkdkey1', {'src': ['foo'], 'dst': ['bar']}))
+        self.assertEquals(
+            sorted(k[1][1]['src']),
+            sorted(['alpha', 'beta'])
+            )
+        self.assertEquals(k[1][1]['dst'], [])
+
 
 ################################################################################
 class test_url_rvlist(unittest.TestCase):
@@ -2299,6 +2343,7 @@ class test_url_hostlist(unittest.TestCase):
         self.assertEquals(response.context['dates'],True)
         self.assertEquals(response.context['hostlist'], [(self.host1.hostname, [], ['(<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>)']), (self.host2.hostname, [(self.key.key,[self.kv1])], []) ])
 
+
 ################################################################################
 class test_url_csv(unittest.TestCase):
     """
@@ -2307,14 +2352,14 @@ class test_url_csv(unittest.TestCase):
     """
     ############################################################################
     def setUp(self):
-        self.client=Client()
-        self.host1=Host(hostname='hostcsv1')
+        self.client = Client()
+        self.host1 = Host(hostname='hostcsv1')
         self.host1.save()
-        self.host2=Host(hostname='hostcsv2')
+        self.host2 = Host(hostname='hostcsv2')
         self.host2.save()
-        self.key=AllowedKey(key='csvkey')
+        self.key = AllowedKey(key='csvkey')
         self.key.save()
-        self.kv1=KeyValue(hostid=self.host2, keyid=self.key, value='val')
+        self.kv1 = KeyValue(hostid=self.host2, keyid=self.key, value='val')
         self.kv1.save()
         getAkCache()
 
@@ -2327,11 +2372,15 @@ class test_url_csv(unittest.TestCase):
 
     ############################################################################
     def test_csv(self):
-        response=self.client.get('/hostinfo/csv/')
-        self.assertEquals(response.status_code,200)
-        self.assertEquals(response["Content-Type"],"text/csv")
-        self.assertEquals(response["Content-Disposition"],"attachment; filename=allhosts.csv")
-        self.assertEquals(response.content,"hostname,csvkey\r\nhostcsv1,\r\nhostcsv2,val\r\n")
+        response = self.client.get('/hostinfo/csv/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response["Content-Type"], "text/csv")
+        self.assertEquals(response["Content-Disposition"], "attachment; filename=allhosts.csv")
+        self.assertEquals(
+            response.content,
+            "hostname,csvkey\r\nhostcsv1,\r\nhostcsv2,val\r\n"
+            )
+
 
 ################################################################################
 class test_url_hostwikitable(unittest.TestCase):
