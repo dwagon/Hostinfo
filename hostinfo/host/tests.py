@@ -1133,21 +1133,20 @@ class test_cmd_addvalue(unittest.TestCase):
 
     ############################################################################
     def test_readonlykey(self):
-        """ Test that we can't add a value to a readonly key without specifying the correct option"""
-        return  # TODO
-        key=AllowedKey(key='rokey', validtype=1, readonlyFlag=True)
+        """ Test that we can't add a value to a readonly key without the correct option"""
+        key = AllowedKey(key='rokey', validtype=1, readonlyFlag=True)
         key.save()
-        namespace=self.parser.parse_args(['rokey=value','testhost'])
-        with self.assertRaises(HostinfoException) as cm:
+        namespace = self.parser.parse_args(['rokey=value', 'testhost'])
+        with self.assertRaises(ReadonlyValueException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must be specified in key=value format")
+        kv = KeyValue.objects.filter(keyid=key)
+        self.assertEqual(list(kv), [])
 
         # Now try with correct options
-        namespace=self.parser.parse_args(['--readonlyupdate','rokey=value','testhost'])
-        with self.assertRaises(HostinfoException) as cm:
-            self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must be specified in key=value format")
-
+        namespace = self.parser.parse_args(['--readonlyupdate', 'rokey=value', 'testhost'])
+        self.cmd.handle(namespace)
+        kv = KeyValue.objects.filter(keyid=key)
+        self.assertEqual(kv[0].value, 'value')
         key.delete()
 
     ############################################################################
