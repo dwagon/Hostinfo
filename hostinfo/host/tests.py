@@ -23,7 +23,8 @@
 from django.utils import unittest
 from django.test.client import Client
 from django.contrib.auth.models import User
-import sys, time
+import sys
+import time
 
 from .models import HostinfoException, ReadonlyValueException, RestrictedValueException
 from .models import Host, HostAlias, AllowedKey, KeyValue, UndoLog, RestrictedValue, Links, HostinfoCommand
@@ -278,9 +279,9 @@ class test_DateValidator(unittest.TestCase):
 
     ############################################################################
     def test_today(self):
-        now=time.strftime("%Y-%m-%d")
-        self.assertEquals(validateDate("now") , now)
-        self.assertEquals(validateDate("today") , now)
+        now = time.strftime("%Y-%m-%d")
+        self.assertEquals(validateDate("now"), now)
+        self.assertEquals(validateDate("today"), now)
 
 
 ################################################################################
@@ -288,9 +289,9 @@ class test_HostAlias(unittest.TestCase):
     """ Test HostAlias class
     """
     def setUp(self):
-        self.host=Host(hostname='host')
+        self.host = Host(hostname='host')
         self.host.save()
-        self.alias=HostAlias(hostid=self.host, alias='alias')
+        self.alias = HostAlias(hostid=self.host, alias='alias')
         self.alias.save()
 
     ############################################################################
@@ -299,7 +300,7 @@ class test_HostAlias(unittest.TestCase):
         self.host.delete()
 
     def test_alias(self):
-        a=HostAlias.objects.all()[0]
+        a = HostAlias.objects.all()[0]
         self.assertEquals(a.hostid, self.host)
         self.assertEquals(a.alias, 'alias')
 
@@ -853,21 +854,24 @@ class test_cmd_addhost(unittest.TestCase):
 
     ############################################################################
     def test_lowercase(self):
-        namespace=self.parser.parse_args(['HOST'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['HOST'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        host=Host.objects.get(hostname='host')
+        host = Host.objects.get(hostname='host')
         self.assertEquals(host.hostname, 'host')
         host.delete()
 
     ############################################################################
     def test_badname(self):
-        namespace=self.parser.parse_args(['--', '-badhost'])
+        namespace = self.parser.parse_args(['--', '-badhost'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Host begins with a forbidden character ('-') - not adding")
-        h=Host.objects.all()
+        self.assertEquals(
+            cm.exception.msg,
+            "Host begins with a forbidden character ('-') - not adding")
+        h = Host.objects.all()
         self.assertEquals(len(h), 0)
+
 
 ################################################################################
 class test_cmd_addkey(unittest.TestCase):
@@ -1137,7 +1141,7 @@ class test_cmd_addvalue(unittest.TestCase):
         key = AllowedKey(key='rokey', validtype=1, readonlyFlag=True)
         key.save()
         namespace = self.parser.parse_args(['rokey=value', 'testhost'])
-        with self.assertRaises(ReadonlyValueException) as cm:
+        with self.assertRaises(ReadonlyValueException):
             self.cmd.handle(namespace)
         kv = KeyValue.objects.filter(keyid=key)
         self.assertEqual(list(kv), [])

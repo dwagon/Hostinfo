@@ -18,33 +18,35 @@
 from host.models import getHost, getOrigin, Host
 from host.models import HostinfoCommand, HostinfoException
 
+
+###############################################################################
 class Command(HostinfoCommand):
-    description='Add a new host'
+    description = 'Add a new host'
 
     ############################################################################
     def parseArgs(self, parser):
-        parser.add_argument('host',help='The host to add', nargs='+')
-        parser.add_argument('--origin',help='The origin of this host')
+        parser.add_argument('host', help='The host to add', nargs='+')
+        parser.add_argument('--origin', help='The origin of this host')
 
     ############################################################################
     def handle(self, namespace):
-        origin=getOrigin(namespace.origin)
+        origin = getOrigin(namespace.origin)
         for host in namespace.host:
-            host=host.lower()
+            host = host.lower()
             if self.checkHost(host):
                 raise HostinfoException("Host %s already exists" % host)
             if host[0] in ('-',):
-                raise HostinfoException("Host begins with a forbidden character ('%s') - not adding" % host[0])
-            hobj=Host(hostname=host, origin=origin)
+                raise HostinfoException(
+                    "Host begins with a forbidden character ('%s') - not adding" % host[0])
+            hobj = Host(hostname=host, origin=origin)
             hobj.save()
-        return None,0
+        return None, 0
 
     ############################################################################
     def checkHost(self, host):
-        h=getHost(host)
+        h = getHost(host)
         if h:
             return True
         return False
 
 #EOF
-
