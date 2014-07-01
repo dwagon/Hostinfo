@@ -879,15 +879,15 @@ class test_cmd_addkey(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_addkey import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
 
     ############################################################################
     def test_alreadyExists(self):
-        ak=AllowedKey(key='key_addkey_t1')
+        ak = AllowedKey(key='key_addkey_t1')
         ak.save()
-        namespace=self.parser.parse_args(['key_addkey_t1'])
+        namespace = self.parser.parse_args(['key_addkey_t1'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Key already exists with that name: key_addkey_t1")
@@ -895,10 +895,10 @@ class test_cmd_addkey(unittest.TestCase):
 
     ############################################################################
     def test_addRestricted(self):
-        namespace=self.parser.parse_args(['--restricted', 'key_addkey_t2'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--restricted', 'key_addkey_t2'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t2')
+        key = AllowedKey.objects.get(key='key_addkey_t2')
         self.assertEquals(key.restrictedFlag, True)
         self.assertEquals(key.readonlyFlag, False)
         self.assertEquals(key.auditFlag, True)
@@ -908,10 +908,10 @@ class test_cmd_addkey(unittest.TestCase):
 
     ############################################################################
     def test_addReadonly(self):
-        namespace=self.parser.parse_args(['--readonly', 'key_addkey_t3'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--readonly', 'key_addkey_t3'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t3')
+        key = AllowedKey.objects.get(key='key_addkey_t3')
         self.assertEquals(key.restrictedFlag, False)
         self.assertEquals(key.readonlyFlag, True)
         self.assertEquals(key.auditFlag, True)
@@ -919,81 +919,86 @@ class test_cmd_addkey(unittest.TestCase):
 
     ############################################################################
     def test_addSingle(self):
-        namespace=self.parser.parse_args(['key_addkey_t4', 'single'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['key_addkey_t4', 'single'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t4')
+        key = AllowedKey.objects.get(key='key_addkey_t4')
         self.assertEquals(key.auditFlag, True)
         self.assertEquals(key.get_validtype_display(), 'single')
         key.delete()
 
     ############################################################################
     def test_addList(self):
-        namespace=self.parser.parse_args(['key_addkey_t5', 'list'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['key_addkey_t5', 'list'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t5')
+        key = AllowedKey.objects.get(key='key_addkey_t5')
         self.assertEquals(key.get_validtype_display(), 'list')
         key.delete()
 
     ############################################################################
     def test_addDate(self):
-        namespace=self.parser.parse_args(['key_addkey_t6', 'date'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['key_addkey_t6', 'date'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t6')
+        key = AllowedKey.objects.get(key='key_addkey_t6')
         self.assertEquals(key.get_validtype_display(), 'date')
         key.delete()
 
     ############################################################################
     def test_withDescription(self):
-        namespace=self.parser.parse_args(['key_addkey_t7', 'single', 'this', 'is', 'a', 'description'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(
+            ['key_addkey_t7', 'single', 'this', 'is', 'a', 'description'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t7')
+        key = AllowedKey.objects.get(key='key_addkey_t7')
         self.assertEquals(key.desc, 'this is a description')
         key.delete()
 
     ############################################################################
     def test_withExplicitKeyType(self):
-        namespace=self.parser.parse_args(['--keytype', 'list', 'key_addkey_t8'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--keytype', 'list', 'key_addkey_t8'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t8')
+        key = AllowedKey.objects.get(key='key_addkey_t8')
         key.delete()
 
     ############################################################################
     def test_withExplicitKeyTypeAndDesc(self):
-        namespace=self.parser.parse_args(['--keytype', 'date', 'key_addkey_t9', 'this', 'is', 'a', 'description'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(
+            ['--keytype', 'date', 'key_addkey_t9', 'this', 'is', 'a', 'description'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t9')
+        key = AllowedKey.objects.get(key='key_addkey_t9')
         self.assertEquals(key.get_validtype_display(), 'date')
         key.delete()
 
     ############################################################################
     def test_lowercase(self):
-        namespace=self.parser.parse_args(['KEY_ADDKEY_T10'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['KEY_ADDKEY_T10'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t10')
+        key = AllowedKey.objects.get(key='key_addkey_t10')
         key.delete()
 
     ############################################################################
     def test_addnoaudit(self):
-        namespace=self.parser.parse_args(['--noaudit', 'key_addkey_t11'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--noaudit', 'key_addkey_t11'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        key=AllowedKey.objects.get(key='key_addkey_t11')
+        key = AllowedKey.objects.get(key='key_addkey_t11')
         self.assertEquals(key.auditFlag, False)
         key.delete()
 
     ############################################################################
     def test_unknowntype(self):
-        namespace=self.parser.parse_args(['key_addkey_t12', 'invalid', 'description'])
+        namespace = self.parser.parse_args(['key_addkey_t12', 'invalid', 'description'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Unknown type invalid - should be one of single,list,date")
+        self.assertEquals(
+            cm.exception.msg,
+            "Unknown type invalid - should be one of single,list,date")
+
 
 ################################################################################
 class test_cmd_addrestrictedvalue(unittest.TestCase):
