@@ -1559,22 +1559,24 @@ class test_cmd_history(unittest.TestCase):
         ak2.delete()
         host.delete()
 
+
 ###############################################################################
 class test_cmd_import(unittest.TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_import import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
 
     ###########################################################################
     def test_badfile(self):
-        namespace=self.parser.parse_args(['badfile'])
+        namespace = self.parser.parse_args(['badfile'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "File badfile doesn't exist")
+
 
 ###############################################################################
 class test_cmd_listalias(unittest.TestCase):
