@@ -118,7 +118,7 @@ def getUser(instance):
 def getActor(instance):
     """ Get what is making the change for the audit trail
     """
-    return sys.argv[0]
+    return sys.argv[0][:250]
 
 
 ############################################################################
@@ -139,7 +139,7 @@ class Host(models.Model):
     docpage = models.URLField(blank=True, null=True)
     audit = audit.AuditTrail(track_fields=(
         ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=50), getActor), ),
+        ('actor', models.CharField(max_length=250), getActor), ),
         show_in_admin=True
         )
 
@@ -193,7 +193,7 @@ class HostAlias(models.Model):
     modifieddate = models.DateField(auto_now=True)
     audit = audit.AuditTrail(track_fields=(
         ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=50), getActor), )
+        ('actor', models.CharField(max_length=250), getActor), )
         )
 
     ############################################################################
@@ -223,7 +223,7 @@ class AllowedKey(models.Model):
     docpage = models.URLField(blank=True, null=True)
     audit = audit.AuditTrail(track_fields=(
         ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=50), getActor), )
+        ('actor', models.CharField(max_length=250), getActor), )
         )
 
     ############################################################################
@@ -251,7 +251,7 @@ class KeyValue(models.Model):
     modifieddate = models.DateField(auto_now=True)
     audit = audit.AuditTrail(track_fields=(
         ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=50), getActor), ),
+        ('actor', models.CharField(max_length=250), getActor), ),
         check_audit=auditedKey,
         )
 
@@ -343,7 +343,7 @@ class RestrictedValue(models.Model):
     modifieddate = models.DateField(auto_now=True)
     audit = audit.AuditTrail(track_fields=(
         ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=50), getActor), )
+        ('actor', models.CharField(max_length=250), getActor), )
         )
 
     ############################################################################
@@ -369,7 +369,7 @@ class Links(models.Model):
     modifieddate = models.DateField(auto_now=True)
     audit = audit.AuditTrail(track_fields=(
         ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=50), getActor), )
+        ('actor', models.CharField(max_length=250), getActor), )
         )
 
     ############################################################################
