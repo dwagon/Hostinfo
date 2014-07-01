@@ -732,19 +732,18 @@ class HostinfoCommand(object):
 def run_from_cmdline():
     import importlib
     cmdname = "hostinfo.host.commands.cmd_%s" % os.path.basename(sys.argv[0])
-    sys.stderr.write("cmdname=%s\n" % cmdname)
     try:
         cmd = importlib.import_module(cmdname)
     except ImportError, exc:
-        sys.stderr.write("No sch command %s\n" % sys.argv[0])
-        sys.stderr.write("exc=%s\n" % str(exc))
+        sys.stderr.write("No such command %s\n" % sys.argv[0])
+        raise
         return 255
     c = cmd.Command()
     c.over_parseArgs()
     try:
         output, retval = c.over_handle()
         if output is not None:
-            print output.strip()
+            print(output.strip())
     except HostinfoException, exc:
         sys.stderr.write("%s\n" % exc.msg)
         return exc.retval
