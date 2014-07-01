@@ -3,8 +3,6 @@
 # Script to generate orcallator and procallator links in bulk
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: bulk_measure.py 6 2010-01-12 07:41:47Z dwagon $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/links/bulk_measure.py $
 #
 #    Copyright (C) 2008 Dougal Scott
 #

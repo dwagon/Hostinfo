@@ -1,10 +1,8 @@
 # Local URL handled for hostinfo
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: urls.py 159 2013-06-23 05:02:56Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/host/urls.py $
 #
-#    Copyright (C) 2008 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

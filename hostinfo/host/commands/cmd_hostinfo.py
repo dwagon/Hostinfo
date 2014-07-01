@@ -1,10 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
-#    Copyright (C) 2012 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

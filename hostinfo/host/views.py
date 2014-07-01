@@ -2,10 +2,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: views.py 160 2013-06-23 05:14:12Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/host/views.py $
-#
-#    Copyright (C) 2012 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

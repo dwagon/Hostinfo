@@ -3,8 +3,6 @@
 # Script to generate host detail view links in bulk
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: bulk_showpage.py 6 2010-01-12 07:41:47Z dwagon $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/links/bulk_showpage.py $
 #
 #    Copyright (C) 2008 Dougal Scott
 #

@@ -3,8 +3,6 @@
 # Script to generate rackmap links for all hosts
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: bulk_rackmap.py 6 2010-01-12 07:41:47Z dwagon $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/links/bulk_rackmap.py $
 #
 #    Copyright (C) 2008 Dougal Scott
 #

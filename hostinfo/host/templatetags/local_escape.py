@@ -2,9 +2,6 @@
 # Provide a new template to make URLs safe by escaping naughty characters
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: local_escape.py 6 2010-01-12 07:41:47Z dwagon $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templatetags/local_escape.py $
-#
 #    Copyright (C) 2008 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify

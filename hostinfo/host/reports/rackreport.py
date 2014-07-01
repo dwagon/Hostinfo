@@ -3,8 +3,6 @@
 # Script to generate a rack report for hostinfo
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: rackreport.py 159 2013-06-23 05:02:56Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/host/reports/rackreport.py $
 
 import re
 import time

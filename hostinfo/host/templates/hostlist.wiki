@@ -1,6 +1,4 @@
 {% spaceless %}
-{# $Id: hostlist.wiki 97 2012-06-23 09:47:43Z dougal.scott@gmail.com $ #}
-{# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templates/hostlist.wiki $ #}
 {#                                                                              #}
 {#                                                                              #}
 {#    Copyright (C) 2012 Dougal Scott                                           #}
