@@ -1581,14 +1581,14 @@ class test_cmd_listalias(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_listalias import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.host=Host(hostname='host')
+        self.host = Host(hostname='host')
         self.host.save()
-        self.alias1=HostAlias(hostid=self.host, alias='foo')
+        self.alias1 = HostAlias(hostid=self.host, alias='foo')
         self.alias1.save()
-        self.alias2=HostAlias(hostid=self.host, alias='bar')
+        self.alias2 = HostAlias(hostid=self.host, alias='bar')
         self.alias2.save()
 
     ###########################################################################
@@ -1607,17 +1607,17 @@ class test_cmd_listalias(unittest.TestCase):
     ###########################################################################
     def test_listnoaliases(self):
         """ Test list aliases where there are none """
-        h=Host(hostname='test2')
+        h = Host(hostname='test2')
         h.save()
-        namespace=self.parser.parse_args(['test2'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['test2'])
+        output = self.cmd.handle(namespace)
         self.assertEquals(output, ('test2\n', 1))
         h.delete()
 
     ###########################################################################
     def test_listbadhost(self):
         """ Test list aliases of a host that doesn't exist"""
-        namespace=self.parser.parse_args(['badhost'])
+        namespace = self.parser.parse_args(['badhost'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Host badhost doesn't exist")
@@ -1625,15 +1625,15 @@ class test_cmd_listalias(unittest.TestCase):
     ###########################################################################
     def test_listall(self):
         """ Test listing all aliases """
-        namespace=self.parser.parse_args(['--all'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--all'])
+        output = self.cmd.handle(namespace)
         self.assertEquals(output, ('foo host\nbar host\n', 0))
 
     ###########################################################################
     def test_listnone(self):
         """ Test listing neither all or a host """
-        namespace=self.parser.parse_args([])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args([])
+        output = self.cmd.handle(namespace)
         self.assertEquals(output, ('foo host\nbar host\n', 0))
 
 ###############################################################################

@@ -15,35 +15,40 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from hostinfo.host.models import getHost, HostAlias, HostinfoException
 from hostinfo.host.models import HostinfoCommand
 
+
+###############################################################################
 class Command(HostinfoCommand):
-    description='List aliases'
+    description = 'List aliases'
 
-    ############################################################################
+    ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('-a','--all',help='List aliases for all hosts', action='store_true')
-        parser.add_argument('host',help='List the aliases for this host only', nargs='?')
+        parser.add_argument(
+            '-a', '--all', help='List aliases for all hosts', action='store_true')
+        parser.add_argument(
+            'host', help='List the aliases for this host only', nargs='?')
 
-    ############################################################################
+    ###########################################################################
     def handle(self, namespace):
-        outstr=""
+        outstr = ""
         if namespace.all or not namespace.host:
-            aliases=HostAlias.objects.all()
+            aliases = HostAlias.objects.all()
             for alias in aliases:
-                outstr+="%s %s\n" % (alias.alias, alias.hostid.hostname)
-            return outstr,0
-        hid=getHost(namespace.host.lower())
+                outstr += "%s %s\n" % (alias.alias, alias.hostid.hostname)
+            return outstr, 0
+        hid = getHost(namespace.host.lower())
         if not hid:
             raise HostinfoException("Host %s doesn't exist" % namespace.host)
-        outstr+="%s\n" % hid.hostname
-        aliases=HostAlias.objects.filter(hostid=hid)
+        outstr += "%s\n" % hid.hostname
+        aliases = HostAlias.objects.filter(hostid=hid)
         if not aliases:
-            return outstr,1
+            return outstr, 1
         for alias in aliases:
-            outstr+="%s\n" % alias.alias
+            outstr += "%s\n" % alias.alias
 
-        return outstr,0
+        return outstr, 0
 
 #EOF
