@@ -18,20 +18,22 @@
 from hostinfo.host.models import HostAlias, HostinfoException
 from hostinfo.host.models import HostinfoCommand
 
+
+###############################################################################
 class Command(HostinfoCommand):
-    description='Delete an alias from a host'
+    description = 'Delete an alias from a host'
 
-    ############################################################################
+    ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('alias',help='The alias to delete')
+        parser.add_argument('alias', help='The alias to delete')
 
-    ############################################################################
+    ###########################################################################
     def handle(self, namespace):
-        alias=namespace.alias.lower()
-        aliases=HostAlias.objects.filter(alias=alias)
-        if len(aliases)==0:
+        alias = namespace.alias.lower()
+        aliases = HostAlias.objects.filter(alias=alias)
+        if len(aliases) == 0:
             raise HostinfoException("No alias called %s" % alias)
         aliases[0].delete()
-        return None,0
+        return None, 0
 
 #EOF

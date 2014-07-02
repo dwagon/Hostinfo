@@ -1193,22 +1193,23 @@ class test_cmd_deletealias(unittest.TestCase):
     ###########################################################################
     def test_deletealias(self):
         """ Test deletion of an alias"""
-        alias=HostAlias(hostid=self.host, alias='alias')
+        alias = HostAlias(hostid=self.host, alias='alias')
         alias.save()
-        namespace=self.parser.parse_args(['alias'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['alias'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
         alias.delete()
-        aliaslist=HostAlias.objects.all()
+        aliaslist = HostAlias.objects.all()
         self.assertEquals(len(aliaslist), 0)
 
     ###########################################################################
     def test_deletemissingalias(self):
         """ Test the attempted deletion of an alias that doesn't exist"""
-        namespace=self.parser.parse_args(['badalias'])
+        namespace = self.parser.parse_args(['badalias'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "No alias called badalias")
+
 
 ###############################################################################
 class test_cmd_deletehost(unittest.TestCase):
