@@ -16,8 +16,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Script to list the legal values of a restricted key
-from host.models import AllowedKey, RestrictedValue, HostinfoException
-from host.models import HostinfoCommand
+from hostinfo.host.models import AllowedKey, RestrictedValue, HostinfoException
+from hostinfo.host.models import HostinfoCommand
 
 class Command(HostinfoCommand):
     description='List all allowable values of a restricted key'

@@ -15,10 +15,12 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import re
-from host.models import addKeytoHost
-from host.models import RestrictedValueException, ReadonlyValueException, HostinfoException
-from host.models import HostinfoCommand
+from hostinfo.host.models import addKeytoHost
+from hostinfo.host.models import RestrictedValueException, 
+from hostinfo.host.models import ReadonlyValueException, HostinfoException
+from hostinfo.host.models import HostinfoCommand
 
 
 ###############################################################################

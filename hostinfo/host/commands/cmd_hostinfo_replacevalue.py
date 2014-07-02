@@ -20,8 +20,8 @@
 # hosts or just a subset of hosts in the hostinfo database
 import re
 import sys
-from host.models import checkKey
-from host.models import HostinfoCommand, HostinfoException, KeyValue
+from hostinfo.host.models import checkKey
+from hostinfo.host.models import HostinfoCommand, HostinfoException, KeyValue
 
 class Command(HostinfoCommand):
     description='Add alias to a host'

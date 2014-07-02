@@ -21,8 +21,8 @@
 # keys are deleted with the host
 from django.db import connection
 from django.core.exceptions import ObjectDoesNotExist
-from host.models import Host, KeyValue, AllowedKey
-from host.models import HostinfoCommand, HostinfoInternalException
+from hostinfo.host.models import Host, KeyValue, AllowedKey
+from hostinfo.host.models import HostinfoCommand, HostinfoInternalException
 
 class Command(HostinfoCommand):
     description='Add alias to a host'

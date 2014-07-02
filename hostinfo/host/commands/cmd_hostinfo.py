@@ -18,10 +18,10 @@
 import sys
 import time
 
-from host.models import AllowedKey, KeyValue, parseQualifiers
-from host.models import getMatches, getAkCache, Host
-from host.models import getAliases, RestrictedValue
-from host.models import HostinfoCommand, HostinfoException
+from hostinfo.host.models import AllowedKey, KeyValue, parseQualifiers
+from hostinfo.host.models import getMatches, getAkCache, Host
+from hostinfo.host.models import getAliases, RestrictedValue
+from hostinfo.host.models import HostinfoCommand, HostinfoException
 
 
 ###############################################################################

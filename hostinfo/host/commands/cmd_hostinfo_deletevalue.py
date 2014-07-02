@@ -16,8 +16,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import re
-from host.models import checkKey, HostinfoException, KeyValue
-from host.models import HostinfoCommand, getHost, ReadonlyValueException
+from hostinfo.host.models import checkKey, HostinfoException, KeyValue
+from hostinfo.host.models import HostinfoCommand, getHost, ReadonlyValueException
 
 class Command(HostinfoCommand):
     description='Delete an alias from a host'

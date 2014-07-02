@@ -17,8 +17,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
-from host.models import getHost, HostinfoException, KeyValue
-from host.models import HostinfoCommand
+from hostinfo.host.models import getHost, HostinfoException, KeyValue
+from hostinfo.host.models import HostinfoCommand
 
 class Command(HostinfoCommand):
     description='Merge two hosts'
