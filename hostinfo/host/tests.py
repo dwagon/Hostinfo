@@ -1279,19 +1279,20 @@ class test_cmd_deletehost(unittest.TestCase):
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Host test2 doesn't exist")
 
+
 ###############################################################################
 class test_cmd_deleterestrictedvalue(unittest.TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_deleterestrictedvalue import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
 
-        self.key=AllowedKey(key='restr', validtype=1, restrictedFlag=True)
+        self.key = AllowedKey(key='restr', validtype=1, restrictedFlag=True)
         self.key.save()
-        self.rv=RestrictedValue(keyid=self.key, value='allowed')
+        self.rv = RestrictedValue(keyid=self.key, value='allowed')
         self.rv.save()
 
     ###########################################################################
@@ -1302,10 +1303,10 @@ class test_cmd_deleterestrictedvalue(unittest.TestCase):
     ###########################################################################
     def test_deleterestrval(self):
         """ Test the deletion of a restricted value """
-        namespace=self.parser.parse_args(['restr=allowed'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['restr=allowed'])
+        output = self.cmd.handle(namespace)
         self.assertEquals(output, (None, 0))
-        rv=RestrictedValue.objects.all()
+        rv = RestrictedValue.objects.all()
         self.assertEquals(len(rv), 0)
 
     ###########################################################################
@@ -1319,7 +1320,7 @@ class test_cmd_deleterestrictedvalue(unittest.TestCase):
     ###########################################################################
     def test_badkeyname(self):
         """ Test the deletion from a key that doesn't exist"""
-        namespace=self.parser.parse_args(['bad=allowed'])
+        namespace = self.parser.parse_args(['bad=allowed'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "No key bad=allowed in the restrictedvalue list")
@@ -1327,9 +1328,9 @@ class test_cmd_deleterestrictedvalue(unittest.TestCase):
     ###########################################################################
     def test_badkeytype(self):
         """ Test the deletion of a value from a non-restricted key"""
-        k1=AllowedKey(key='free', validtype=1, restrictedFlag=False)
+        k1 = AllowedKey(key='free', validtype=1, restrictedFlag=False)
         k1.save()
-        namespace=self.parser.parse_args(['free=allowed'])
+        namespace = self.parser.parse_args(['free=allowed'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "No key free=allowed in the restrictedvalue list")
@@ -1338,10 +1339,11 @@ class test_cmd_deleterestrictedvalue(unittest.TestCase):
     ###########################################################################
     def test_badformat(self):
         """ Test specifying the args badly"""
-        namespace=self.parser.parse_args(['foobar'])
+        namespace = self.parser.parse_args(['foobar'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Must be specified in key=value format")
+
 
 ###############################################################################
 class test_cmd_deletevalue(unittest.TestCase):
