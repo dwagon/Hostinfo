@@ -1704,12 +1704,12 @@ class test_cmd_renamehost(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_renamehost import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.host=Host(hostname='renhost')
+        self.host = Host(hostname='renhost')
         self.host.save()
-        self.host2=Host(hostname='renhost2')
+        self.host2 = Host(hostname='renhost2')
         self.host2.save()
 
     ###########################################################################
@@ -1719,25 +1719,26 @@ class test_cmd_renamehost(unittest.TestCase):
 
     ###########################################################################
     def test_renamehost(self):
-        namespace=self.parser.parse_args(['--src', 'renhost', '--dst', 'newhost'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--src', 'renhost', '--dst', 'newhost'])
+        output = self.cmd.handle(namespace)
         self.assertEquals(output, (None, 0))
-        hosts=Host.objects.filter(hostname='newhost')
+        hosts = Host.objects.filter(hostname='newhost')
         self.assertEquals(hosts[0], self.host)
 
     ###########################################################################
     def test_renamehbadost(self):
-        namespace=self.parser.parse_args(['--src', 'renbadhost', '--dst', 'newhost'])
+        namespace = self.parser.parse_args(['--src', 'renbadhost', '--dst', 'newhost'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "There is no host called renbadhost")
 
     ###########################################################################
     def test_renameexisting(self):
-        namespace=self.parser.parse_args(['--src', 'renhost', '--dst', 'renhost2'])
+        namespace = self.parser.parse_args(['--src', 'renhost', '--dst', 'renhost2'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "A host already exists with the name renhost2")
+
 
 ###############################################################################
 class test_cmd_replacevalue(unittest.TestCase):
