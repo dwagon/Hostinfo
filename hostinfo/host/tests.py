@@ -1878,34 +1878,34 @@ class test_cmd_undolog(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_undolog import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
 
     ###########################################################################
     def test_user(self):
         """ Test normal behaviour"""
-        namespace=self.parser.parse_args(['--user','foo'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--user', 'foo'])
+        output = self.cmd.handle(namespace)
 
     ###########################################################################
     def test_week(self):
         """ Test normal behaviour"""
-        namespace=self.parser.parse_args(['--week'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--week'])
+        output = self.cmd.handle(namespace)
 
     ###########################################################################
     def test_days(self):
         """ Test normal behaviour"""
-        namespace=self.parser.parse_args(['--days','5'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--days', '5'])
+        output = self.cmd.handle(namespace)
 
     ###########################################################################
     def test_undolog(self):
         """ Test normal behaviour"""
-        namespace=self.parser.parse_args([])
-        output=self.cmd.handle(namespace)
-        self.assertEquals(output[1],0)
+        namespace = self.parser.parse_args([])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output[1], 0)
 
 
 ###############################################################################
@@ -1916,7 +1916,7 @@ class test_run_from_cmdline(unittest.TestCase):
 
     ###########################################################################
     def tearDown(self):
-        sys.argv=self.oldargv
+        sys.argv = self.oldargv
 
     ###########################################################################
     def test_run(self):
