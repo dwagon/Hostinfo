@@ -818,12 +818,12 @@ class test_cmd_addalias(unittest.TestCase):
         """
         host = Host(hostname='host')
         host.save()
-        namespace = self.parser.parse_args(['--origin','test','host','alias'])
+        namespace = self.parser.parse_args(['--origin', 'test', 'host', 'alias'])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval,(None,0))
+        self.assertEquals(retval, (None, 0))
         alias = HostAlias.objects.get(hostid=host)
-        self.assertEquals(alias.origin,'test')
-        self.assertEquals(alias.alias,'alias')
+        self.assertEquals(alias.origin, 'test')
+        self.assertEquals(alias.alias, 'alias')
         alias.delete()
         host.delete()
 
