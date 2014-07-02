@@ -16,39 +16,47 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from hostinfo.host.models import AllowedKey, HostinfoException
-from hostinfo.host.models import HostinfoCommand
+#from hostinfo.host.models import AllowedKey, HostinfoException
+#from hostinfo.host.models import HostinfoCommand
 
-class Command(HostinfoCommand):
-    description='Report on available keys'
+import hostinfo.host.models
 
-    ############################################################################
+
+###############################################################################
+class Command(hostinfo.host.models.HostinfoCommand):
+    description = 'Report on available keys'
+
+    ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('--type',help='Display just the types', dest='typeflag',action='store_true')
-        parser.add_argument('keylist',help="List of keys to display. Defaults to all", nargs='*')
+        parser.add_argument(
+            '--type',
+            help='Display just the types', dest='typeflag', action='store_true')
+        parser.add_argument(
+            'keylist',
+            help="List of keys to display. Defaults to all", nargs='*')
 
-    ############################################################################
+    ###########################################################################
     def handle(self, namespace):
-        outstr=""
-        allkeys=AllowedKey.objects.all()
+        outstr = ""
+        allkeys = hostinfo.host.models.AllowedKey.objects.all()
         if namespace.keylist:
-            keys=[k for k in allkeys if k.key in namespace.keylist]
+            keys = [k for k in allkeys if k.key in namespace.keylist]
         else:
-            keys=[k for k in allkeys]
+            keys = [k for k in allkeys]
 
         if not keys:
-            raise HostinfoException("No keys to show")
+            raise hostinfo.host.models.HostinfoException("No keys to show")
 
         for key in keys:
             if namespace.typeflag:
-                outstr+="%s\t%s\n" % (key.key, key.get_validtype_display())
+                outstr += "%s\t%s\n" % (key.key, key.get_validtype_display())
             else:
-                notes=""
+                notes = ""
                 if key.restrictedFlag:
-                    notes="\t[KEY RESTRICTED]"
+                    notes = "\t[KEY RESTRICTED]"
                 if key.readonlyFlag:
-                    notes+="\t[KEY READ ONLY]"
-                outstr+="%s\t%s\t%s%s\n" % (key.key, key.get_validtype_display(), key.desc, notes)
-        return outstr,0
+                    notes += "\t[KEY READ ONLY]"
+                outstr += "%s\t%s\t%s%s\n" % (key.key, key.get_validtype_display(), key.desc, notes)
+        return outstr, 0
 
 #EOF

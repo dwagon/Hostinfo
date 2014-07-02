@@ -1826,14 +1826,14 @@ class test_cmd_showkey(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_showkey import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.key1=AllowedKey(key='showkey1', validtype=1, desc='description', restrictedFlag=True)
+        self.key1 = AllowedKey(key='showkey1', validtype=1, desc='description', restrictedFlag=True)
         self.key1.save()
-        self.key2=AllowedKey(key='showkey2', validtype=2, desc='another description', readonlyFlag=True)
+        self.key2 = AllowedKey(key='showkey2', validtype=2, desc='another description', readonlyFlag=True)
         self.key2.save()
-        self.key3=AllowedKey(key='showkey3', validtype=3, desc='')
+        self.key3 = AllowedKey(key='showkey3', validtype=3, desc='')
         self.key3.save()
 
     ###########################################################################
@@ -1844,28 +1844,28 @@ class test_cmd_showkey(unittest.TestCase):
 
     ###########################################################################
     def test_showkey(self):
-        namespace=self.parser.parse_args([])
-        output=self.cmd.handle(namespace)
-        self.assertEquals(output,('showkey1\tsingle\tdescription\t[KEY RESTRICTED]\nshowkey2\tlist\tanother description\t[KEY READ ONLY]\nshowkey3\tdate\t\n',0))
+        namespace = self.parser.parse_args([])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, ('showkey1\tsingle\tdescription\t[KEY RESTRICTED]\nshowkey2\tlist\tanother description\t[KEY READ ONLY]\nshowkey3\tdate\t\n', 0))
 
     ###########################################################################
     def test_showtype(self):
-        namespace=self.parser.parse_args(['--type'])
-        output=self.cmd.handle(namespace)
-        self.assertEquals(output,('showkey1\tsingle\nshowkey2\tlist\nshowkey3\tdate\n',0))
+        namespace = self.parser.parse_args(['--type'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, ('showkey1\tsingle\nshowkey2\tlist\nshowkey3\tdate\n', 0))
 
     ###########################################################################
     def test_showkeylist(self):
-        namespace=self.parser.parse_args(['showkey1'])
-        output=self.cmd.handle(namespace)
-        self.assertEquals(output,('showkey1\tsingle\tdescription\t[KEY RESTRICTED]\n',0))
+        namespace = self.parser.parse_args(['showkey1'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, ('showkey1\tsingle\tdescription\t[KEY RESTRICTED]\n', 0))
 
     ###########################################################################
     def test_showbadkeylist(self):
-        namespace=self.parser.parse_args(['badkey'])
+        namespace = self.parser.parse_args(['badkey'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg,"No keys to show")
+        self.assertEquals(cm.exception.msg, "No keys to show")
 
 
 ###############################################################################
