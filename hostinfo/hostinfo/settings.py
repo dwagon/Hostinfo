@@ -81,7 +81,7 @@ USE_L10N = True
 
 USE_TZ = False
 
-HOSTINFO_REPORT_DIR = '/tmp'
+HOSTINFO_REPORT_DIR = '/tmp/reports'
 
 
 # Static files (CSS, JavaScript, Images)
