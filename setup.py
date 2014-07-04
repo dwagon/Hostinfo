@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # 
 # Setup script for hostinfo
 #
@@ -8,7 +8,7 @@ import os
 import sys
 from distutils.core import setup
 
-setup_scripts       = [os.path.join('bin', f) for f in  os.listdir('bin') if f not in ('.svn', 'old')]
+setup_scripts       = [os.path.join('bin', f) for f in  os.listdir('bin')]
 setup_templates     = {'hostinfo.host': ['templates/*']}
 
 setup_classifiers   = [
@@ -24,11 +24,11 @@ setup_classifiers   = [
 
 setup(
     name            = 'hostinfo',
-    version         = '1.40',
+    version         = '1.41',
     description     = 'ITIL CMDB for systems administrators',
     author          = 'Dougal Scott',
     author_email    = 'dougal.scott@gmail.com',
-    url             = 'http://code.google.com/p/hostinfo',
+    url             = 'https://github.com.dwagon/Hostinfo',
     requires        = ['Django (>=1.6)'],
     scripts         = setup_scripts,
     packages        = [
