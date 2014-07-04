@@ -210,11 +210,11 @@ class test_Restricted(unittest.TestCase):
     """ Test operations on a restricted key
     """
     def setUp(self):
-        self.host=Host(hostname='host')
+        self.host = Host(hostname='host')
         self.host.save()
-        self.key=AllowedKey(key='restr', validtype=1, restrictedFlag=True)
+        self.key = AllowedKey(key='restr', validtype=1, restrictedFlag=True)
         self.key.save()
-        self.rv=RestrictedValue(keyid=self.key, value='allowed')
+        self.rv = RestrictedValue(keyid=self.key, value='allowed')
         self.rv.save()
 
     ###########################################################################
@@ -238,9 +238,9 @@ class test_DateKey(unittest.TestCase):
     """ Test operations on a date based key
     """
     def setUp(self):
-        self.host=Host(hostname='host')
+        self.host = Host(hostname='host')
         self.host.save()
-        self.key=AllowedKey(key='date', validtype=3)
+        self.key = AllowedKey(key='date', validtype=3)
         self.key.save()
 
     ###########################################################################
@@ -250,9 +250,9 @@ class test_DateKey(unittest.TestCase):
 
     ###########################################################################
     def checkValue(self, host, key):
-        keyid=checkKey(key)
-        hostid=getHost(host)
-        kv=KeyValue.objects.filter(hostid=hostid, keyid=keyid)
+        keyid = checkKey(key)
+        hostid = getHost(host)
+        kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
         return kv[0].value
 
     ###########################################################################
@@ -582,7 +582,7 @@ class test_getHost(unittest.TestCase):
 class test_checkKey(unittest.TestCase):
     ###########################################################################
     def setUp(self):
-        self.ak=AllowedKey(key='ak_checkkey')
+        self.ak = AllowedKey(key='ak_checkkey')
         self.ak.save()
 
     ###########################################################################
@@ -591,13 +591,13 @@ class test_checkKey(unittest.TestCase):
 
     ###########################################################################
     def test_checkexists(self):
-        rc=checkKey('ak_checkkey')
+        rc = checkKey('ak_checkkey')
         self.assertTrue(rc)
 
     ###########################################################################
     def test_checknoexists(self):
         with self.assertRaises(HostinfoException) as cm:
-            rc=checkKey('ak_badkey')
+            rc = checkKey('ak_badkey')
         self.assertEquals(cm.exception.msg, "Must use an existing key, not ak_badkey")
 
 
@@ -605,7 +605,7 @@ class test_checkKey(unittest.TestCase):
 class test_checkHost(unittest.TestCase):
     ###########################################################################
     def setUp(self):
-        self.h=Host(hostname='test_check_host')
+        self.h = Host(hostname='test_check_host')
         self.h.save()
 
     ###########################################################################
@@ -614,12 +614,12 @@ class test_checkHost(unittest.TestCase):
 
     ###########################################################################
     def test_hostexists(self):
-        rv=checkHost('test_check_host')
+        rv = checkHost('test_check_host')
         self.assertTrue(rv)
 
     ###########################################################################
     def test_hostnotexists(self):
-        rv=checkHost('badhost')
+        rv = checkHost('badhost')
         self.assertFalse(rv)
 
 
@@ -1014,10 +1014,10 @@ class test_cmd_addrestrictedvalue(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_addrestrictedvalue import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.key=AllowedKey(key='restr', validtype=1, restrictedFlag=True)
+        self.key = AllowedKey(key='restr', validtype=1, restrictedFlag=True)
         self.key.save()
 
     ###########################################################################
@@ -1026,25 +1026,25 @@ class test_cmd_addrestrictedvalue(unittest.TestCase):
 
     ###########################################################################
     def test_addvalue(self):
-        namespace=self.parser.parse_args(['restr=value'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['restr=value'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        rv=RestrictedValue.objects.filter()[0]
+        rv = RestrictedValue.objects.filter()[0]
         self.assertEquals(rv.value, 'value')
         self.assertEquals(rv.keyid, self.key)
 
     ###########################################################################
     def test_missingkey(self):
-        namespace=self.parser.parse_args(['key2=value'])
+        namespace = self.parser.parse_args(['key2=value'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "No key key2 found")
 
     ###########################################################################
     def test_unrestricted(self):
-        self.key2=AllowedKey(key='unrestr', validtype=1, restrictedFlag=False)
+        self.key2 = AllowedKey(key='unrestr', validtype=1, restrictedFlag=False)
         self.key2.save()
-        namespace=self.parser.parse_args(['unrestr=value'])
+        namespace = self.parser.parse_args(['unrestr=value'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Key unrestr isn't a restrictedvalue key")
@@ -1052,9 +1052,9 @@ class test_cmd_addrestrictedvalue(unittest.TestCase):
 
     ###########################################################################
     def test_alreadyexists(self):
-        self.rv=RestrictedValue(keyid=self.key, value='value')
+        self.rv = RestrictedValue(keyid=self.key, value='value')
         self.rv.save()
-        namespace=self.parser.parse_args(['restr=value'])
+        namespace = self.parser.parse_args(['restr=value'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Already a key restr=value in the restrictedvalue list")
@@ -1062,7 +1062,7 @@ class test_cmd_addrestrictedvalue(unittest.TestCase):
 
     ###########################################################################
     def test_wrongformat(self):
-        namespace=self.parser.parse_args(['key value'])
+        namespace = self.parser.parse_args(['key value'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Must be specified in key=value format")
@@ -1217,44 +1217,44 @@ class test_cmd_deletehost(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_deletehost import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
 
     ###########################################################################
     def test_nonlethal(self):
         """ Test that without --lethal it does nothing"""
-        h=Host(hostname='test')
+        h = Host(hostname='test')
         h.save()
-        namespace=self.parser.parse_args(['test'])
+        namespace = self.parser.parse_args(['test'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Didn't do delete as no --lethal specified")
-        hosts=Host.objects.all()
+        hosts = Host.objects.all()
         self.assertEqual(len(hosts), 1)
         h.delete()
 
     ###########################################################################
     def test_deleterefers(self):
         """ Test that aliases and kv pairs get deleted as well """
-        h=Host(hostname='test')
+        h = Host(hostname='test')
         h.save()
-        a=HostAlias(hostid=h, alias='testalias')
+        a = HostAlias(hostid=h, alias='testalias')
         a.save()
-        ak=AllowedKey(key='key_deletehost', validtype=1)
+        ak = AllowedKey(key='key_deletehost', validtype=1)
         ak.save()
-        kv=KeyValue(hostid=h, keyid=ak, value='foo')
+        kv = KeyValue(hostid=h, keyid=ak, value='foo')
         kv.save()
 
-        namespace=self.parser.parse_args(['--lethal', 'test'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--lethal', 'test'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
 
-        hosts=Host.objects.all()
+        hosts = Host.objects.all()
         self.assertEqual(len(hosts), 0)
-        kvs=KeyValue.objects.all()
+        kvs = KeyValue.objects.all()
         self.assertEqual(len(kvs), 0)
-        aliases=HostAlias.objects.all()
+        aliases = HostAlias.objects.all()
         self.assertEqual(len(aliases), 0)
         h.delete()
         ak.delete()
@@ -1262,19 +1262,19 @@ class test_cmd_deletehost(unittest.TestCase):
     ###########################################################################
     def test_deletehost(self):
         """ Test the deletion of a host """
-        h=Host(hostname='test')
+        h = Host(hostname='test')
         h.save()
-        namespace=self.parser.parse_args(['--lethal', 'test'])
-        retval=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--lethal', 'test'])
+        retval = self.cmd.handle(namespace)
         self.assertEquals(retval, (None, 0))
-        hosts=Host.objects.all()
+        hosts = Host.objects.all()
         self.assertEqual(len(hosts), 0)
         h.delete()
 
     ###########################################################################
     def test_deletewronghost(self):
         """ Test the deletion of a host that doesn't exist"""
-        namespace=self.parser.parse_args(['--lethal', 'test2'])
+        namespace = self.parser.parse_args(['--lethal', 'test2'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Host test2 doesn't exist")
@@ -1312,7 +1312,7 @@ class test_cmd_deleterestrictedvalue(unittest.TestCase):
     ###########################################################################
     def test_missingvalue(self):
         """ Test the deletion of a value that doesn't exist"""
-        namespace=self.parser.parse_args(['restr=bad'])
+        namespace = self.parser.parse_args(['restr=bad'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "No key restr=bad in the restrictedvalue list")
@@ -1351,14 +1351,14 @@ class test_cmd_deletevalue(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_deletevalue import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.h1=Host(hostname='host_delval')
+        self.h1 = Host(hostname='host_delval')
         self.h1.save()
-        self.ak=AllowedKey(key='key_dv')
+        self.ak = AllowedKey(key='key_dv')
         self.ak.save()
-        self.kv=KeyValue(hostid=self.h1, keyid=self.ak, value='deletevalue')
+        self.kv = KeyValue(hostid=self.h1, keyid=self.ak, value='deletevalue')
         self.kv.save()
 
     ###########################################################################
@@ -1370,38 +1370,38 @@ class test_cmd_deletevalue(unittest.TestCase):
     ###########################################################################
     def test_deletevalue(self):
         """ Test the deletion of a value"""
-        namespace=self.parser.parse_args(['key_dv=deletevalue', 'host_delval'])
-        output=self.cmd.handle(namespace)
-        kvlist=KeyValue.objects.filter(hostid=self.h1)
+        namespace = self.parser.parse_args(['key_dv=deletevalue', 'host_delval'])
+        output = self.cmd.handle(namespace)
+        kvlist = KeyValue.objects.filter(hostid=self.h1)
         self.assertEquals(len(kvlist), 0)
 
     ###########################################################################
     def test_delete_novalue(self):
         """ Test the deletion of a value where the value isn't specified"""
-        namespace=self.parser.parse_args(['key_dv', 'host_delval'])
-        output=self.cmd.handle(namespace)
-        kvlist=KeyValue.objects.filter(hostid=self.h1)
+        namespace = self.parser.parse_args(['key_dv', 'host_delval'])
+        output = self.cmd.handle(namespace)
+        kvlist = KeyValue.objects.filter(hostid=self.h1)
         self.assertEquals(len(kvlist), 0)
 
     ###########################################################################
     def test_badhost(self):
         """ Test deleting from a host that doesn't exists"""
-        namespace=self.parser.parse_args(['key_dv=deletevalue', 'badhost'])
+        namespace = self.parser.parse_args(['key_dv=deletevalue', 'badhost'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Unknown host: badhost")
-        kvlist=KeyValue.objects.filter(hostid=self.h1)
+        kvlist = KeyValue.objects.filter(hostid=self.h1)
         self.assertEquals(len(kvlist), 1)
 
     ###########################################################################
     def test_readonlydeletion(self):
         """ Test deleting a readonly value """
         """ Test deleting a value from a host that doesn't have it"""
-        ak2=AllowedKey(key='key2_dv', readonlyFlag=True)
+        ak2 = AllowedKey(key='key2_dv', readonlyFlag=True)
         ak2.save()
-        kv2=KeyValue(hostid=self.h1, keyid=ak2, value='deletevalue')
+        kv2 = KeyValue(hostid=self.h1, keyid=ak2, value='deletevalue')
         kv2.save(readonlychange=True)
-        namespace=self.parser.parse_args(['key2_dv=deletevalue', 'host_delval'])
+        namespace = self.parser.parse_args(['key2_dv=deletevalue', 'host_delval'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Cannot delete a readonly value")
@@ -1411,7 +1411,7 @@ class test_cmd_deletevalue(unittest.TestCase):
     ###########################################################################
     def test_badkey(self):
         """ Test deleting a value from a key that doesn't exist """
-        namespace=self.parser.parse_args(['badkey_dv=deletevalue', 'host_delval'])
+        namespace = self.parser.parse_args(['badkey_dv=deletevalue', 'host_delval'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Must use an existing key, not badkey_dv")
@@ -1419,13 +1419,14 @@ class test_cmd_deletevalue(unittest.TestCase):
     ###########################################################################
     def test_deletebadkey(self):
         """ Test deleting a value from a host that doesn't have it"""
-        ak=AllowedKey(key='key3_dv')
+        ak = AllowedKey(key='key3_dv')
         ak.save()
-        namespace=self.parser.parse_args(['key3_dv=deletevalue', 'host_delval'])
+        namespace = self.parser.parse_args(['key3_dv=deletevalue', 'host_delval'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "Host host_delval doesn't have key key3_dv")
         ak.delete()
+
 
 ###############################################################################
 class test_cmd_history(unittest.TestCase):
@@ -1435,36 +1436,36 @@ class test_cmd_history(unittest.TestCase):
         from commands.cmd_hostinfo_history import Command
 
         self.clearHistory()
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.t=time.strftime("%Y-%m-%d", time.localtime())
+        self.t = time.strftime("%Y-%m-%d", time.localtime())
 
     ###########################################################################
     def clearHistory(self):
         from django.db import connection        # Need evil to test evil
-        cursor=connection.cursor()
+        cursor = connection.cursor()
         cursor.execute("DELETE FROM host_keyvalue_audit")
         cursor.execute("DELETE FROM host_host_audit")
         cursor.close()
 
     ###########################################################################
     def test_badhost(self):
-        namespace=self.parser.parse_args(['badhost'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['badhost'])
+        output = self.cmd.handle(namespace)
         self.assertEquals(output, ('', 0))
 
     ###########################################################################
     def test_origin(self):
         self.clearHistory()
-        host=Host(hostname='host_history_o', origin='host_origin')
+        host = Host(hostname='host_history_o', origin='host_origin')
         host.save()
-        ak=AllowedKey(key='key4_dv')
+        ak = AllowedKey(key='key4_dv')
         ak.save()
-        kv=KeyValue(keyid=ak, hostid=host, value='historic', origin='kv_origin')
+        kv = KeyValue(keyid=ak, hostid=host, value='historic', origin='kv_origin')
         kv.save()
-        namespace=self.parser.parse_args(['-o', 'host_history_o'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['-o', 'host_history_o'])
+        output = self.cmd.handle(namespace)
         self.assertTrue('origin host_origin' in output[0])
         self.assertTrue('origin kv_origin' in output[0])
         self.assertTrue(self.t in output[0])
@@ -1477,14 +1478,14 @@ class test_cmd_history(unittest.TestCase):
         """ Make sure that we are saving the actor properly
         """
         self.clearHistory()
-        host=Host(hostname='host_history_a')
+        host = Host(hostname='host_history_a')
         host.save()
-        ak=AllowedKey(key='key5_dv')
+        ak = AllowedKey(key='key5_dv')
         ak.save()
-        kv=KeyValue(keyid=ak, hostid=host, value='historic')
+        kv = KeyValue(keyid=ak, hostid=host, value='historic')
         kv.save()
-        namespace=self.parser.parse_args(['-a', 'host_history_a'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['-a', 'host_history_a'])
+        output = self.cmd.handle(namespace)
         self.assertTrue('using ' in output[0])
         self.assertTrue(sys.argv[0] in output[0])
         self.assertTrue(self.t in output[0])
@@ -1494,25 +1495,25 @@ class test_cmd_history(unittest.TestCase):
 
     ###########################################################################
     def test_hostadd(self):
-        host=Host(hostname='host_history_ha')
+        host = Host(hostname='host_history_ha')
         host.save()
-        namespace=self.parser.parse_args(['host_history_ha'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['host_history_ha'])
+        output = self.cmd.handle(namespace)
         self.assertTrue('added host_history_ha' in output[0])
         self.assertTrue(self.t in output[0])
         host.delete()
 
     ###########################################################################
     def test_valadd(self):
-        host=Host(hostname='host_history_va')
+        host = Host(hostname='host_history_va')
         host.save()
         self.clearHistory()
-        ak=AllowedKey(key='key3_dv')
+        ak = AllowedKey(key='key3_dv')
         ak.save()
-        kv=KeyValue(keyid=ak, hostid=host, value='historic')
+        kv = KeyValue(keyid=ak, hostid=host, value='historic')
         kv.save()
-        namespace=self.parser.parse_args(['host_history_va'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['host_history_va'])
+        output = self.cmd.handle(namespace)
         self.assertTrue('added key3_dv:historic on host_history_va' in output[0])
         self.assertTrue(self.t in output[0])
         kv.delete()
@@ -1521,16 +1522,16 @@ class test_cmd_history(unittest.TestCase):
 
     ###########################################################################
     def test_valdelete(self):
-        host=Host(hostname='host_history_vd')
+        host = Host(hostname='host_history_vd')
         host.save()
-        ak=AllowedKey(key='key4_dv')
+        ak = AllowedKey(key='key4_dv')
         ak.save()
-        kv=KeyValue(keyid=ak, hostid=host, value='historic')
+        kv = KeyValue(keyid=ak, hostid=host, value='historic')
         kv.save()
         self.clearHistory()
         kv.delete()
-        namespace=self.parser.parse_args(['host_history_vd'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['host_history_vd'])
+        output = self.cmd.handle(namespace)
         self.assertTrue('deleted key4_dv:historic on host_history_vd' in output[0])
         self.assertTrue(self.t in output[0])
         ak.delete()
@@ -1538,19 +1539,19 @@ class test_cmd_history(unittest.TestCase):
 
     ###########################################################################
     def test_noaudit(self):
-        host=Host(hostname='host_history_na')
+        host = Host(hostname='host_history_na')
         host.save()
         self.clearHistory()
-        ak1=AllowedKey(key='key5_na', auditFlag=False)
+        ak1 = AllowedKey(key='key5_na', auditFlag=False)
         ak1.save()
-        ak2=AllowedKey(key='key6_na')
+        ak2 = AllowedKey(key='key6_na')
         ak2.save()
-        kv=KeyValue(keyid=ak1, hostid=host, value='historic')
+        kv = KeyValue(keyid=ak1, hostid=host, value='historic')
         kv.save()
-        kv2=KeyValue(keyid=ak2, hostid=host, value='historic')
+        kv2 = KeyValue(keyid=ak2, hostid=host, value='historic')
         kv2.save()
-        namespace=self.parser.parse_args(['host_history_na'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['host_history_na'])
+        output = self.cmd.handle(namespace)
         self.assertFalse('added key5_na:historic on host_history_na' in output[0])
         self.assertTrue('added key6_na:historic on host_history_na' in output[0])
         kv.delete()
@@ -1645,12 +1646,12 @@ class test_cmd_listrestrictedvalue(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_listrestrictedvalue import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.key=AllowedKey(key='restr', validtype=1, restrictedFlag=True)
+        self.key = AllowedKey(key='restr', validtype=1, restrictedFlag=True)
         self.key.save()
-        self.rv=RestrictedValue(keyid=self.key, value='allowed')
+        self.rv = RestrictedValue(keyid=self.key, value='allowed')
         self.rv.save()
 
     ###########################################################################
@@ -1661,17 +1662,18 @@ class test_cmd_listrestrictedvalue(unittest.TestCase):
     ###########################################################################
     def test_list(self):
         """ Test normal behaviour"""
-        namespace=self.parser.parse_args(['restr'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['restr'])
+        output = self.cmd.handle(namespace)
         self.assertEquals(output, ('allowed\n', 0))
 
     ###########################################################################
     def test_badkey(self):
         """ Specfied key doesn't exist"""
-        namespace=self.parser.parse_args(['nokey'])
+        namespace = self.parser.parse_args(['nokey'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "No key nokey found")
+
 
 ###############################################################################
 class test_cmd_mergehost(unittest.TestCase):
@@ -1679,12 +1681,12 @@ class test_cmd_mergehost(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_mergehost import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.host=Host(hostname='mrghost')
+        self.host = Host(hostname='mrghost')
         self.host.save()
-        self.host2=Host(hostname='mrghost2')
+        self.host2 = Host(hostname='mrghost2')
         self.host2.save()
 
     ###########################################################################
@@ -1694,9 +1696,10 @@ class test_cmd_mergehost(unittest.TestCase):
 
     ###########################################################################
     def test_mergehost(self):
-        namespace=self.parser.parse_args(['--src', 'mrghost', '--dst', 'mrghost2'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['--src', 'mrghost', '--dst', 'mrghost2'])
+        output = self.cmd.handle(namespace)
         self.assertEquals(output, (None, 0))
+
 
 ###############################################################################
 class test_cmd_renamehost(unittest.TestCase):
@@ -1746,18 +1749,18 @@ class test_cmd_replacevalue(unittest.TestCase):
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_replacevalue import Command
-        self.cmd=Command()
-        self.parser=argparse.ArgumentParser()
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.key=AllowedKey(key='repval', validtype=1)
+        self.key = AllowedKey(key='repval', validtype=1)
         self.key.save()
-        self.host=Host(hostname='rephost')
+        self.host = Host(hostname='rephost')
         self.host.save()
-        self.host2=Host(hostname='rephost2')
+        self.host2 = Host(hostname='rephost2')
         self.host2.save()
-        self.kv=KeyValue(hostid=self.host, keyid=self.key, value='before')
+        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='before')
         self.kv.save()
-        self.kv2=KeyValue(hostid=self.host2, keyid=self.key, value='before')
+        self.kv2 = KeyValue(hostid=self.host2, keyid=self.key, value='before')
         self.kv2.save()
 
     ###########################################################################
@@ -1770,57 +1773,57 @@ class test_cmd_replacevalue(unittest.TestCase):
 
     ###########################################################################
     def test_replacevalue(self):
-        namespace=self.parser.parse_args(['repval=before', 'after', 'rephost'])
-        output=self.cmd.handle(namespace)
+        namespace = self.parser.parse_args(['repval=before', 'after', 'rephost'])
+        output = self.cmd.handle(namespace)
         self.assertEquals(output, (None, 0))
-        kv=KeyValue.objects.filter(hostid=self.host, keyid=self.key)[0]
+        kv = KeyValue.objects.filter(hostid=self.host, keyid=self.key)[0]
         self.assertEquals(kv.value, 'after')
 
     ###########################################################################
     def test_badvalue(self):
-        namespace=self.parser.parse_args(['repval=notexists','newvalue', 'rephost'])
-        output=self.cmd.handle(namespace)
-        self.assertEquals(output,(None,0))
-        kv=KeyValue.objects.filter(hostid=self.host, keyid=self.key)[0]
+        namespace = self.parser.parse_args(['repval=notexists', 'newvalue', 'rephost'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, (None, 0))
+        kv = KeyValue.objects.filter(hostid=self.host, keyid=self.key)[0]
         self.assertEquals(kv.value, 'before')
 
     ###########################################################################
     def test_badkey(self):
-        namespace=self.parser.parse_args(['badkey=value','newvalue', 'rephost'])
+        namespace = self.parser.parse_args(['badkey=value', 'newvalue', 'rephost'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg,"Must use an existing key, not badkey")
+        self.assertEquals(cm.exception.msg, "Must use an existing key, not badkey")
 
     ###########################################################################
     def test_badexpr(self):
-        namespace=self.parser.parse_args(['badexpr','nobody', 'cares'])
+        namespace = self.parser.parse_args(['badexpr', 'nobody', 'cares'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg,"Must be specified in key=value format, not badexpr")
+        self.assertEquals(cm.exception.msg, "Must be in key=value format, not badexpr")
 
     ###########################################################################
     def test_nohosts(self):
-        namespace=self.parser.parse_args(['repval=before','after'])
+        namespace = self.parser.parse_args(['repval=before', 'after'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg,"Must specify a list of hosts or the --all flag")
+        self.assertEquals(cm.exception.msg, "Must specify a list of hosts or the --all flag")
 
     ###########################################################################
     def test_all(self):
-        namespace=self.parser.parse_args(['repval=before','after', '--all'])
-        output=self.cmd.handle(namespace)
-        self.assertEquals(output,(None,0))
-        kvlist=KeyValue.objects.filter(keyid=self.key)
+        namespace = self.parser.parse_args(['repval=before', 'after', '--all'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, (None, 0))
+        kvlist = KeyValue.objects.filter(keyid=self.key)
         for k in kvlist:
-            self.assertEquals(k.value,'after')
+            self.assertEquals(k.value, 'after')
 
     ###########################################################################
     def test_kidding(self):
         """ Test that it doesn't actually do anything in kidding mode"""
-        namespace=self.parser.parse_args(['-k', 'repval=before','after', 'rephost'])
-        output=self.cmd.handle(namespace)
-        self.assertEquals(output,(None,0))
-        kv=KeyValue.objects.filter(hostid=self.host, keyid=self.key)[0]
+        namespace = self.parser.parse_args(['-k', 'repval=before', 'after', 'rephost'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, (None, 0))
+        kv = KeyValue.objects.filter(hostid=self.host, keyid=self.key)[0]
         self.assertEquals(kv.value, 'before')
 
 
@@ -1925,16 +1928,16 @@ class test_run_from_cmdline(unittest.TestCase):
 
     ###########################################################################
     def test_badrun(self):
-        sys.argv[0]='notexists'
-        rv=run_from_cmdline()
-        self.assertEquals(rv,255)
+        sys.argv[0] = 'notexists'
+        rv = run_from_cmdline()
+        self.assertEquals(rv, 255)
 
 
 ###############################################################################
 class test_url_index(unittest.TestCase):
     ###########################################################################
     def setUp(self):
-        self.client=Client()
+        self.client = Client()
 
     ###########################################################################
     def tearDown(self):
@@ -1942,21 +1945,21 @@ class test_url_index(unittest.TestCase):
 
     ###########################################################################
     def test_base(self):
-        response=self.client.get('/hostinfo/')
-        self.assertEquals(response.status_code,200)
-        self.assertEquals([t.name for t in response.templates],['index.template', 'base.html'])
+        response = self.client.get('/hostinfo/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals([t.name for t in response.templates], ['index.template', 'base.html'])
 
 
 ###############################################################################
 class test_url_handlePost(unittest.TestCase):
     ###########################################################################
     def setUp(self):
-        self.client=Client()
-        self.key=AllowedKey(key='postkey', validtype=1)
+        self.client = Client()
+        self.key = AllowedKey(key='postkey', validtype=1)
         self.key.save()
-        self.host=Host(hostname='posthost')
+        self.host = Host(hostname='posthost')
         self.host.save()
-        self.kv=KeyValue(hostid=self.host, keyid=self.key, value='foo')
+        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='foo')
         self.kv.save()
 
     ###########################################################################
@@ -1967,11 +1970,11 @@ class test_url_handlePost(unittest.TestCase):
 
     ###########################################################################
     def test_hostname(self):
-        response=self.client.post('/hostinfo/handlePost/',data={'hostname':'posthost'})
-        self.assertEquals(response.status_code,302)
-        response=self.client.post('/hostinfo/handlePost/',data={'hostname':'posthost'}, follow=True)
-        self.assertEquals(response.status_code,200)
-        self.assertEquals(sorted([t.name for t in response.templates]),['base.html', 'host.template', 'showall.template'])
+        response = self.client.post('/hostinfo/handlePost/', data={'hostname':'posthost'})
+        self.assertEquals(response.status_code, 302)
+        response = self.client.post('/hostinfo/handlePost/', data={'hostname':'posthost'}, follow=True)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'host.template', 'showall.template'])
 
 
 ###############################################################################
@@ -1979,14 +1982,14 @@ class test_url_keylist(unittest.TestCase):
     """ Test views doKeylist function"""
     ###########################################################################
     def setUp(self):
-        self.client=Client()
-        self.key=AllowedKey(key='urlkey', validtype=1)
+        self.client = Client()
+        self.key = AllowedKey(key='urlkey', validtype=1)
         self.key.save()
-        self.host=Host(hostname='urlhost1')
+        self.host = Host(hostname='urlhost1')
         self.host.save()
-        self.host2=Host(hostname='urlhost2')
+        self.host2 = Host(hostname='urlhost2')
         self.host2.save()
-        self.kv=KeyValue(hostid=self.host, keyid=self.key, value='foo')
+        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='foo')
         self.kv.save()
 
     ###########################################################################
@@ -1998,46 +2001,46 @@ class test_url_keylist(unittest.TestCase):
 
     ###########################################################################
     def test_withkey(self):
-        response=self.client.get('/hostinfo/keylist/urlkey/')
-        self.assertEquals(response.status_code,200)
+        response = self.client.get('/hostinfo/keylist/urlkey/')
+        self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals(sorted([t.name for t in response.templates]),['base.html', 'keylist.template'])
-        self.assertEquals(response.context['key'],'urlkey')
-        self.assertEquals(response.context['total'],2)          # Number of hosts
-        self.assertEquals(response.context['numkeys'],1)        # Number of different values
-        self.assertEquals(response.context['pctundef'],50)      # % hosts with key not defined
-        self.assertEquals(response.context['numundef'],1)       # Num hosts with key not defined
-        self.assertEquals(response.context['pctdef'],50)        # % hosts with key defined
-        self.assertEquals(response.context['numdef'],1)         # Num hosts with key defined
-        self.assertEquals(response.context['keylist'],[('foo',1,100)])    # Key, Value, Percentage
+        self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'keylist.template'])
+        self.assertEquals(response.context['key'], 'urlkey')
+        self.assertEquals(response.context['total'], 2)          # Number of hosts
+        self.assertEquals(response.context['numkeys'], 1)        # Number of different values
+        self.assertEquals(response.context['pctundef'], 50)      # % hosts with key not defined
+        self.assertEquals(response.context['numundef'], 1)       # Num hosts with key not defined
+        self.assertEquals(response.context['pctdef'], 50)        # % hosts with key defined
+        self.assertEquals(response.context['numdef'], 1)         # Num hosts with key defined
+        self.assertEquals(response.context['keylist'], [('foo', 1, 100)])    # Key, Value, Percentage
 
     ###########################################################################
     def test_badkey(self):
-        response=self.client.get('/hostinfo/keylist/badkey/')
-        self.assertEquals(response.status_code,200)
+        response = self.client.get('/hostinfo/keylist/badkey/')
+        self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals(sorted([t.name for t in response.templates]),['base.html', 'keylist.template'])
-        self.assertEquals(response.context['key'],'badkey')
-        self.assertEquals(response.context['total'],2)          # Number of hosts
-        self.assertEquals(response.context['numkeys'],0)        # Number of different values
-        self.assertEquals(response.context['pctundef'],100)      # % hosts with key not defined
-        self.assertEquals(response.context['numundef'],2)       # Num hosts with key not defined
-        self.assertEquals(response.context['pctdef'],0)        # % hosts with key defined
-        self.assertEquals(response.context['numdef'],0)         # Num hosts with key defined
-        self.assertEquals(response.context['keylist'],[])    # Key, Value, Percentage
+        self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'keylist.template'])
+        self.assertEquals(response.context['key'], 'badkey')
+        self.assertEquals(response.context['total'], 2)          # Number of hosts
+        self.assertEquals(response.context['numkeys'], 0)        # Number of different values
+        self.assertEquals(response.context['pctundef'], 100)      # % hosts with key not defined
+        self.assertEquals(response.context['numundef'], 2)       # Num hosts with key not defined
+        self.assertEquals(response.context['pctdef'], 0)        # % hosts with key defined
+        self.assertEquals(response.context['numdef'], 0)         # Num hosts with key defined
+        self.assertEquals(response.context['keylist'], [])    # Key, Value, Percentage
 
 
 ###############################################################################
 class test_hostviewrepr(unittest.TestCase):
     ###########################################################################
     def setUp(self):
-        self.key=AllowedKey(key='hvrkey', validtype=1)
+        self.key = AllowedKey(key='hvrkey', validtype=1)
         self.key.save()
-        self.host=Host(hostname='hvrhost1')
+        self.host = Host(hostname='hvrhost1')
         self.host.save()
-        self.host2=Host(hostname='hvrhost2')
+        self.host2 = Host(hostname='hvrhost2')
         self.host2.save()
-        self.kv=KeyValue(hostid=self.host, keyid=self.key, value='foo')
+        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='foo')
         self.kv.save()
 
     ###########################################################################
@@ -2049,10 +2052,10 @@ class test_hostviewrepr(unittest.TestCase):
 
     ###########################################################################
     def test_view(self):
-        ans=hostviewrepr('hvrhost1')
-        self.assertEquals(ans,[(u'hvrkey', [self.kv])])
-        ans=hostviewrepr('hvrhost2')
-        self.assertEquals(ans,[])
+        ans = hostviewrepr('hvrhost1')
+        self.assertEquals(ans, [(u'hvrkey', [self.kv])])
+        ans = hostviewrepr('hvrhost2')
+        self.assertEquals(ans, [])
 
 
 ###############################################################################
