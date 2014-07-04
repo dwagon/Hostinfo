@@ -10,7 +10,7 @@ reportdir = settings.HOSTINFO_REPORT_DIR
 ################################################################################
 def index(request):
     d = {'reports': getReports()}
-    return render(request, 'reportindex.template', d)
+    return render(request, 'report/index.template', d)
 
 
 ################################################################################
@@ -41,7 +41,7 @@ def doReport(request, report, args=''):
         try:
             return repmodule.doReport(request, args)
         except Exception, err:
-            return render(request, 'reporterror.template', {'error': err})
+            return render(request, 'report/error.template', {'error': err})
 
 
 ################################################################################
