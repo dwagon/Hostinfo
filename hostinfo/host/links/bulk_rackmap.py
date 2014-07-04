@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# 
+#
 # Script to generate rackmap links for all hosts
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
@@ -19,15 +19,16 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os
+import sys
 
-f=os.popen('/app/hostinfo/bin/hostinfo -p rack -p site rack.defined site.defined')
+f = os.popen('/app/hostinfo/bin/hostinfo -p rack -p site rack.defined site.defined')
 for line in f:
-    line=line.strip()
-    bits=line.split()
-    host=bits[0]
-    rack=bits[1].replace('rack=','')
-    site=bits[2].replace('site=','')
+    line = line.strip()
+    bits = line.split()
+    host = bits[0]
+    rack = bits[1].replace('rack=', '')
+    site = bits[2].replace('site=', '')
     print "%s http://opscmdb/hostinfo/report/rackreport/%s/%s RackReport" % (host, site, rack)
 f.close()
 sys.exit(0)

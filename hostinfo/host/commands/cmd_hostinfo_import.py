@@ -83,7 +83,7 @@ class Command(HostinfoCommand):
             except ObjectDoesNotExist:
                 rv = RestrictedValue(keyid=key, value=value)
                 self.verbose("Adding %s=%s to restricted key" % (key.key, value))
-                if not kiddingFlag:
+                if not self.namespace.kiddingFlag:
                     rv.save()
 
     ###########################################################################
@@ -140,8 +140,8 @@ class Command(HostinfoCommand):
                 key=name, validtype=keytype, restricted=restrictedFlag,
                 readonlyFlag=readonlyFlag, auditFlag=auditFlag,
                 docpage=docpage, desc=desc)
-            self.verbose("New key %s" % `ak`)
-            if not kiddingFlag:
+            self.verbose("New key %s" % repr(ak))
+            if not self.namespace.kiddingFlag:
                 ak.save()
         else:
             change = False
@@ -169,7 +169,7 @@ class Command(HostinfoCommand):
                 self.verbose("Changing %s: desc from '%s' to '%s'" % (name, ak.desc, desc))
                 ak.desc = desc
                 change = True
-            if change and not kiddingFlag:
+            if change and not self.namespace.kiddingFlag:
                 ak.save()
 
         if restrictedKid:
@@ -178,7 +178,8 @@ class Command(HostinfoCommand):
     ###########################################################################
     def handleHost(self, hosttree):
         """
-        We can't load dates (created/modified) of elements because these are set automatically by Django
+        We can't load dates (created/modified) of elements because these are
+        set automatically by Django
 
           <host docpage="None"  origin="explorer2hostinfo.py by w86765"  modified="2008-03-20" created="2008-03-20" >
             <hostname>zone_161.117.101.190</hostname>
@@ -196,8 +197,8 @@ class Command(HostinfoCommand):
             host = Host.objects.get(hostname=hostname)
         except ObjectDoesNotExist:
             host = Host(hostname=hostname, docpage=hosttree.attrib.get('docpage', None), origin=hosttree.attrib.get('origin', None))
-            self.verbose("New host %s" % `host`)
-            if not kiddingFlag:
+            self.verbose("New host %s" % repr(host))
+            if not self.namespace.kiddingFlag:
                 host.save()
 
         for data in hosttree.find('data').findall('confitem'):
@@ -228,7 +229,7 @@ class Command(HostinfoCommand):
             except ObjectDoesNotExist:
                 kv = KeyValue(hostid=host, keyid=ak, value=value, origin=origin)
                 self.verbose("Appending %s: %s=%s" % (host.hostname, key, value))
-                if not kiddingFlag:
+                if not self.namespace.kiddingFlag:
                     kv.save()
             except MultipleObjectsReturned:
                 pass
@@ -238,13 +239,13 @@ class Command(HostinfoCommand):
             except ObjectDoesNotExist:
                 kv = KeyValue(hostid=host, keyid=ak, value=value, origin=origin)
                 self.verbose("Creating %s: %s=%s" % (host.hostname, key, value))
-                if not kiddingFlag:
+                if not self.namespace.kiddingFlag:
                     kv.save()
             else:
                 kv.value = value
                 kv.origin = origin
                 self.verbose("Replacing %s: %s=%s" % (host.hostname, key, value))
-                if not kiddingFlag:
+                if not self.namespace.kiddingFlag:
                     kv.save()
 
 #EOF

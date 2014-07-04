@@ -18,7 +18,7 @@
 
 import re
 from hostinfo.host.models import addKeytoHost
-from hostinfo.host.models import RestrictedValueException, 
+from hostinfo.host.models import RestrictedValueException
 from hostinfo.host.models import ReadonlyValueException, HostinfoException
 from hostinfo.host.models import HostinfoCommand
 

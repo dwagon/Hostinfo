@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# 
+#
 # Script to generate orcallator and procallator links in bulk
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
@@ -19,18 +19,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os
+import sys
 
-f=os.popen('/app/hostinfo/bin/hostinfo measured=orcallator')
+f = os.popen('/app/hostinfo/bin/hostinfo measured=orcallator')
 for line in f:
-    host=line.strip()
-    print "%s http://orcallator/orcallator/o_%s-all.html Orcallator" % (host,host)
+    host = line.strip()
+    print "%s http://orcallator/orcallator/o_%s-all.html Orcallator" % (host, host)
 f.close()
 
-f=os.popen('/app/hostinfo/bin/hostinfo measured=procallator')
+f = os.popen('/app/hostinfo/bin/hostinfo measured=procallator')
 for line in f:
-    host=line.strip()
-    print "%s http://procallator/procallator/procallator_%s-all.html Procallator" % (host,host)
+    host = line.strip()
+    print "%s http://procallator/procallator/procallator_%s-all.html Procallator" % (host, host)
 f.close()
 
 sys.exit(0)
