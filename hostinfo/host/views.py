@@ -18,13 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import csv
-import glob
-import imp
-import os
 import re
 import time
-
-reportdir = '/app/hostinfo/reports.d'  # Directory for dynamic reports
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -634,56 +629,14 @@ def csvDump(hostlist, filename):
 
 
 ################################################################################
-def getReports():
-    ans = []
-    repfiles = glob.glob(os.path.join(reportdir, '*.py'))
-    for rf in repfiles:
-        repmodule = module_from_path(rf)
-        if hasattr(repmodule, 'reportname'):
-            name = repmodule.reportname
-        else:
-            name = 'unknown name'
-
-        if hasattr(repmodule, 'reportdesc'):
-            desc = repmodule.reportdesc
-        else:
-            desc = 'unknown description'
-        link = "report/%s" % os.path.split(rf)[1].replace('.py', '')
-        ans.append((link, name, desc))
-    return ans
-
-
-################################################################################
 def index(request):
     d = {
-        'reports': getReports(),
         'numhosts': Host.objects.count(),
         'keys': AllowedKey.objects.all(),
         'csvavailable': '/hostinfo/csv',
         'user': request.user,
     }
     return render(request, 'index.template', d)
-
-
-################################################################################
-def doReport(request, report, args=''):
-    reportmodule = os.path.join(reportdir, '%s.py' % report)
-    if os.path.exists(reportmodule):
-        repmodule = module_from_path(reportmodule)
-        try:
-            return repmodule.doReport(request, args)
-        except Exception, err:
-            return render(request, 'reporterror.template', {'error': err})
-
-
-################################################################################
-def module_from_path(filepath):
-    """ Taken from djangosnippets.org/snippets/757
-    """
-    dirname, filename = os.path.split(filepath)
-    mod_name = filename.replace('.py', '')
-    dot_py_suffix = ('.py', 'U', 1)  # From imp.get_suffixes()[2]
-    return imp.load_module(mod_name, open(filepath), filepath, dot_py_suffix)
 
 
 ################################################################################
