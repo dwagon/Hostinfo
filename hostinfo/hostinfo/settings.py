@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'south',
     'host',
+    'report',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -58,10 +59,6 @@ WSGI_APPLICATION = 'hostinfo.wsgi.application'
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#    }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'hostinfo',
@@ -83,6 +80,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = False
+
+HOSTINFO_REPORT_DIR = '/tmp'
 
 
 # Static files (CSS, JavaScript, Images)
