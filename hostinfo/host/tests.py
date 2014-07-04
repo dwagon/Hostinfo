@@ -1912,7 +1912,7 @@ class test_cmd_undolog(unittest.TestCase):
 class test_run_from_cmdline(unittest.TestCase):
     ###########################################################################
     def setUp(self):
-        self.oldargv=sys.argv
+        self.oldargv = sys.argv
 
     ###########################################################################
     def tearDown(self):
@@ -1920,7 +1920,7 @@ class test_run_from_cmdline(unittest.TestCase):
 
     ###########################################################################
     def test_run(self):
-        sys.argv=['hostinfo_listalias',]
+        sys.argv = ['hostinfo_listalias', ]
         run_from_cmdline()
 
     ###########################################################################

@@ -731,12 +731,11 @@ class HostinfoCommand(object):
 ###############################################################################
 def run_from_cmdline():
     import importlib
-    cmdname = "hostinfo.host.commands.cmd_%s" % os.path.basename(sys.argv[0])
+    cmdname = "host.commands.cmd_%s" % os.path.basename(sys.argv[0])
     try:
         cmd = importlib.import_module(cmdname)
     except ImportError, exc:
-        sys.stderr.write("No such command %s\n" % sys.argv[0])
-        raise
+        sys.stderr.write("No such hostinfo command %s\n" % sys.argv[0])
         return 255
     c = cmd.Command()
     c.over_parseArgs()

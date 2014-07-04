@@ -18,10 +18,10 @@
 import sys
 import time
 
-from hostinfo.host.models import AllowedKey, KeyValue, parseQualifiers
-from hostinfo.host.models import getMatches, getAkCache, Host
-from hostinfo.host.models import getAliases, RestrictedValue
-from hostinfo.host.models import HostinfoCommand, HostinfoException
+from host.models import AllowedKey, KeyValue, parseQualifiers
+from host.models import getMatches, getAkCache, Host
+from host.models import getAliases, RestrictedValue
+from host.models import HostinfoCommand, HostinfoException
 
 
 ###############################################################################
@@ -154,8 +154,8 @@ class Command(HostinfoCommand):
 
         tmpvalues.sort()
 
-        outstr += "%s set: %d %0.2f%%\n" % (self.namespace.valuereport[0], nummatch, 100.0*nummatch/total)
-        outstr += "%s unset: %d %0.2f%%\n" % (self.namespace.valuereport[0], numundef, 100.0*numundef/total)
+        outstr += "%s set: %d %0.2f%%\n" % (self.namespace.valuereport[0], nummatch, 100.0 * nummatch / total)
+        outstr += "%s unset: %d %0.2f%%\n" % (self.namespace.valuereport[0], numundef, 100.0 * numundef / total)
         outstr += "\n"
         for k, v, p in tmpvalues:
             outstr += "%s %d %0.2f%%\n" % (k, v, p)

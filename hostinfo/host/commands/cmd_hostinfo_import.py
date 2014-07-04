@@ -18,10 +18,10 @@
 import sys
 import xml.etree.ElementTree
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from hostinfo.host.models import HostinfoCommand
-from hostinfo.host.models import HostinfoException
-from hostinfo.host.models import RestrictedValueException, RestrictedValue
-from hostinfo.host.models import Host, AllowedKey, KeyValue
+from host.models import HostinfoCommand
+from host.models import HostinfoException
+from host.models import RestrictedValueException, RestrictedValue
+from host.models import Host, AllowedKey, KeyValue
 
 
 ###############################################################################

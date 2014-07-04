@@ -22,8 +22,8 @@
 
 from django.db import connection
 from django.core.exceptions import ObjectDoesNotExist
-from hostinfo.host.models import Host, AllowedKey
-from hostinfo.host.models import HostinfoCommand
+from host.models import Host, AllowedKey
+from host.models import HostinfoCommand
 
 
 ###############################################################################

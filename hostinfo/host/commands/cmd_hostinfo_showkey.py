@@ -16,14 +16,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#from hostinfo.host.models import AllowedKey, HostinfoException
-#from hostinfo.host.models import HostinfoCommand
-
-import hostinfo.host.models
+from host.models import AllowedKey, HostinfoException
+from host.models import HostinfoCommand
 
 
 ###############################################################################
-class Command(hostinfo.host.models.HostinfoCommand):
+class Command(HostinfoCommand):
     description = 'Report on available keys'
 
     ###########################################################################
@@ -38,14 +36,14 @@ class Command(hostinfo.host.models.HostinfoCommand):
     ###########################################################################
     def handle(self, namespace):
         outstr = ""
-        allkeys = hostinfo.host.models.AllowedKey.objects.all()
+        allkeys = AllowedKey.objects.all()
         if namespace.keylist:
             keys = [k for k in allkeys if k.key in namespace.keylist]
         else:
             keys = [k for k in allkeys]
 
         if not keys:
-            raise hostinfo.host.models.HostinfoException("No keys to show")
+            raise HostinfoException("No keys to show")
 
         for key in keys:
             if namespace.typeflag:

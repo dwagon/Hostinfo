@@ -15,9 +15,10 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import re
-from hostinfo.host.models import checkKey, HostinfoException, KeyValue
-from hostinfo.host.models import HostinfoCommand, getHost, ReadonlyValueException
+from host.models import checkKey, HostinfoException, KeyValue
+from host.models import HostinfoCommand, getHost, ReadonlyValueException
 
 
 ###############################################################################

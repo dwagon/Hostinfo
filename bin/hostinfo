@@ -2,8 +2,8 @@
 
 import os
 import sys
-os.environ['DJANGO_SETTINGS_MODULE'] = 'hostinfo.hostinfo.settings'
-from hostinfo.host.models import run_from_cmdline
+os.environ['DJANGO_SETTINGS_MODULE'] = 'hostinfo.settings'
+from host.models import run_from_cmdline
 
 ################################################################################
 if __name__ == "__main__":

@@ -15,8 +15,9 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from hostinfo.host.models import KeyValue, HostAlias, getHost
-from hostinfo.host.models import HostinfoCommand, HostinfoException
+
+from host.models import KeyValue, HostAlias, getHost
+from host.models import HostinfoCommand, HostinfoException
 
 
 ###############################################################################

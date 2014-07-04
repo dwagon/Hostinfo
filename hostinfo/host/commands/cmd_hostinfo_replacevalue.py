@@ -21,8 +21,8 @@
 
 import re
 import sys
-from hostinfo.host.models import checkKey
-from hostinfo.host.models import HostinfoCommand, HostinfoException, KeyValue
+from host.models import checkKey
+from host.models import HostinfoCommand, HostinfoException, KeyValue
 
 
 ###############################################################################
