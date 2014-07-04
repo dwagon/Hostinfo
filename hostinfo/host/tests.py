@@ -37,7 +37,7 @@ from .views import doHostCreateChoose, doHostCreate, doHostEditChoose, doHostEdi
 from .views import handlePost, doHostEditChanges, getLinks, getWebLinks, getWikiLinks
 from .views import getHostDetails, doHostSummary, doHost, doHostDataFormat, doHostlist
 from .views import doHostcmp, orderHostList, doHostwikiTable, doHostwiki, doCsvreport
-from .views import getHostList, csvDump, getReports, index, doReport, module_from_path
+from .views import getHostList, csvDump, index
 from .views import doRestrValList, doKeylist
 
 

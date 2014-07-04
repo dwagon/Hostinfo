@@ -8,7 +8,7 @@ import re
 import time
 import sys
 from django.shortcuts import render_to_response
-from hostinfo.host.models import Host, KeyValue, getAkCache
+from host.models import Host, KeyValue, getAkCache
 
 reportname = "Rack Reports"
 reportdesc = "Report on what hosts are in which racks"

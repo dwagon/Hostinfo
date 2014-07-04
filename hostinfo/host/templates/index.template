@@ -59,12 +59,9 @@ function delItem(num) {
 }
 </script>
 
-Reports:
 <ul id="reportlist">
+<li> <a href="/report/">Reports</a>
 <li> <a href="/hostinfo/host">All elements</a> Return a list of all {{ numhosts }} elements known
-{% for reportlink, reportname, reportdesc in reports %}
-<li> <a href="/hostinfo/{{reportlink}}">{{reportname}}</a> - {{reportdesc}}
-{% endfor %}
 </ul>
 <hr>
 {% if user.is_authenticated %}

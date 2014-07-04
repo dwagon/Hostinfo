@@ -17,10 +17,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, url
-import django.contrib.auth.views
+from django.conf.urls import patterns
 
-urlpatterns=patterns('report.views',
+urlpatterns = patterns('report.views',
+    (r'^$', 'index'),
     (r'^(?P<report>\w+)/(?P<args>.*)', 'doReport'),
     )
 

@@ -8,6 +8,12 @@ reportdir = settings.HOSTINFO_REPORT_DIR
 
 
 ################################################################################
+def index(request):
+    d = {'reports': getReports()}
+    return render(request, 'reportindex.template', d)
+
+
+################################################################################
 def getReports():
     ans = []
     repfiles = glob.glob(os.path.join(reportdir, '*.py'))

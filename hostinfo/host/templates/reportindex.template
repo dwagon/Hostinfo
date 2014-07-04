@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %} HostInfo Reports {% endblock %}
+{% block content %}
+Reports:
+<ul id="reportlist">
+{% for reportlink, reportname, reportdesc in reports %}
+<li> <a href="/report/{{reportlink}}">{{reportname}}</a> - {{reportdesc}}
+{% endfor %}
+</ul>
+{% endblock %}
+{# EOF #}

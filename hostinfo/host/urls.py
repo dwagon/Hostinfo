@@ -50,7 +50,6 @@ urlpatterns=patterns('host.views',
     (r'^keylist/(?P<key>\S+)/$', 'doKeylist'),
     (r'^rvlist/(?P<key>\S+)/$', 'doRestrValList'),
     (r'^rvlist/(?P<key>\S+)/(?P<mode>\S+)$', 'doRestrValList'),
-    (r'^report/(?P<report>\w+)/(?P<args>.*)', 'doReport'),
     )
 
 urlpatterns+=patterns('',

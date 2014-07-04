@@ -29,6 +29,9 @@ numvals=10
 outfile=None
 datestampFlag=True
 
+reportname = "generic report"
+reportdesc = "Report on stuff"
+
 ################################################################################
 def Verbose(msg):
     if verbFlag:
