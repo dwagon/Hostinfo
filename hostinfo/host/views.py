@@ -134,14 +134,14 @@ def doHostMergeChoose(request):
     starttime = time.time()
     d = {}
     if request.method == 'POST':
-	form = hostMergeForm(request.POST)
-	d['form'] = form
-	if form.is_valid():
-	    srchost = form.cleaned_data['srchost']
-	    dsthost = form.cleaned_data['dsthost']
-	    return HttpResponseRedirect('/hostinfo/hostmerge/%s/%s' % (srchost, dsthost))
+        form = hostMergeForm(request.POST)
+        d['form'] = form
+        if form.is_valid():
+            srchost = form.cleaned_data['srchost']
+            dsthost = form.cleaned_data['dsthost']
+            return HttpResponseRedirect('/hostinfo/hostmerge/%s/%s' % (srchost, dsthost))
     else:
-	d['form'] = hostMergeForm()
+        d['form'] = hostMergeForm()
     d['elapsed'] = time.time()-starttime
     return render(request, 'hostmerge.template', d)
 
@@ -174,14 +174,14 @@ def doHostRenameChoose(request):
     starttime = time.time()
     d = {}
     if request.method == 'POST':
-	form = hostRenameForm(request.POST)
-	d['form'] = form
-	if form.is_valid():
-	    srchost = form.cleaned_data['srchost']
-	    dsthost = form.cleaned_data['dsthost']
-	    return HttpResponseRedirect('/hostinfo/hostrename/%s/%s' % (srchost, dsthost))
+        form = hostRenameForm(request.POST)
+        d['form'] = form
+        if form.is_valid():
+            srchost = form.cleaned_data['srchost']
+            dsthost = form.cleaned_data['dsthost']
+            return HttpResponseRedirect('/hostinfo/hostrename/%s/%s' % (srchost, dsthost))
     else:
-	d['form'] = hostRenameForm()
+        d['form'] = hostRenameForm()
     d['elapsed'] = time.time()-starttime
     return render(request, 'hostrename.template', d)
 
@@ -259,30 +259,30 @@ def doHostEdit(request, hostname):
     starttime = time.time()
     d = {}
     if '_hostediting' in request.POST:
-	# User has selected which bits to change
-	try:
-	    doHostEditChanges(request, hostname)
-	except RestrictedValueException, err:
-	    reslist = [v[0] for v in RestrictedValue.objects.filter(keyid=err.key).values_list('value')]
-	    reserr = ", ".join(reslist)
-	    d['errorbig'] = err
-	    d['errorsmall'] = "Please pick one of: %s" % reserr
-	else:
-	    return HttpResponseRedirect('/hostinfo/host/%s' % hostname)
+        # User has selected which bits to change
+        try:
+            doHostEditChanges(request, hostname)
+        except RestrictedValueException, err:
+            reslist = [v[0] for v in RestrictedValue.objects.filter(keyid=err.key).values_list('value')]
+            reserr = ", ".join(reslist)
+            d['errorbig'] = err
+            d['errorsmall'] = "Please pick one of: %s" % reserr
+        else:
+            return HttpResponseRedirect('/hostinfo/host/%s' % hostname)
     # User has selected which host to change
     akcache = getAkCache()
     keyvals = hostviewrepr(hostname)
     kvlist = []
     usedkeys = set()
     for key, vals in keyvals:
-	usedkeys.add(key)
-	vtype = akcache[key].get_validtype_display()
-	if akcache[key].restrictedFlag:
-	    reslist = [v[0] for v in RestrictedValue.objects.filter(keyid__key=key).values_list('value')]
-	    reslist.insert(0, '-Unknown-')
-	else:
-	    reslist = []
-	kvlist.append((key, vals, vtype, reslist))
+        usedkeys.add(key)
+        vtype = akcache[key].get_validtype_display()
+        if akcache[key].restrictedFlag:
+            reslist = [v[0] for v in RestrictedValue.objects.filter(keyid__key=key).values_list('value')]
+            reslist.insert(0, '-Unknown-')
+        else:
+            reslist = []
+        kvlist.append((key, vals, vtype, reslist))
 
     # Don't let them create a new keyvalue for one that already exists
     keylist = [k for k in AllowedKey.objects.all() if k.key not in usedkeys]
@@ -297,19 +297,17 @@ def doHostEdit(request, hostname):
 ################################################################################
 def handlePost(request):
     if 'hostname' in request.POST:
-	return HttpResponseRedirect('/hostinfo/host/%s' % request.POST['hostname'])
+        return HttpResponseRedirect('/hostinfo/host/%s' % request.POST['hostname'])
     elif 'hostre' in request.POST:
-	return HttpResponseRedirect('/hostinfo/hostlist/%s.hostre' % request.POST['hostre'].strip())
+        return HttpResponseRedirect('/hostinfo/hostlist/%s.hostre' % request.POST['hostre'].strip())
     elif 'key0' in request.POST:
-	expr = ""
-	for key in request.POST:
-	    if key.startswith('key'):
-		num = key.replace('key', '')
-		expr += "%s.%s.%s/" % (request.POST['key%s' % num].strip(), request.POST['op%s' % num].strip(), request.POST['value%s' % num].strip())
-	expr = expr[:-1]
-	return HttpResponseRedirect('/hostinfo/hostlist/%s' % (expr))
-    else:
-	raise Exception, "unhandled request %s" % request
+        expr = ""
+        for key in request.POST:
+            if key.startswith('key'):
+                num = key.replace('key', '')
+                expr += "%s.%s.%s/" % (request.POST['key%s' % num].strip(), request.POST['op%s' % num].strip(), request.POST['value%s' % num].strip())
+        expr = expr[:-1]
+        return HttpResponseRedirect('/hostinfo/hostlist/%s' % (expr))
 
 
 ################################################################################
@@ -320,58 +318,58 @@ def doHostEditChanges(request, hostname):
     newkey = None
     newval = None
     for k, v in request.POST.items():
-    	if k == '_newkey.new':
-	    newkey = AllowedKey.objects.get(key=v)
-    	if k == '_newvalue.new':
-	    newval = v
+        if k == '_newkey.new':
+            newkey = AllowedKey.objects.get(key=v)
+        if k == '_newvalue.new':
+            newval = v
     if newkey and newval:
-	kv = KeyValue(hostid=hostobj, keyid=newkey, value=newval, origin='webform')
-	kv.save(request.user)
+        kv = KeyValue(hostid=hostobj, keyid=newkey, value=newval, origin='webform')
+        kv.save(request.user)
     for k, v in request.POST.items():
-    	if k.startswith('_'):
-	    continue
-	# An existing key is being edited
-    	m = re.match('(?P<key>\D+)\.(?P<instance>[\d+|new])', k)
-	if not m:
-	    continue
-	key = m.group('key')
-	instance = m.group('instance')
-	newvalue = str(v)
+        if k.startswith('_'):
+            continue
+        # An existing key is being edited
+        m = re.match('(?P<key>\D+)\.(?P<instance>[\d+|new])', k)
+        if not m:
+            continue
+        key = m.group('key')
+        instance = m.group('instance')
+        newvalue = str(v)
 
-	keyobj = AllowedKey.objects.get(key=key)
-	if keyobj.get_validtype_display() == 'list':
-	    if key not in listdata:
-	    	listdata[key] = []
-	    if newvalue and newvalue!='-Unknown-':
-		listdata[key].append(newvalue)
-	else:
-	    if keyobj.get_validtype_display() == 'date':
-		newvalue = validateDate(newvalue)
+    keyobj = AllowedKey.objects.get(key=key)
+    if keyobj.get_validtype_display() == 'list':
+        if key not in listdata:
+            listdata[key] = []
+        if newvalue and newvalue != '-Unknown-':
+            listdata[key].append(newvalue)
+    else:
+        if keyobj.get_validtype_display() == 'date':
+            newvalue = validateDate(newvalue)
 
-	    # If the value is the same - no change; blank - delete; different - new value
-	    keyval = KeyValue.objects.get(keyid=keyobj, hostid=hostobj)
-	    if newvalue == '':
-		keyval.delete(request.user)
-	    elif newvalue == keyval.value:
-		pass	# No change
-	    else:
-		keyval.value = newvalue
-		keyval.save(request.user)
+        # If the value is the same - no change; blank - delete; different - new value
+        keyval = KeyValue.objects.get(keyid=keyobj, hostid=hostobj)
+        if newvalue == '':
+            keyval.delete(request.user)
+        elif newvalue == keyval.value:
+            pass     # No change
+        else:
+            keyval.value = newvalue
+            keyval.save(request.user)
 
     # Now we have to go through the lists to work out what the new values should be
     for key in listdata:
-    	existingvals = [str(k.value) for k in KeyValue.objects.filter(keyid__key=key, hostid=hostobj)]
-	keyobj = AllowedKey.objects.get(key=key)
+        existingvals = [str(k.value) for k in KeyValue.objects.filter(keyid__key=key, hostid=hostobj)]
+        keyobj = AllowedKey.objects.get(key=key)
 
-	for val in listdata[key]:
-	    if val not in existingvals:
-		kv = KeyValue(hostid=hostobj, keyid=keyobj, value=val, origin='webform')
-		kv.save(request.user)
+        for val in listdata[key]:
+            if val not in existingvals:
+                kv = KeyValue(hostid=hostobj, keyid=keyobj, value=val, origin='webform')
+                kv.save(request.user)
 
-	for val in existingvals:
-	    if val not in listdata[key]:
-		kv = KeyValue.objects.get(hostid=hostobj, keyid=keyobj, value=val)
-		kv.delete(request.user)
+    for val in existingvals:
+        if val not in listdata[key]:
+            kv = KeyValue.objects.get(hostid=hostobj, keyid=keyobj, value=val)
+            kv.delete(request.user)
 
 
 ################################################################################
@@ -482,12 +480,12 @@ def doHostlist(request, criteria='', options=''):
 def doHostcmp(request, criteria, options=''):
     """ Display a list of matching hosts with their details"""
     if request.method == 'POST' and 'options' in request.POST:
-	options = 'opts='
-	if 'dates' in request.POST.getlist('options'):
-	    options += 'dates,'
-	if 'origin' in request.POST.getlist('options'):
-	    options += 'origin,'
-	return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criteria, options[:-1]))
+        options = 'opts='
+        if 'dates' in request.POST.getlist('options'):
+            options += 'dates,'
+        if 'origin' in request.POST.getlist('options'):
+            options += 'origin,'
+        return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criteria, options[:-1]))
     try:
         return render(request, 'multihost.template', doHostDataFormat(request, criteria, options))
     except Exception, err:
@@ -501,19 +499,19 @@ def orderHostList(hostlist, order):
     NEGATIVE = -1
     direct = 0
     if order.startswith('-'):
-    	direct = NEGATIVE
-	order = order[1:]
+        direct = NEGATIVE
+        order = order[1:]
 
     tmp = []
     for host in hostlist:
-    	kv = KeyValue.objects.filter(keyid__key=order, hostid=host)
-	if len(kv) == 0:
-	    val = ""
-	elif len(kv) == 1:
-	    val = kv[0].value
-	else:
-	    val = ",".join([key.value for key in kv])
-	tmp.append((val, host))
+        kv = KeyValue.objects.filter(keyid__key=order, hostid=host)
+        if len(kv) == 0:
+            val = ""
+        elif len(kv) == 1:
+            val = kv[0].value
+        else:
+            val = ",".join([key.value for key in kv])
+        tmp.append((val, host))
     tmp.sort()
     if direct == NEGATIVE:
         tmp.reverse()
@@ -532,36 +530,36 @@ def doHostwikiTable(request, criteria, options=None):
     printers = []
     order = None
     if options:
-	optlist = options[1:].split('/')
-	for opt in optlist:
-	    if opt.startswith('print='):
-		printers = opt.replace('print=', '').split(',')
-	    if opt.startswith('order='):
-	    	order = opt.replace('order=', '')
+        optlist = options[1:].split('/')
+        for opt in optlist:
+            if opt.startswith('print='):
+                printers = opt.replace('print=', '').split(',')
+            if opt.startswith('order='):
+                order = opt.replace('order=', '')
 
     output = "{| border=1\n"
     output += "|-\n"
 
     hl = getHostList(criteria)
     if order:
-    	hl = orderHostList(hl, order)
+        hl = orderHostList(hl, order)
     else:
-    	hl.sort()	# Sort by hostname
+        hl.sort()     # Sort by hostname
     output += "!Hostname\n"
     for p in printers:
-    	output += "!%s\n" % p.title()
+        output += "!%s\n" % p.title()
     for host in hl:
-    	output += "|-\n"
-	output += "| [[Host:%s|%s]]\n" % (host, host)
-	for p in printers:
-	    kv = KeyValue.objects.filter(keyid__key=p, hostid=host.id)
-	    if len(kv) == 0:
-	    	val = ""
-	    elif len(kv) == 1:
-	    	val = kv[0].value
-	    else:
-	    	val = ",".join([key.value for key in kv])
-	    output += "| %s\n"% val
+        output += "|-\n"
+    output += "| [[Host:%s|%s]]\n" % (host, host)
+    for p in printers:
+        kv = KeyValue.objects.filter(keyid__key=p, hostid=host.id)
+        if len(kv) == 0:
+            val = ""
+        elif len(kv) == 1:
+            val = kv[0].value
+        else:
+            val = ",".join([key.value for key in kv])
+        output += "| %s\n" % val
     output += "|}\n"
     return HttpResponse(output)
 
@@ -608,12 +606,12 @@ def csvDump(hostlist, filename):
 
     # Grab all the headings
     hdrs = []
-    hdrdict = {'hostname':'hostname'}    # Need this for the first row of headers
+    hdrdict = {'hostname': 'hostname'}    # Need this for the first row of headers
     for host, details, link in data:
-    	for t, val in details:
-	    if t not in hdrs:
-	    	hdrs.append(t)
-		hdrdict[t] = t
+        for t, val in details:
+            if t not in hdrs:
+                hdrs.append(t)
+            hdrdict[t] = t
     hdrs.sort()
     hdrs.insert(0, 'hostname')
     writer = csv.DictWriter(response, hdrs)
