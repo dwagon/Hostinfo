@@ -22,6 +22,7 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 import sys
 import time
+import StringIO
 
 from .models import HostinfoException, ReadonlyValueException, RestrictedValueException
 from .models import Host, HostAlias, AllowedKey, KeyValue, UndoLog, RestrictedValue, Links, HostinfoCommand
@@ -1640,6 +1641,7 @@ class test_cmd_listalias(unittest.TestCase):
         output = self.cmd.handle(namespace)
         self.assertEquals(output, ('foo host\nbar host\n', 0))
 
+
 ###############################################################################
 class test_cmd_listrestrictedvalue(unittest.TestCase):
     ###########################################################################
@@ -1684,21 +1686,112 @@ class test_cmd_mergehost(unittest.TestCase):
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.host = Host(hostname='mrghost')
-        self.host.save()
+        self.host1 = Host(hostname='mrghost1')
+        self.host1.save()
         self.host2 = Host(hostname='mrghost2')
         self.host2.save()
+        self.key1 = AllowedKey(key='mergesingle', validtype=1)
+        self.key1.save()
+        self.key2 = AllowedKey(key='mergelist', validtype=2)
+        self.key2.save()
+        self.stderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
 
     ###########################################################################
     def tearDown(self):
-        self.host.delete()
+        self.key1.delete()
+        self.key2.delete()
+        self.host1.delete()
         self.host2.delete()
+        sys.stderr = self.stderr
 
     ###########################################################################
-    def test_mergehost(self):
-        namespace = self.parser.parse_args(['--src', 'mrghost', '--dst', 'mrghost2'])
+    def test_mergehost_single(self):
+        namespace = self.parser.parse_args(['--src', 'mrghost1', '--dst', 'mrghost2'])
+        kv1 = KeyValue(hostid=self.host1, keyid=self.key2, value='val1')
+        kv1.save()
         output = self.cmd.handle(namespace)
         self.assertEquals(output, (None, 0))
+        kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key1)
+        self.assertEqual(kv[0].value, 'val1')
+
+    ###########################################################################
+    def Xtest_mergehost_list(self):
+        """ Merge two hosts with overlapping lists """
+        namespace = self.parser.parse_args(['--src', 'mrghost1', '--dst', 'mrghost2'])
+        addKeytoHost(host='mrghost1', key='mergelist', value='a')
+        addKeytoHost(host='mrghost1', key='mergelist', value='b', appendFlag=True)
+        addKeytoHost(host='mrghost1', key='mergelist', value='c', appendFlag=True)
+        addKeytoHost(host='mrghost2', key='mergelist', value='c')
+        addKeytoHost(host='mrghost2', key='mergelist', value='d', appendFlag=True)
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, (None, 0))
+        kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key2)
+        self.assertEqual(kv[0].value, 'val1')
+
+    ###########################################################################
+    def test_merge_collide(self):
+        """ Merge two hosts that have the same key set with a different value """
+        namespace = self.parser.parse_args(['--src', 'mrghost1', '--dst', 'mrghost2'])
+        kv1 = KeyValue(hostid=self.host1, keyid=self.key1, value='val1')
+        kv1.save()
+        kv2 = KeyValue(hostid=self.host2, keyid=self.key1, value='val2')
+        kv2.save()
+        output = self.cmd.handle(namespace)
+        errout = sys.stderr.getvalue()
+        errmsgs = [
+            "Collision: mergesingle src=val1 dst=val2",
+            "To keep dst mrghost2 value val2: hostinfo_addvalue --update mergesingle='val2' mrghost1",
+            "To keep src mrghost1 value val1: hostinfo_addvalue --update mergesingle='val1' mrghost2"
+            ]
+        for msg in errmsgs:
+            self.assertIn(msg, errout)
+        self.assertEquals(output, ("Failed to merge", 1))
+        kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key1)
+        self.assertEqual(kv[0].value, 'val2')
+
+    ###########################################################################
+    def Xtest_merge_collide_force(self):
+        """ Force merge two hosts that have the same key set with a different value
+        """
+        namespace = self.parser.parse_args(['--force', '--src', 'mrghost1', '--dst', 'mrghost2'])
+        kv1 = KeyValue(hostid=self.host1, keyid=self.key1, value='val1')
+        kv1.save()
+        kv2 = KeyValue(hostid=self.host2, keyid=self.key1, value='val2')
+        kv2.save()
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, (None, 0))
+        kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key1)
+        self.assertEqual(kv[0].value, 'val1')
+
+    ###########################################################################
+    def test_merge_no_collide(self):
+        """ Merge two hosts that have the same key set with the same value """
+        namespace = self.parser.parse_args(['--src', 'mrghost1', '--dst', 'mrghost2'])
+        kv1 = KeyValue(hostid=self.host1, keyid=self.key1, value='vala')
+        kv1.save()
+        kv2 = KeyValue(hostid=self.host2, keyid=self.key1, value='vala')
+        kv2.save()
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, (None, 0))
+        kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key1)
+        self.assertEqual(kv[0].value, 'vala')
+
+    ###########################################################################
+    def test_merge_no_srchost(self):
+        """ Attempt merge where srchost doesn't exist """
+        namespace = self.parser.parse_args(['--src', 'badhost', '--dst', 'mrghost2'])
+        with self.assertRaises(HostinfoException) as cm:
+            self.cmd.handle(namespace)
+        self.assertEquals(cm.exception.msg, "Source host badhost doesn't exist")
+
+    ###########################################################################
+    def test_merge_no_dsthost(self):
+        """ Attempt merge where dsthost doesn't exist """
+        namespace = self.parser.parse_args(['--src', 'mrghost1', '--dst', 'badhost'])
+        with self.assertRaises(HostinfoException) as cm:
+            self.cmd.handle(namespace)
+        self.assertEquals(cm.exception.msg, "Destination host badhost doesn't exist")
 
 
 ###############################################################################
@@ -1916,10 +2009,13 @@ class test_run_from_cmdline(unittest.TestCase):
     ###########################################################################
     def setUp(self):
         self.oldargv = sys.argv
+        self.stderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
 
     ###########################################################################
     def tearDown(self):
         sys.argv = self.oldargv
+        sys.stderr = self.stderr
 
     ###########################################################################
     def test_run(self):
@@ -1931,6 +2027,8 @@ class test_run_from_cmdline(unittest.TestCase):
         sys.argv[0] = 'notexists'
         rv = run_from_cmdline()
         self.assertEquals(rv, 255)
+        errout = sys.stderr.getvalue()
+        self.assertIn("No such hostinfo command notexists", errout)
 
 
 ###############################################################################
@@ -2156,18 +2254,18 @@ class test_url_host_summary(unittest.TestCase):
     # (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
     ###########################################################################
     def setUp(self):
-        self.client=Client()
-        self.host=Host(hostname='hosths')
+        self.client = Client()
+        self.host = Host(hostname='hosths')
         self.host.save()
-        self.key=AllowedKey(key='hskey', validtype=2)
+        self.key = AllowedKey(key='hskey', validtype=2)
         self.key.save()
-        self.kv1=KeyValue(hostid=self.host, keyid=self.key, value='kv1', origin='foo')
+        self.kv1 = KeyValue(hostid=self.host, keyid=self.key, value='kv1', origin='foo')
         self.kv1.save()
-        self.kv2=KeyValue(hostid=self.host, keyid=self.key, value='kv2', origin='foo')
+        self.kv2 = KeyValue(hostid=self.host, keyid=self.key, value='kv2', origin='foo')
         self.kv2.save()
-        self.al=HostAlias(hostid=self.host, alias='a1')
+        self.al = HostAlias(hostid=self.host, alias='a1')
         self.al.save()
-        self.link=Links(hostid=self.host, url='http://code.google.com/p/hostinfo', tag='hslink')
+        self.link = Links(hostid=self.host, url='http://code.google.com/p/hostinfo', tag='hslink')
         self.link.save()
 
     ###########################################################################
@@ -2181,7 +2279,7 @@ class test_url_host_summary(unittest.TestCase):
 
     ###########################################################################
     def test_rvlist(self):
-        response=self.client.get('/hostinfo/host_summary/hosths')
+        response = self.client.get('/hostinfo/host_summary/hosths')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['hostpage.template', 'base.html'])
@@ -2192,7 +2290,7 @@ class test_url_host_summary(unittest.TestCase):
 
     ###########################################################################
     def test_rvlist_wiki(self):
-        response=self.client.get('/hostinfo/host_summary/hosths/wiki')
+        response = self.client.get('/hostinfo/host_summary/hosths/wiki')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['hostpage.wiki'])
@@ -2208,23 +2306,23 @@ class test_url_host_edit(unittest.TestCase):
     def setUp(self):
         self.user = User.objects.create_user('fred', 'fred@example.com', 'secret')
         self.user.save()
-        self.client=Client()
+        self.client = Client()
         self.client.login(username='fred', password='secret')
-        self.host=Host(hostname='hosteh')
+        self.host = Host(hostname='hosteh')
         self.host.save()
-        self.key1=AllowedKey(key='ehkey1', validtype=2)
+        self.key1 = AllowedKey(key='ehkey1', validtype=2)
         self.key1.save()
-        self.key2=AllowedKey(key='ehkey2', validtype=1)
+        self.key2 = AllowedKey(key='ehkey2', validtype=1)
         self.key2.save()
-        self.kv1=KeyValue(hostid=self.host, keyid=self.key1, value='oldval')
+        self.kv1 = KeyValue(hostid=self.host, keyid=self.key1, value='oldval')
         self.kv1.save()
-        self.key3=AllowedKey(key='ehkey3', validtype=1, restrictedFlag=True)
+        self.key3 = AllowedKey(key='ehkey3', validtype=1, restrictedFlag=True)
         self.key3.save()
-        self.rv1=RestrictedValue(keyid=self.key3, value='true')
+        self.rv1 = RestrictedValue(keyid=self.key3, value='true')
         self.rv1.save()
-        self.rv2=RestrictedValue(keyid=self.key3, value='false')
+        self.rv2 = RestrictedValue(keyid=self.key3, value='false')
         self.rv2.save()
-        self.kv2=KeyValue(hostid=self.host, keyid=self.key3, value='false')
+        self.kv2 = KeyValue(hostid=self.host, keyid=self.key3, value='false')
         self.kv2.save()
 
     ###########################################################################
@@ -2241,14 +2339,14 @@ class test_url_host_edit(unittest.TestCase):
 
     ###########################################################################
     def test_hostselect(self):
-        response=self.client.get('/hostinfo/hostedit/')
+        response = self.client.get('/hostinfo/hostedit/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['hostedit.template', 'base.html'])
 
     ###########################################################################
     def test_hostpicked(self):
-        response=self.client.post('/hostinfo/hostedit/hosteh/', {'hostname':'hosteh'}, follow=True)
+        response = self.client.post('/hostinfo/hostedit/hosteh/', {'hostname':'hosteh'}, follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['hostedit.template', 'base.html', 'hostediting.template'])
@@ -2259,7 +2357,7 @@ class test_url_host_edit(unittest.TestCase):
 
     ###########################################################################
     def test_hostedited(self):
-        response=self.client.post('/hostinfo/hostedit/hosteh/', {'hostname':'hosteh', '_hostediting': 'hosteh', 'ehkey1.0': 'newval', '_newkey.new': 'ehkey3', '_newvalue.new': 'v2'}, follow=True)
+        response = self.client.post('/hostinfo/hostedit/hosteh/', {'hostname':'hosteh', '_hostediting': 'hosteh', 'ehkey1.0': 'newval', '_newkey.new': 'ehkey3', '_newvalue.new': 'v2'}, follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['hostedit.template', 'base.html', 'hostediting.template'])
@@ -2278,18 +2376,18 @@ class test_url_hostlist(unittest.TestCase):
     """
     ###########################################################################
     def setUp(self):
-        self.client=Client()
-        self.host1=Host(hostname='hosthl1')
+        self.client = Client()
+        self.host1 = Host(hostname='hosthl1')
         self.host1.save()
-        self.link=Links(hostid=self.host1, url='http://code.google.com/p/hostinfo', tag='hslink')
+        self.link = Links(hostid=self.host1, url='http://code.google.com/p/hostinfo', tag='hslink')
         self.link.save()
-        self.host2=Host(hostname='hosthl2')
+        self.host2 = Host(hostname='hosthl2')
         self.host2.save()
-        self.alias=HostAlias(hostid=self.host2, alias='alias')
+        self.alias = HostAlias(hostid=self.host2, alias='alias')
         self.alias.save()
-        self.key=AllowedKey(key='urlkey')
+        self.key = AllowedKey(key='urlkey')
         self.key.save()
-        self.kv1=KeyValue(hostid=self.host2, keyid=self.key, value='val')
+        self.kv1 = KeyValue(hostid=self.host2, keyid=self.key, value='val')
         self.kv1.save()
         getAkCache()
 
@@ -2305,35 +2403,35 @@ class test_url_hostlist(unittest.TestCase):
     ###########################################################################
     def test_hostlist(self):
         """ Test that no criteria gets nowhere """
-        response=self.client.get('/hostinfo/hostlist/')
+        response = self.client.get('/hostinfo/hostlist/')
         self.assertEquals(response.status_code, 404)
 
     ###########################################################################
     def test_badkey(self):
-        response=self.client.get('/hostinfo/hostlist/badkey=foo/')
+        response = self.client.get('/hostinfo/hostlist/badkey=foo/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'hostlist.template'])
         self.assertEquals(response.context['error'].msg, 'Must use an existing key, not badkey')
 
     ###########################################################################
     def test_withcriteria(self):
-        response=self.client.get('/hostinfo/hostlist/urlkey=foo/')
+        response = self.client.get('/hostinfo/hostlist/urlkey=foo/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'hostlist.template'])
 
     ###########################################################################
     def test_withoptions(self):
-        response=self.client.get('/hostinfo/hostlist/urlkey=foo/dates')
+        response = self.client.get('/hostinfo/hostlist/urlkey=foo/dates')
         self.assertEquals(response.status_code, 301)
-        response=self.client.get('/hostinfo/hostlist/urlkey=foo/dates', follow=True)
+        response = self.client.get('/hostinfo/hostlist/urlkey=foo/dates', follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'hostlist.template'])
 
     ###########################################################################
     def test_nohosts(self):
-        response=self.client.get('/hostinfo/host/')
+        response = self.client.get('/hostinfo/host/')
         self.assertTrue(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['hostlist.template', 'base.html'])
@@ -2342,7 +2440,7 @@ class test_url_hostlist(unittest.TestCase):
 
     ###########################################################################
     def test_hostcriteria(self):
-        response=self.client.get('/hostinfo/hostlist/hosthl2/')
+        response = self.client.get('/hostinfo/hostlist/hosthl2/')
         self.assertTrue(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['hostlist.template', 'base.html'])
@@ -2352,10 +2450,10 @@ class test_url_hostlist(unittest.TestCase):
 
     ###########################################################################
     def test_multihostcriteria(self):
-        response=self.client.get('/hostinfo/hostlist/urlkey.eq.val/')
+        response = self.client.get('/hostinfo/hostlist/urlkey.eq.val/')
         self.assertTrue(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        kv=KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
+        kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
         self.assertEquals([t.name for t in response.templates], ['hostlist.template', 'base.html'])
         self.assertEquals(response.context['title'], 'urlkey.eq.val')
         self.assertEquals(response.context['count'], 1)
@@ -2382,7 +2480,7 @@ class test_url_hostlist(unittest.TestCase):
 
     ###########################################################################
     def test_host_both_option(self):
-        response=self.client.get('/hostinfo/hostlist/urlkey.ne.bar/opts=dates,origin')
+        response = self.client.get('/hostinfo/hostlist/urlkey.ne.bar/opts=dates,origin')
         self.assertTrue(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['hostlist.template', 'base.html'])
@@ -2437,18 +2535,18 @@ class test_url_hostwikitable(unittest.TestCase):
     """
     ###########################################################################
     def setUp(self):
-        self.client=Client()
-        self.host1=Host(hostname='hosthwt1')
+        self.client = Client()
+        self.host1 = Host(hostname='hosthwt1')
         self.host1.save()
-        self.link=Links(hostid=self.host1, url='http://code.google.com/p/hostinfo', tag='hslink')
+        self.link = Links(hostid=self.host1, url='http://code.google.com/p/hostinfo', tag='hslink')
         self.link.save()
-        self.host2=Host(hostname='hosthwt2')
+        self.host2 = Host(hostname='hosthwt2')
         self.host2.save()
-        self.alias=HostAlias(hostid=self.host2, alias='alias')
+        self.alias = HostAlias(hostid=self.host2, alias='alias')
         self.alias.save()
-        self.key=AllowedKey(key='hwtkey')
+        self.key = AllowedKey(key='hwtkey')
         self.key.save()
-        self.kv1=KeyValue(hostid=self.host2, keyid=self.key, value='val')
+        self.kv1 = KeyValue(hostid=self.host2, keyid=self.key, value='val')
         self.kv1.save()
         getAkCache()
 
@@ -2463,14 +2561,14 @@ class test_url_hostwikitable(unittest.TestCase):
 
     ###########################################################################
     def test_wikitable(self):
-        response=self.client.get('/hostinfo/hostwikitable/hwtkey.ne.val')
+        response = self.client.get('/hostinfo/hostwikitable/hwtkey.ne.val')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response["Content-Type"], "text/html; charset=utf-8")
         self.assertEquals(response.content, "{| border=1\n|-\n!Hostname\n|-\n| [[Host:hosthwt1|hosthwt1]]\n|}\n")
 
     ###########################################################################
     def test_wikitable_print(self):
-        response=self.client.get('/hostinfo/hostwikitable/hwtkey.def/print=hwtkey/order=hwtkey')
+        response = self.client.get('/hostinfo/hostwikitable/hwtkey.def/print=hwtkey/order=hwtkey')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response["Content-Type"], "text/html; charset=utf-8")
         self.assertEquals(response.content, "{| border=1\n|-\n!Hostname\n!Hwtkey\n|-\n| [[Host:hosthwt2|hosthwt2]]\n| val\n|}\n")
@@ -2487,23 +2585,23 @@ class test_url_hostcmp(unittest.TestCase):
 ###############################################################################
 class test_orderhostlist(unittest.TestCase):
     def setUp(self):
-        self.key1=AllowedKey(key='ohlkey1')
+        self.key1 = AllowedKey(key='ohlkey1')
         self.key1.save()
-        self.key2=AllowedKey(key='ohlkey2', validtype=2)
+        self.key2 = AllowedKey(key='ohlkey2', validtype=2)
         self.key2.save()
-        self.hosts=[]
-        self.kvals=[]
+        self.hosts = []
+        self.kvals = []
         for h in ('a', 'b', 'c', 'd', 'e'):
-            t=Host(hostname=h)
+            t = Host(hostname=h)
             t.save()
             self.hosts.append(t)
-            kv=KeyValue(hostid=t, keyid=self.key1, value=h)
+            kv = KeyValue(hostid=t, keyid=self.key1, value=h)
             kv.save()
             self.kvals.append(kv)
-            kv=KeyValue(hostid=t, keyid=self.key2, value='%s1' % h)
+            kv = KeyValue(hostid=t, keyid=self.key2, value='%s1' % h)
             kv.save()
             self.kvals.append(kv)
-            kv=KeyValue(hostid=t, keyid=self.key2, value='2')
+            kv = KeyValue(hostid=t, keyid=self.key2, value='2')
             kv.save()
             self.kvals.append(kv)
 

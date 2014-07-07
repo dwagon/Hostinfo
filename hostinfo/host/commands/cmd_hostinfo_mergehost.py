@@ -44,6 +44,7 @@ class Command(HostinfoCommand):
     ###########################################################################
     def handle(self, namespace):
         self.kidding = namespace.kidding
+        self.force = namespace.force
         srchostobj = getHost(namespace.srchost[0])
         if not srchostobj:
             raise HostinfoException("Source host %s doesn't exist" % namespace.srchost[0])
@@ -53,7 +54,8 @@ class Command(HostinfoCommand):
 
         ok = True
 
-        # Get all the key/values from the source host and see if they exist on the dest host
+        # Get all the key/values from the source host and see if
+        # they exist on the dest host
         srckeylist = KeyValue.objects.filter(hostid__hostname=namespace.srchost[0])
         for srckey in srckeylist:
             ok = self.transferKey(srckey, srchostobj, dsthostobj)
@@ -62,7 +64,8 @@ class Command(HostinfoCommand):
 
         if ok and not namespace.kidding:
             srchostobj.delete()
-        return None, 0
+            return None, 0
+        return "Failed to merge", 1
 
     ###############################################################################
     def transferKey(self, srckey, srchostobj, dsthostobj):
@@ -107,7 +110,8 @@ class Command(HostinfoCommand):
                 if not self.kidding:
                     srckey.delete(readonlychange=True)
             else:
-                sys.stderr.write("Collision: %s src=%s dst=%s\n" % (srckey.keyid, srckey.value, dstkey.value))
+                sys.stderr.write("Collision: %s src=%s dst=%s\n" % (srckey.keyid,
+                        srckey.value, dstkey.value))
                 sys.stderr.write("To keep dst %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (dsthostobj, dstkey.value, dstkey.keyid, dstkey.value, srchostobj))
                 sys.stderr.write("To keep src %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (srchostobj, srckey.value, srckey.keyid, srckey.value, dsthostobj))
                 return False
