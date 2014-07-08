@@ -22,7 +22,7 @@ from django.db import models, connection
 # from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
 import argparse
-import audit
+from . import audit
 import exceptions
 import os
 import re
@@ -734,7 +734,7 @@ def run_from_cmdline():
     cmdname = "host.commands.cmd_%s" % os.path.basename(sys.argv[0])
     try:
         cmd = importlib.import_module(cmdname)
-    except ImportError, exc:
+    except ImportError:
         sys.stderr.write("No such hostinfo command %s\n" % sys.argv[0])
         return 255
     c = cmd.Command()
@@ -743,7 +743,7 @@ def run_from_cmdline():
         output, retval = c.over_handle()
         if output is not None:
             print(output.strip())
-    except HostinfoException, exc:
+    except HostinfoException as exc:
         sys.stderr.write("%s\n" % exc.msg)
         return exc.retval
     return retval

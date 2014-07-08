@@ -50,7 +50,7 @@ def hostviewrepr(host):
         d[kv.keyid] = d.get(kv.keyid, [])
         d[kv.keyid].append(kv)
     output = []
-    for k, v in d.items():
+    for k, v in list(d.items()):
         v.sort(key=lambda x: x.value)
         output.append((k.key, v))
     output.sort()
@@ -80,7 +80,7 @@ def getHostMergeKeyData(srchost, dsthost):
             keydata[keyname]['dst'].append(key.value)
 
     keys = []
-    for key, val in keydata.items():
+    for key, val in list(keydata.items()):
         keys.append((key, val))
     keys.sort()
     return keys
@@ -262,7 +262,7 @@ def doHostEdit(request, hostname):
         # User has selected which bits to change
         try:
             doHostEditChanges(request, hostname)
-        except RestrictedValueException, err:
+        except RestrictedValueException as err:
             reslist = [v[0] for v in RestrictedValue.objects.filter(keyid=err.key).values_list('value')]
             reserr = ", ".join(reslist)
             d['errorbig'] = err
@@ -305,7 +305,10 @@ def handlePost(request):
         for key in request.POST:
             if key.startswith('key'):
                 num = key.replace('key', '')
-                expr += "%s.%s.%s/" % (request.POST['key%s' % num].strip(), request.POST['op%s' % num].strip(), request.POST['value%s' % num].strip())
+                expr += "%s.%s.%s/" % (
+                    request.POST['key%s' % num].strip(),
+                    request.POST['op%s' % num].strip(),
+                    request.POST['value%s' % num].strip())
         expr = expr[:-1]
         return HttpResponseRedirect('/hostinfo/hostlist/%s' % (expr))
 
@@ -317,7 +320,7 @@ def doHostEditChanges(request, hostname):
     listdata = {}
     newkey = None
     newval = None
-    for k, v in request.POST.items():
+    for k, v in list(request.POST.items()):
         if k == '_newkey.new':
             newkey = AllowedKey.objects.get(key=v)
         if k == '_newvalue.new':
@@ -325,7 +328,7 @@ def doHostEditChanges(request, hostname):
     if newkey and newval:
         kv = KeyValue(hostid=hostobj, keyid=newkey, value=newval, origin='webform')
         kv.save(request.user)
-    for k, v in request.POST.items():
+    for k, v in list(request.POST.items()):
         if k.startswith('_'):
             continue
         # An existing key is being edited
@@ -333,7 +336,7 @@ def doHostEditChanges(request, hostname):
         if not m:
             continue
         key = m.group('key')
-        instance = m.group('instance')
+        #instance = m.group('instance')
         newvalue = str(v)
 
     keyobj = AllowedKey.objects.get(key=key)
@@ -472,7 +475,7 @@ def doHostlist(request, criteria='', options=''):
     """ Display a list of matching hosts by name only"""
     try:
         return render(request, 'hostlist.template', doHostDataFormat(request, criteria, options))
-    except Exception, err:
+    except Exception as err:
         return render(request, 'hostlist.template', {'error': err})
 
 
@@ -488,7 +491,7 @@ def doHostcmp(request, criteria, options=''):
         return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criteria, options[:-1]))
     try:
         return render(request, 'multihost.template', doHostDataFormat(request, criteria, options))
-    except Exception, err:
+    except Exception as err:
         return render(request, 'multihost.template', {'error': err})
 
 
@@ -569,7 +572,7 @@ def doHostwiki(request, criteria):
     """ Display a list of matching hosts with their details"""
     try:
         return render(request, 'hostlist.wiki', doHostDataFormat(request, criteria))
-    except Exception, err:
+    except Exception as err:
         return render(request, 'hostlist.wiki', {'error': err})
 
 
@@ -671,8 +674,8 @@ def doKeylist(request, key):
 
     # Calculate for each distinct value percentages
     tmpvalues = []
-    for k, v in values.items():
-        p = 100.0*v/len(hostids)
+    for k, v in list(values.items()):
+        p = 100.0 * v / len(hostids)
         tmpvalues.append((k, v, p))
 
     tmpvalues.sort()
