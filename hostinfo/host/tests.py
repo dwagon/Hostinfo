@@ -1708,7 +1708,7 @@ class test_cmd_mergehost(unittest.TestCase):
     ###########################################################################
     def test_mergehost_single(self):
         namespace = self.parser.parse_args(['--src', 'mrghost1', '--dst', 'mrghost2'])
-        kv1 = KeyValue(hostid=self.host1, keyid=self.key2, value='val1')
+        kv1 = KeyValue(hostid=self.host1, keyid=self.key1, value='val1')
         kv1.save()
         output = self.cmd.handle(namespace)
         self.assertEquals(output, (None, 0))
@@ -1716,7 +1716,7 @@ class test_cmd_mergehost(unittest.TestCase):
         self.assertEqual(kv[0].value, 'val1')
 
     ###########################################################################
-    def Xtest_mergehost_list(self):
+    def test_mergehost_list(self):
         """ Merge two hosts with overlapping lists """
         namespace = self.parser.parse_args(['--src', 'mrghost1', '--dst', 'mrghost2'])
         addKeytoHost(host='mrghost1', key='mergelist', value='a')
@@ -1727,7 +1727,8 @@ class test_cmd_mergehost(unittest.TestCase):
         output = self.cmd.handle(namespace)
         self.assertEquals(output, (None, 0))
         kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key2)
-        self.assertEqual(kv[0].value, 'val1')
+        vals = sorted([k.value for k in kv])
+        self.assertEqual(vals, ['a', 'b', 'c', 'd'])
 
     ###########################################################################
     def test_merge_collide(self):
@@ -1751,7 +1752,7 @@ class test_cmd_mergehost(unittest.TestCase):
         self.assertEqual(kv[0].value, 'val2')
 
     ###########################################################################
-    def Xtest_merge_collide_force(self):
+    def test_merge_collide_force(self):
         """ Force merge two hosts that have the same key set with a different value
         """
         namespace = self.parser.parse_args(['--force', '--src', 'mrghost1', '--dst', 'mrghost2'])
@@ -1762,7 +1763,7 @@ class test_cmd_mergehost(unittest.TestCase):
         output = self.cmd.handle(namespace)
         self.assertEquals(output, (None, 0))
         kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key1)
-        self.assertEqual(kv[0].value, 'val1')
+        self.assertEqual(kv[0].value, 'val2')
 
     ###########################################################################
     def test_merge_no_collide(self):

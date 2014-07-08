@@ -30,7 +30,7 @@ class Command(HostinfoCommand):
     def parseArgs(self, parser):
         parser.add_argument(
             '-f', '--force',
-            help="Force the merge", action='store_true')
+            help="Force the merge", action='store_true', default=False)
         parser.add_argument(
             '-k', '--kidding',
             help="Don't actually make any changes", action='store_true')
@@ -62,7 +62,7 @@ class Command(HostinfoCommand):
             if not ok:
                 break
 
-        if ok and not namespace.kidding:
+        if ok and not self.kidding:
             srchostobj.delete()
             return None, 0
         return "Failed to merge", 1
@@ -106,12 +106,12 @@ class Command(HostinfoCommand):
             return True
 
         if dstkey.value != srckey.value:
+            # If force then just use the dest key
             if self.force:
                 if not self.kidding:
                     srckey.delete(readonlychange=True)
             else:
-                sys.stderr.write("Collision: %s src=%s dst=%s\n" % (srckey.keyid,
-                        srckey.value, dstkey.value))
+                sys.stderr.write("Collision: %s src=%s dst=%s\n" % (srckey.keyid, srckey.value, dstkey.value))
                 sys.stderr.write("To keep dst %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (dsthostobj, dstkey.value, dstkey.keyid, dstkey.value, srchostobj))
                 sys.stderr.write("To keep src %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (srchostobj, srckey.value, srckey.keyid, srckey.value, dsthostobj))
                 return False
