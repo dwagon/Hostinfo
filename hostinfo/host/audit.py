@@ -153,7 +153,7 @@ def create_audit_model(cls, **kwargs):
         'Meta': Meta,
         '_audit_id': models.AutoField(primary_key=True),
         '_audit_timestamp': models.DateTimeField(auto_now_add=True, db_index=True),
-        '_audit__str__': cls.__str__.im_func,
+        '_audit__str__': cls.__str__.__func__,
         '__str__': lambda self: '%s as of %s' % (self._audit__str__(), self._audit_timestamp),
         '_audit_track': _track_fields(track_fields=kwargs['track_fields'], unprocessed=True)
     }
