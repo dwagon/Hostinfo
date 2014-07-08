@@ -596,7 +596,7 @@ def getHostList(criteria):
 
 ################################################################################
 def csvDump(hostlist, filename):
-    response = HttpResponse(mimetype='text/csv')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
     # Convert list of hosts into all required data
     data = []
