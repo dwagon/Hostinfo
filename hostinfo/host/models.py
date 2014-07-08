@@ -23,7 +23,6 @@ from django.db import models, connection
 from django.core.exceptions import ObjectDoesNotExist
 import argparse
 from . import audit
-import exceptions
 import os
 import re
 import sys
@@ -65,7 +64,7 @@ class MyProfiler:       # pragma: no cover
 
 
 ################################################################################
-class HostinfoException(exceptions.Exception):
+class HostinfoException(Exception):
     def __init__(self, msg="", retval=1):
         self.msg = msg
         self.retval = retval
