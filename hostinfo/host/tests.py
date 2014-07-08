@@ -1856,6 +1856,8 @@ class test_cmd_replacevalue(unittest.TestCase):
         self.kv.save()
         self.kv2 = KeyValue(hostid=self.host2, keyid=self.key, value='before')
         self.kv2.save()
+        self.stderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
 
     ###########################################################################
     def tearDown(self):
@@ -1864,6 +1866,7 @@ class test_cmd_replacevalue(unittest.TestCase):
         self.key.delete()
         self.host.delete()
         self.host2.delete()
+        sys.stderr = self.stderr
 
     ###########################################################################
     def test_replacevalue(self):
@@ -1981,21 +1984,24 @@ class test_cmd_undolog(unittest.TestCase):
 
     ###########################################################################
     def test_user(self):
-        """ Test normal behaviour"""
+        """ Test normal behaviour for a user"""
         namespace = self.parser.parse_args(['--user', 'foo'])
         output = self.cmd.handle(namespace)
+        self.assertEquals(output, ('', 0))
 
     ###########################################################################
     def test_week(self):
-        """ Test normal behaviour"""
+        """ Test normal behaviour for a week"""
         namespace = self.parser.parse_args(['--week'])
         output = self.cmd.handle(namespace)
+        self.assertEquals(output[1], 0)
 
     ###########################################################################
     def test_days(self):
-        """ Test normal behaviour"""
+        """ Test normal behaviour for 5 days"""
         namespace = self.parser.parse_args(['--days', '5'])
         output = self.cmd.handle(namespace)
+        self.assertEquals(output[1], 0)
 
     ###########################################################################
     def test_undolog(self):
@@ -2030,6 +2036,49 @@ class test_run_from_cmdline(unittest.TestCase):
         self.assertEquals(rv, 255)
         errout = sys.stderr.getvalue()
         self.assertIn("No such hostinfo command notexists", errout)
+
+
+###############################################################################
+class test_url_hostrename(unittest.TestCase):
+    ###########################################################################
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user('test', '', 'passwd')
+        self.user.save()
+        self.host = Host(hostname='urenamehost1')
+        self.host.save()
+
+    ###########################################################################
+    def tearDown(self):
+        self.user.delete()
+        self.host.delete()
+
+    ###########################################################################
+    def test_do_rename(self):
+        """ Send answers to the host rename form
+        """
+        self.client.login(username='test', password='passwd')
+        response = self.client.post(
+            '/hostinfo/hostrename/',
+            {'srchost': 'urenamehost1', 'dsthost': 'urenamed'},
+            follow=True)
+
+        self.assertIn('urenamehost1 has been successfully renamed to urenamed', response.content)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals([t.name for t in response.templates], ['hostrename.template', 'base.html'])
+        host = Host.objects.filter(hostname='urenamehost1')
+        self.assertEquals(len(host), 0)
+        host = Host.objects.filter(hostname='urenamed')
+        self.assertEquals(len(host), 1)
+
+    ###########################################################################
+    def test_blank_form(self):
+        """ Ask for the host merge form """
+        self.client.login(username='test', password='passwd')
+        response = self.client.get('/hostinfo/hostrename/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals([t.name for t in response.templates], ['hostrename.template', 'base.html'])
 
 
 ###############################################################################
