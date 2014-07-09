@@ -15,11 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
+{% load staticfiles %}
+
 <html>
 <head>
 <title>{% block title %}No title set {% endblock %}</title>
-<link rel="stylesheet" type="text/css" href="/static/hostinfo_style.css"/>
+<link rel="stylesheet" type="text/css" href="{% static "hostinfo/hostinfo_style.css" %}"/>
 </head>
+
 
 <body>
 <table border=1>
@@ -30,9 +33,10 @@
 	<a href="/hostinfo/">Home</a></br>
 	<form action="/hostinfo/handlePost/" method="POST"> {% csrf_token %} <input type="search" value="Hostname" name="hostre"> </form></br>
 	{% if csvavailable %}
-	<a href="{{csvavailable}}"><img src="/images/csv_report.gif" alt="CSV Report"></a>
+	<a href="{{csvavailable}}"><img src="{% static "hostinfo/csv_report.gif" %}" alt="CSV Report"/></a>
 	{% endif %}
-	<a href="mailto:dougal.scott@gmail.com&subject=HostInfo Suggestion"><img src="/images/suggestion.gif" alt="Send a suggestion to Sysadmins"></a>
+	<a href="mailto:dougal.scott@gmail.com&subject=HostInfo Suggestion"><img
+    src={% static "hostinfo/suggestion.gif" %} alt="Send a suggestion to Sysadmins"/></a>
 
 	<br>
     {% if user.is_authenticated %}
