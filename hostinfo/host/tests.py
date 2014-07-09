@@ -459,8 +459,14 @@ class test_getMatches(unittest.TestCase):
             set([self.host.id,  self.host2.id])
             )
         self.assertEquals(getMatches([('greaterthan', 'list', 'zzzzz')]), [])
-        self.assertEquals(getMatches([('greaterthan', 'date', '2012/12/24')]), [])
-        self.assertEquals(getMatches([('greaterthan', 'date', '2012/12/26')]), [])
+        self.assertEquals(
+            getMatches([('greaterthan', 'date', '2012/12/24')]),
+            [self.host.id]
+            )
+        self.assertEquals(
+            getMatches([('greaterthan', 'date', '2012/12/26')]),
+            []
+            )
 
     ###########################################################################
     def test_lessthan(self):
@@ -475,7 +481,7 @@ class test_getMatches(unittest.TestCase):
             )
         self.assertEquals(
             getMatches([('lessthan', 'date', '2012/12/24')]),
-            [self.host.id]
+            []
             )
         self.assertEquals(
             getMatches([('lessthan', 'date', '2012/12/26')]),
