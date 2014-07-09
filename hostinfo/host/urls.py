@@ -1,4 +1,4 @@
-# Local URL handled for hostinfo
+# Local URL handler for hostinfo
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -17,10 +17,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, url
-import django.contrib.auth.views
+from django.conf.urls import patterns
 
-urlpatterns=patterns('host.views',
+urlpatterns = patterns('host.views',
     (r'^$', 'index'),
     (r'^handlePost/$', 'handlePost'),
 
@@ -42,7 +41,7 @@ urlpatterns=patterns('host.views',
     (r'^hostwiki/(?P<criteria>.*)/$', 'doHostwiki'),
     (r'^host/$', 'doHostlist'),
     (r'^host/(?P<hostname>\S+)/$', 'doHost'),
-    (r'^host/(?P<hostname>\S+)/wiki$', 'doHost', {'format':'wiki'}),
+    (r'^host/(?P<hostname>\S+)/wiki$', 'doHost', {'format': 'wiki'}),
     (r'^host_summary/(?P<hostname>.*)/(?P<format>\S+)$', 'doHostSummary'),
     (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
     (r'^csv/$', 'doCsvreport'),
@@ -50,11 +49,6 @@ urlpatterns=patterns('host.views',
     (r'^keylist/(?P<key>\S+)/$', 'doKeylist'),
     (r'^rvlist/(?P<key>\S+)/$', 'doRestrValList'),
     (r'^rvlist/(?P<key>\S+)/(?P<mode>\S+)$', 'doRestrValList'),
-    )
-
-urlpatterns+=patterns('',
-    (r'^accounts/login/', 'django.contrib.auth.views.login'),
-    (r'^accounts/logout/', 'django.contrib.auth.views.logout', {'next_page': '/hostinfo/'}),
     )
 
 #EOF
