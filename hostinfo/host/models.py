@@ -282,7 +282,10 @@ class KeyValue(models.Model):
             undoflag = '--append'
         else:
             undoflag = ''
-        undo = UndoLog(user=user, action='hostinfo_addvalue %s %s=%s %s' % (undoflag, self.keyid, self.value, self.hostid))
+        undo = UndoLog(
+            user=user,
+            action='hostinfo_addvalue %s %s=%s %s' % (undoflag, self.keyid, self.value, self.hostid)
+            )
         undo.save()
         super(KeyValue, self).delete()
 
@@ -609,7 +612,7 @@ def getOrigin(origin):
     if origin:
         return origin
     try:
-        user = os.getlogin()
+        origin = os.getlogin()
     except OSError:        # Web interface can't do os.getlogin calls
         for e in ('REMOTE_USER', 'REMOTE_ADDR', 'USER'):
             try:
