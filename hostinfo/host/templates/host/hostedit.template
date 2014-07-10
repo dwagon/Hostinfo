@@ -20,7 +20,7 @@
 
 {% block content %}
 {% if editing %}
-    {% include "hostediting.template" %}
+    {% include "host/hostediting.template" %}
 {% else %}
     Change the values of a host
     <form action="/hostinfo/hostedit/" method="POST">

@@ -38,7 +38,7 @@
 
 <table>
 {% for host,kvlist,hostlink in hostlist %}
-    {% include "showall.template" %}
+    {% include "host/showall.template" %}
 {% endfor %}
 </table>
 {% endblock %}

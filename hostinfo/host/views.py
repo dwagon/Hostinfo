@@ -143,7 +143,7 @@ def doHostMergeChoose(request):
     else:
         d['form'] = hostMergeForm()
     d['elapsed'] = time.time()-starttime
-    return render(request, 'hostmerge.template', d)
+    return render(request, 'host/hostmerge.template', d)
 
 
 ################################################################################
@@ -160,10 +160,10 @@ def doHostMerge(request, srchost, dsthost):
         doHostMerging(request)
         d['merged'] = True
     else:
-        d['keys'] = getHostMergeKeyData(srchost, dsthost)
+        d['keys'] = getHostMergeKeyData(getHost(srchost), getHost(dsthost))
         d['merging'] = True
     d['elapsed'] = time.time()-starttime
-    return render(request, 'hostmerge.template', d)
+    return render(request, 'host/hostmerge.template', d)
 
 
 ################################################################################
@@ -183,7 +183,7 @@ def doHostRenameChoose(request):
     else:
         d['form'] = hostRenameForm()
     d['elapsed'] = time.time()-starttime
-    return render(request, 'hostrename.template', d)
+    return render(request, 'host/hostrename.template', d)
 
 
 ################################################################################
@@ -198,7 +198,7 @@ def doHostRename(request, srchost, dsthost):
     srchost.save(request.user)
     d['renamed'] = True
     d['elapsed'] = time.time()-starttime
-    return render(request, 'hostrename.template', d)
+    return render(request, 'host/hostrename.template', d)
 
 
 ################################################################################
@@ -218,7 +218,7 @@ def doHostCreateChoose(request):
     else:
         d['form'] = hostCreateForm()
     d['elapsed'] = time.time()-starttime
-    return render(request, 'hostcreate.template', d)
+    return render(request, 'host/hostcreate.template', d)
 
 
 ################################################################################
@@ -231,7 +231,7 @@ def doHostCreate(request, hostname):
     nh.save(request.user)
     d['created'] = True
     d['elapsed'] = time.time()-starttime
-    return render(request, 'hostcreate.template', d)
+    return render(request, 'host/hostcreate.template', d)
 
 
 ################################################################################
@@ -250,7 +250,7 @@ def doHostEditChoose(request):
     else:
         d['form'] = hostEditForm()
     d['elapsed'] = time.time() - starttime
-    return render(request, 'hostedit.template', d)
+    return render(request, 'host/hostedit.template', d)
 
 
 ################################################################################
@@ -291,7 +291,7 @@ def doHostEdit(request, hostname):
     d['keylist'] = keylist
     d['editing'] = True
     d['elapsed'] = time.time()-starttime
-    return render(request, 'hostedit.template', d)
+    return render(request, 'host/hostedit.template', d)
 
 
 ################################################################################
@@ -430,7 +430,7 @@ def doHostSummary(request, hostname, format='web'):
     """ Display a single host """
     d = getHostDetails(request, hostname, format)
     if format == 'web':
-        return render(request, 'hostpage.template', d)
+        return render(request, 'host/hostpage.template', d)
     elif format == 'wiki':
         return render(request, 'hostpage.wiki', d)
 
@@ -440,7 +440,7 @@ def doHost(request, hostname, format='web'):
     """ Display a single host """
     d = getHostDetails(request, hostname, format)
     if format == 'web':
-        return render(request, 'host.template', d)
+        return render(request, 'host/host.template', d)
     elif format == 'wiki':
         return render(request, 'host.wiki', d)
 
@@ -474,9 +474,9 @@ def doHostDataFormat(request, criteria='', options=''):
 def doHostlist(request, criteria='', options=''):
     """ Display a list of matching hosts by name only"""
     try:
-        return render(request, 'hostlist.template', doHostDataFormat(request, criteria, options))
+        return render(request, 'host/hostlist.template', doHostDataFormat(request, criteria, options))
     except Exception as err:
-        return render(request, 'hostlist.template', {'error': err})
+        return render(request, 'host/hostlist.template', {'error': err})
 
 
 ################################################################################
@@ -637,7 +637,7 @@ def index(request):
         'csvavailable': '/hostinfo/csv',
         'user': request.user,
     }
-    return render(request, 'index.template', d)
+    return render(request, 'host/index.template', d)
 
 
 ################################################################################
@@ -650,7 +650,7 @@ def doRestrValList(request, key, mode=None):
     }
     if mode == 'wiki':
         return render(request, 'restrval.wiki', d)
-    return render(request, 'restrval.template', d)
+    return render(request, 'host/restrval.template', d)
 
 
 ################################################################################
@@ -694,6 +694,6 @@ def doKeylist(request, key):
         'total': total,
         'user': request.user,
     }
-    return render(request, 'keylist.template', d)
+    return render(request, 'host/keylist.template', d)
 
 #EOF
