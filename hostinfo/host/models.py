@@ -161,10 +161,6 @@ class Host(models.Model):
         super(Host, self).delete()
 
     ############################################################################
-    def fullrepr(self):
-        return "id=%s hostname=%s origin=%s" % (self.id, self.hostname, self.origin)
-
-    ############################################################################
     def __unicode__(self):
         return "%s" % self.hostname
 
@@ -224,10 +220,6 @@ class AllowedKey(models.Model):
         ('user', models.CharField(max_length=20), getUser),
         ('actor', models.CharField(max_length=250), getActor), )
         )
-
-    ############################################################################
-    def fullrepr(self):
-        return "id=%s key=%s validtype=%s desc=%s" % (self.id, self.key, self.validtype, self.desc)
 
     ############################################################################
     def __unicode__(self):
@@ -295,10 +287,6 @@ class KeyValue(models.Model):
         super(KeyValue, self).delete()
 
     ############################################################################
-    def fullrepr(self):
-        return "id=%s hostid=%s keyid=%s value=%s origin=%s" % (self.id, self.hostid, self.keyid, self.value, self.origin)
-
-    ############################################################################
     def __unicode__(self):
         return "%s=%s" % (self.keyid.key, self.value)
 
@@ -352,10 +340,6 @@ class RestrictedValue(models.Model):
     ############################################################################
     class Meta:
         unique_together = (('keyid', 'value'), )
-
-    ############################################################################
-    def fullrepr(self):
-        return "id=%s keyid=%s value=%s" % (self.id, self.keyid, self.value)
 
 
 ################################################################################
