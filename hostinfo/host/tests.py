@@ -2072,7 +2072,10 @@ class test_url_hostrename(unittest.TestCase):
         self.assertIn('urenamehost1 has been successfully renamed to urenamed', response.content)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals([t.name for t in response.templates], ['hostrename.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostrename.template', 'host/base.html']
+            )
         host = Host.objects.filter(hostname='urenamehost1')
         self.assertEquals(len(host), 0)
         host = Host.objects.filter(hostname='urenamed')
@@ -2084,7 +2087,10 @@ class test_url_hostrename(unittest.TestCase):
         self.client.login(username='test', password='passwd')
         response = self.client.get('/hostinfo/hostrename/')
         self.assertEquals(response.status_code, 200)
-        self.assertEquals([t.name for t in response.templates], ['hostrename.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostrename.template', 'host/base.html']
+            )
 
 
 ###############################################################################
@@ -2101,7 +2107,10 @@ class test_url_index(unittest.TestCase):
     def test_base(self):
         response = self.client.get('/hostinfo/')
         self.assertEquals(response.status_code, 200)
-        self.assertEquals([t.name for t in response.templates], ['index.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/index.template', 'host/base.html']
+            )
 
 
 ###############################################################################
@@ -2124,11 +2133,14 @@ class test_url_handlePost(unittest.TestCase):
 
     ###########################################################################
     def test_hostname(self):
-        response = self.client.post('/hostinfo/handlePost/', data={'hostname':'posthost'})
+        response = self.client.post('/hostinfo/handlePost/', data={'hostname': 'posthost'})
         self.assertEquals(response.status_code, 302)
-        response = self.client.post('/hostinfo/handlePost/', data={'hostname':'posthost'}, follow=True)
+        response = self.client.post('/hostinfo/handlePost/', data={'hostname': 'posthost'}, follow=True)
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'host.template', 'showall.template'])
+        self.assertEquals(
+            sorted([t.name for t in response.templates]),
+            ['host/base.html', 'host/host.template', 'host/showall.template']
+            )
 
 
 ###############################################################################
@@ -2158,7 +2170,10 @@ class test_url_keylist(unittest.TestCase):
         response = self.client.get('/hostinfo/keylist/urlkey/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'keylist.template'])
+        self.assertEquals(
+            sorted([t.name for t in response.templates]),
+            ['host/base.html', 'host/keylist.template']
+            )
         self.assertEquals(response.context['key'], 'urlkey')
         self.assertEquals(response.context['total'], 2)          # Number of hosts
         self.assertEquals(response.context['numkeys'], 1)        # Number of different values
@@ -2173,7 +2188,10 @@ class test_url_keylist(unittest.TestCase):
         response = self.client.get('/hostinfo/keylist/badkey/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'keylist.template'])
+        self.assertEquals(
+            sorted([t.name for t in response.templates]),
+            ['host/base.html', 'host/keylist.template']
+            )
         self.assertEquals(response.context['key'], 'badkey')
         self.assertEquals(response.context['total'], 2)          # Number of hosts
         self.assertEquals(response.context['numkeys'], 0)        # Number of different values
@@ -2282,10 +2300,13 @@ class test_url_rvlist(unittest.TestCase):
 
     ###########################################################################
     def test_rvlist(self):
-        response=self.client.get('/hostinfo/rvlist/rvlkey/')
+        response = self.client.get('/hostinfo/rvlist/rvlkey/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['restrval.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/restrval.template', 'host/base.html']
+            )
         self.assertEquals(response.context['key'], 'rvlkey')
         self.assertEquals(len(response.context['rvlist']), 3)
         self.assertTrue(self.rv1 in response.context['rvlist'])
@@ -2293,7 +2314,7 @@ class test_url_rvlist(unittest.TestCase):
 
     ###########################################################################
     def test_rvlist_wiki(self):
-        response=self.client.get('/hostinfo/rvlist/rvlkey/wiki')
+        response = self.client.get('/hostinfo/rvlist/rvlkey/wiki')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['restrval.wiki'])
@@ -2338,7 +2359,10 @@ class test_url_host_summary(unittest.TestCase):
         response = self.client.get('/hostinfo/host_summary/hosths')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['hostpage.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostpage.template', 'host/base.html']
+            )
         self.assertEquals(response.context['host'], 'hosths')
         self.assertEquals(response.context['hostlink'], ['(<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>)'])
         self.assertEquals(response.context['kvlist'], [('hskey', [self.kv1, self.kv2])])
@@ -2398,25 +2422,41 @@ class test_url_host_edit(unittest.TestCase):
         response = self.client.get('/hostinfo/hostedit/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['hostedit.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostedit.template', 'host/base.html']
+            )
 
     ###########################################################################
     def test_hostpicked(self):
-        response = self.client.post('/hostinfo/hostedit/hosteh/', {'hostname':'hosteh'}, follow=True)
+        response = self.client.post('/hostinfo/hostedit/hosteh/', {'hostname': 'hosteh'}, follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['hostedit.template', 'base.html', 'hostediting.template'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostedit.template', 'host/base.html', 'host/hostediting.template']
+            )
         self.assertEquals(response.context['host'], 'hosteh')
         self.assertEquals(response.context['editing'], True)
-        self.assertEquals(response.context['kvlist'], [('ehkey1', [self.kv1], 'list', []), (u'ehkey3', [self.kv2], u'single', ['-Unknown-', u'false', u'true'])])
+        self.assertEquals(
+            response.context['kvlist'],
+            [('ehkey1', [self.kv1], 'list', []), (u'ehkey3', [self.kv2], u'single', ['-Unknown-', u'false', u'true'])]
+            )
         self.assertEquals(response.context['keylist'], [self.key2])
 
     ###########################################################################
     def test_hostedited(self):
-        response = self.client.post('/hostinfo/hostedit/hosteh/', {'hostname':'hosteh', '_hostediting': 'hosteh', 'ehkey1.0': 'newval', '_newkey.new': 'ehkey3', '_newvalue.new': 'v2'}, follow=True)
+        response = self.client.post(
+            '/hostinfo/hostedit/hosteh/',
+            {'hostname': 'hosteh', '_hostediting': 'hosteh', 'ehkey1.0': 'newval', '_newkey.new': 'ehkey3', '_newvalue.new': 'v2'},
+            follow=True
+            )
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['hostedit.template', 'base.html', 'hostediting.template'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostedit.template', 'host/base.html', 'host/hostediting.template']
+            )
         #kv=KeyValue.objects.filter(hostid=self.host, keyid=self.key1)
         #self.assertEquals(kv[0].value, 'newval')
         #kv=KeyValue.objects.filter(hostid=self.host, keyid=self.key3)
@@ -2466,7 +2506,10 @@ class test_url_hostlist(unittest.TestCase):
     def test_badkey(self):
         response = self.client.get('/hostinfo/hostlist/badkey=foo/')
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'hostlist.template'])
+        self.assertEquals(
+            sorted([t.name for t in response.templates]),
+            ['host/base.html', 'host/hostlist.template']
+            )
         self.assertEquals(response.context['error'].msg, 'Must use an existing key, not badkey')
 
     ###########################################################################
@@ -2474,7 +2517,10 @@ class test_url_hostlist(unittest.TestCase):
         response = self.client.get('/hostinfo/hostlist/urlkey=foo/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'hostlist.template'])
+        self.assertEquals(
+            sorted([t.name for t in response.templates]),
+            ['host/base.html', 'host/hostlist.template']
+            )
 
     ###########################################################################
     def test_withoptions(self):
@@ -2483,23 +2529,35 @@ class test_url_hostlist(unittest.TestCase):
         response = self.client.get('/hostinfo/hostlist/urlkey=foo/dates', follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals(sorted([t.name for t in response.templates]), ['base.html', 'hostlist.template'])
+        self.assertEquals(
+            sorted([t.name for t in response.templates]),
+            ['host/base.html', 'host/hostlist.template']
+            )
 
     ###########################################################################
     def test_nohosts(self):
         response = self.client.get('/hostinfo/host/')
         self.assertTrue(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['hostlist.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostlist.template', 'host/base.html']
+            )
         self.assertEquals(response.context['count'], 2)
-        self.assertEquals(response.context['hostlist'], [(u'hosthl1', [], ['(<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>)']), (u'hosthl2', [(u'urlkey', [self.kv1])], [])])
+        self.assertEquals(
+            response.context['hostlist'],
+            [(u'hosthl1', [], ['(<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>)']), (u'hosthl2', [(u'urlkey', [self.kv1])], [])]
+            )
 
     ###########################################################################
     def test_hostcriteria(self):
         response = self.client.get('/hostinfo/hostlist/hosthl2/')
         self.assertTrue(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['hostlist.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostlist.template', 'host/base.html']
+            )
         self.assertEquals(response.context['count'], 1)
         self.assertEquals(response.context['csvavailable'], '/hostinfo/csv/hosthl2')
         self.assertEquals(response.context['hostlist'], [(u'hosthl2', [(u'urlkey', [self.kv1])], [])])
@@ -2510,7 +2568,10 @@ class test_url_hostlist(unittest.TestCase):
         self.assertTrue(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
-        self.assertEquals([t.name for t in response.templates], ['hostlist.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostlist.template', 'host/base.html']
+            )
         self.assertEquals(response.context['title'], 'urlkey.eq.val')
         self.assertEquals(response.context['count'], 1)
         self.assertEquals(response.context['hostlist'], [(u'hosthl2', [(u'urlkey', [self.kv1])], [])])
@@ -2522,7 +2583,7 @@ class test_url_hostlist(unittest.TestCase):
         self.assertTrue('error' not in response.context)
         self.assertEquals(
             [t.name for t in response.templates],
-            ['hostlist.template', 'base.html']
+            ['host/hostlist.template', 'host/base.html']
             )
         self.assertEquals(response.context['count'], 2)
         self.assertEquals(response.context['origin'], True)
@@ -2539,7 +2600,10 @@ class test_url_hostlist(unittest.TestCase):
         response = self.client.get('/hostinfo/hostlist/urlkey.ne.bar/opts=dates,origin')
         self.assertTrue(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['hostlist.template', 'base.html'])
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostlist.template', 'host/base.html']
+            )
         self.assertEquals(response.context['count'], 2)
         self.assertEquals(response.context['origin'], True)
         self.assertEquals(response.context['dates'], True)

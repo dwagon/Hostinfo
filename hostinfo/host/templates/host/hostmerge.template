@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-{% extends "base.html" %}
+{% extends "host/base.html" %}
 {% block title %} Merge two hosts {% endblock %}
 {% block content %}
 {% if merged %}
