@@ -8,7 +8,10 @@ import os
 from distutils.core import setup
 
 setup_scripts = [os.path.join('bin', f) for f in os.listdir('bin')]
-setup_templates = {'hostinfo.host': ['templates/*'], 'hostinfo.report': ['templates/report/*']}
+setup_templates = {
+    'hostinfo.host': ['templates/host/*'],
+    'hostinfo.report': ['templates/report/*']
+    }
 
 setup_classifiers = [
     'Development Status :: 5 - Production/Stable',
