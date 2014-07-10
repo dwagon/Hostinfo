@@ -103,7 +103,7 @@ def mergeKey(request, srchostobj, dsthostobj, key):
             dstval.delete(request.user)
         except ObjectDoesNotExist:
             pass
-            srcval = KeyValue.objects.get(hostid=srchostobj, keyid=keyobj)
+        srcval = KeyValue.objects.get(hostid=srchostobj, keyid=keyobj)
         srcval.hostid = dsthostobj
         srcval.save(request.user)
 
@@ -156,7 +156,7 @@ def doHostMerge(request, srchost, dsthost):
     d['srchost'] = srchost
     d['dsthost'] = dsthost
     if '_hostmerging' in request.POST:
-        # User has select which bits to merge
+        # User has selected which bits to merge
         doHostMerging(request)
         d['merged'] = True
     else:
@@ -490,9 +490,9 @@ def doHostcmp(request, criteria, options=''):
             options += 'origin,'
         return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criteria, options[:-1]))
     try:
-        return render(request, 'multihost.template', doHostDataFormat(request, criteria, options))
+        return render(request, 'host/multihost.template', doHostDataFormat(request, criteria, options))
     except Exception as err:
-        return render(request, 'multihost.template', {'error': err})
+        return render(request, 'host/multihost.template', {'error': err})
 
 
 ################################################################################

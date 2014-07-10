@@ -2045,6 +2045,63 @@ class test_run_from_cmdline(unittest.TestCase):
 
 
 ###############################################################################
+class test_url_hostmerge(unittest.TestCase):
+    ###########################################################################
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user('test', '', 'passwd')
+        self.user.save()
+        self.host1 = Host(hostname='merge1')
+        self.host1.save()
+        self.host2 = Host(hostname='merge2')
+        self.host2.save()
+        self.key = AllowedKey(key='mergekey', validtype=1)
+        self.key.save()
+        self.kv = KeyValue(hostid=self.host1, keyid=self.key, value='foo')
+        self.kv.save()
+
+    ###########################################################################
+    def tearDown(self):
+        self.user.delete()
+        self.host1.delete()
+        self.host2.delete()
+        self.key.delete()
+
+    ###########################################################################
+    def test_merge_form(self):
+        """ Ask for the host merge form """
+        self.client.login(username='test', password='passwd')
+        response = self.client.get('/hostinfo/hostmerge/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostmerge.template', 'host/base.html']
+            )
+
+    ###########################################################################
+    def test_do_merge(self):
+        """ Send answers to the host merge form
+        """
+        self.client.login(username='test', password='passwd')
+        response = self.client.post(
+            '/hostinfo/hostmerge/',
+            {'_srchost': 'merge1', '_dsthost': 'merge2'},
+            follow=True)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostmerge.template', 'host/base.html']
+            )
+        host = Host.objects.filter(hostname='merge1')
+        self.assertEquals(len(host), 0)
+        host = Host.objects.filter(hostname='merge2')
+        self.assertEquals(len(host), 1)
+        kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
+        self.assertEquals(kv[0].value, 'foo')
+
+
+###############################################################################
 class test_url_hostrename(unittest.TestCase):
     ###########################################################################
     def setUp(self):
@@ -2083,7 +2140,7 @@ class test_url_hostrename(unittest.TestCase):
 
     ###########################################################################
     def test_blank_form(self):
-        """ Ask for the host merge form """
+        """ Ask for the host rename form """
         self.client.login(username='test', password='passwd')
         response = self.client.get('/hostinfo/hostrename/')
         self.assertEquals(response.status_code, 200)
