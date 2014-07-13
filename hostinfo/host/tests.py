@@ -2844,7 +2844,71 @@ class test_url_hostcmp(unittest.TestCase):
     """
     (r'^hostcmp/(?P<criteria>.*)/(?P<options>opts=.*)?$', 'doHostcmp'),
     """
-    pass
+    def setUp(self):
+        self.client = Client()
+        self.host1 = Host(hostname='hostuhc1')
+        self.host1.save()
+        self.host2 = Host(hostname='hostuhc2')
+        self.host2.save()
+        self.key = AllowedKey(key='uhckey')
+        self.key.save()
+        self.kv1 = KeyValue(hostid=self.host1, keyid=self.key, value='val1')
+        self.kv1.save()
+        self.kv2 = KeyValue(hostid=self.host2, keyid=self.key, value='val2')
+        self.kv2.save()
+        getAkCache()
+
+    ###########################################################################
+    def tearDown(self):
+        self.kv1.delete()
+        self.kv2.delete()
+        self.key.delete()
+        self.host1.delete()
+        self.host2.delete()
+
+    ###########################################################################
+    def test_hostcmp(self):
+        response = self.client.get('/hostinfo/hostcmp/uhckey.def/')
+        self.assertEquals(response.status_code, 200)
+        self.assertIn('<title> Comparison of host details uhckey.def</title>', response.content)
+        self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
+        self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc2">hostuhc2</a>', response.content)
+        self.assertIn('<a class="keyname" href="/hostinfo/keylist/uhckey">uhckey</a>', response.content)
+        self.assertIn('<a class="valuelink" href="/hostinfo/hostlist/uhckey.eq.val2">val2</a>', response.content)
+        self.assertEquals(
+            set([t.name for t in response.templates]),
+            set(['host/multihost.template', 'host/base.html', 'host/showall.template'])
+            )
+
+    ###########################################################################
+    def test_hostcmp_dates(self):
+        response = self.client.get('/hostinfo/hostcmp/uhckey.def/opts=dates')
+        self.assertEquals(response.status_code, 200)
+        sys.stderr.write("content=>%s<\n" % response.content)
+        self.assertIn('<title> Comparison of host details uhckey.def</title>', response.content)
+        self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
+        self.assertIn('<input type=checkbox name=options value=dates  checked  >Show Dates<br>', response.content)
+        self.assertIn('<input type=checkbox name=options value=origin  >Show Origin<br>', response.content)
+        self.assertIn('Modified:', response.content)
+        self.assertIn('Created:', response.content)
+        self.assertEquals(
+            set([t.name for t in response.templates]),
+            set(['host/multihost.template', 'host/base.html', 'host/showall.template'])
+            )
+
+    ###########################################################################
+    def test_hostcmp_origin(self):
+        response = self.client.get('/hostinfo/hostcmp/uhckey.def/opts=origin')
+        self.assertEquals(response.status_code, 200)
+        self.assertIn('<title> Comparison of host details uhckey.def</title>', response.content)
+        self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
+        self.assertIn('<input type=checkbox name=options value=origin  checked  >Show Origin<br>', response.content)
+        self.assertIn('<input type=checkbox name=options value=dates  >Show Dates<br>', response.content)
+        self.assertIn('Origin:', response.content)
+        self.assertEquals(
+            set([t.name for t in response.templates]),
+            set(['host/multihost.template', 'host/base.html', 'host/showall.template'])
+            )
 
 
 ###############################################################################
