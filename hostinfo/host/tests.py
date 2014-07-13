@@ -707,9 +707,12 @@ class test_cmd_hostinfo(unittest.TestCase):
         self.kv2.save()
         self.kv3 = KeyValue(hostid=self.h1, keyid=self.ak2, value='kv3', origin='baz')
         self.kv3.save()
+        self.alias = HostAlias(hostid=self.h1, alias='halias')
+        self.alias.save()
 
     ###########################################################################
     def tearDown(self):
+        self.alias.delete()
         self.kv1.delete()
         self.kv2.delete()
         self.kv3.delete()
@@ -796,8 +799,14 @@ class test_cmd_hostinfo(unittest.TestCase):
 
     ###########################################################################
     def test_hostinfo_xml(self):
+        """ Test outputting hosts only in xml mode """
         namespace = self.parser.parse_args(['--xml'])
         output = self.cmd.handle(namespace)
+        self.assertEquals(output[1], 0)
+        self.assertIn('<hostname>h1</hostname>', output[0])
+        self.assertIn('<hostname>h2</hostname>', output[0])
+        self.assertNotIn('confitem', output[0])
+        # TODO: Replace with something that pulls the whole xml apart
 
     ###########################################################################
     def test_hostinfo_hostsep(self):
@@ -809,19 +818,37 @@ class test_cmd_hostinfo(unittest.TestCase):
     def test_hostinfo_xml_p(self):
         namespace = self.parser.parse_args(['--xml', '-p', 'ak1'])
         output = self.cmd.handle(namespace)
-        # TODO - check output
+        self.assertEquals(output[1], 0)
+        self.assertIn('<hostname>h1</hostname>', output[0])
+        self.assertIn('<hostname>h2</hostname>', output[0])
+        self.assertIn('<confitem key="ak1">kv1</confitem>', output[0])
+        self.assertIn('<confitem key="ak1">kv2</confitem>', output[0])
+        self.assertIn('<name>ak1</name>', output[0])
+        self.assertIn('<type>single</type>', output[0])
+        # TODO: Replace with something that pulls the whole xml apart
 
     ###########################################################################
     def test_hostinfo_xml_showall(self):
         namespace = self.parser.parse_args(['--xml', '--showall'])
         output = self.cmd.handle(namespace)
-        # TODO - check output
+        self.assertEquals(output[1], 0)
+        self.assertIn('<name>ak1</name>', output[0])
+        self.assertIn('<name>ak2</name>', output[0])
+        self.assertIn('<confitem key="ak1">kv1</confitem>', output[0])
+        self.assertIn('<confitem key="ak2">kv3</confitem>', output[0])
+        # TODO: Replace with something that pulls the whole xml apart
 
     ###########################################################################
     def test_hostinfo_xml_aliases(self):
         namespace = self.parser.parse_args(['--xml', '--aliases', '--showall'])
         output = self.cmd.handle(namespace)
-        # TODO - check output
+        self.assertEquals(output[1], 0)
+        self.assertIn('<alias>halias</alias>', output[0])
+        self.assertIn('<name>ak1</name>', output[0])
+        self.assertIn('<name>ak2</name>', output[0])
+        self.assertIn('<confitem key="ak1">kv1</confitem>', output[0])
+        self.assertIn('<confitem key="ak2">kv3</confitem>', output[0])
+        # TODO: Replace with something that pulls the whole xml apart
 
     ###########################################################################
     def test_hostinfo_valuereport(self):
@@ -1434,6 +1461,7 @@ class test_cmd_deletevalue(unittest.TestCase):
         namespace = self.parser.parse_args(['key_dv=deletevalue', 'host_delval'])
         output = self.cmd.handle(namespace)
         kvlist = KeyValue.objects.filter(hostid=self.h1)
+        self.assertEquals(output, (None, 0))
         self.assertEquals(len(kvlist), 0)
 
     ###########################################################################
@@ -1441,6 +1469,7 @@ class test_cmd_deletevalue(unittest.TestCase):
         """ Test the deletion of a value where the value isn't specified"""
         namespace = self.parser.parse_args(['key_dv', 'host_delval'])
         output = self.cmd.handle(namespace)
+        self.assertEquals(output, (None, 0))
         kvlist = KeyValue.objects.filter(hostid=self.h1)
         self.assertEquals(len(kvlist), 0)
 
@@ -2010,7 +2039,10 @@ class test_cmd_showkey(unittest.TestCase):
     def test_showkey(self):
         namespace = self.parser.parse_args([])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('showkey1\tsingle\tdescription\t[KEY RESTRICTED]\nshowkey2\tlist\tanother description\t[KEY READ ONLY]\nshowkey3\tdate\t\n', 0))
+        self.assertEquals(
+            output,
+            ('showkey1\tsingle\tdescription\t[KEY RESTRICTED]\nshowkey2\tlist\tanother description\t[KEY READ ONLY]\nshowkey3\tdate\t\n', 0)
+            )
 
     ###########################################################################
     def test_showtype(self):
