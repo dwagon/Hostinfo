@@ -5,13 +5,19 @@
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
 import os
-from distutils.core import setup
+from glob import glob
+from setuptools import setup
 
-setup_scripts = [os.path.join('bin', f) for f in os.listdir('bin')]
+# Run from anywhere
+os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+
 setup_templates = {
     'hostinfo.host': ['templates/host/*'],
-    'hostinfo.report': ['templates/report/*']
+    'hostinfo.report': ['templates/report/*'],
     }
+
+reports = [('reports', glob('reports/*'))]
+libexec = [('libexec', glob('libexec/*'))]
 
 setup_classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -26,13 +32,13 @@ setup_classifiers = [
 
 setup(
     name='hostinfo',
-    version='1.41',
+    version=open('version').read(),
     description='ITIL CMDB for systems administrators',
     author='Dougal Scott',
     author_email='dougal.scott@gmail.com',
     url='https://github.com.dwagon/Hostinfo',
-    requires=['Django (>=1.6)'],
-    scripts=setup_scripts,
+    scripts=glob('bin/*'),
+    requires=['south', 'Django (>=1.6)'],
     packages=[
         'hostinfo',
         'hostinfo.host',
@@ -45,6 +51,7 @@ setup(
         'hostinfo.report',
     ],
     package_data=setup_templates,
+    data_files=reports + libexec,
     classifiers=setup_classifiers,
     )
 
