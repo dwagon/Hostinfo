@@ -21,6 +21,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Host
 
+
 ################################################################################
 ################################################################################
 ################################################################################
@@ -28,13 +29,14 @@ class existingHostField(forms.CharField):
     """ A field for a host that is meant to already exist
     """
     def clean(self, value):
-    	if not value:
-	    raise forms.ValidationError("Supply a valid host name")
-	try:
-	    hostobj=Host.objects.get(hostname=value)
-	except ObjectDoesNotExist:
-	    raise forms.ValidationError("Host doesn't exist with name %s" % value)
-	return hostobj
+        if not value:
+            raise forms.ValidationError("Supply a valid host name")
+        try:
+            hostobj = Host.objects.get(hostname=value)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError("Host doesn't exist with name %s" % value)
+        return hostobj
+
 
 ################################################################################
 ################################################################################
@@ -43,36 +45,41 @@ class newHostField(forms.CharField):
     """ A field for a host that should not already exist
     """
     def clean(self, value):
-    	if not value:
-	    raise forms.ValidationError("Supply a valid host name")
-	try:
-	    hostobj=Host.objects.get(hostname=value)
-	except ObjectDoesNotExist:
-	    pass
-	else:
-	    raise forms.ValidationError("Host already exists with name %s" % value)
-	return value
+        if not value:
+            raise forms.ValidationError("Supply a valid host name")
+        try:
+            Host.objects.get(hostname=value)
+        except ObjectDoesNotExist:
+            pass
+        else:
+            raise forms.ValidationError("Host already exists with name %s" % value)
+        return value
+
 
 ################################################################################
 class hostMergeForm(forms.Form):
-    srchost=existingHostField()
-    dsthost=existingHostField()
+    srchost = existingHostField()
+    dsthost = existingHostField()
+
 
 ################################################################################
 class hostRenameForm(forms.Form):
-    srchost=existingHostField()
-    dsthost=newHostField()
+    srchost = existingHostField()
+    dsthost = newHostField()
+
 
 ################################################################################
 class hostCreateForm(forms.Form):
-    newhost=newHostField()
+    newhost = newHostField()
+
 
 ################################################################################
 class hostEditForm(forms.Form):
-    hostname=existingHostField()
+    hostname = existingHostField()
+
 
 ################################################################################
 class XimportUploadForm(forms.Form):
-    file=forms.FileField()
+    fname = forms.FileField()
 
 #EOF

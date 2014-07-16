@@ -1,3 +1,6 @@
+INCLUDE MANIFEST.in
 recursive-include docs *
 recursive-include contrib *
+recursive-include libexec *
 recursive-include hostinfo/host/templates *
+recursive-include hostinfo/report/templates *
