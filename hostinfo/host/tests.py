@@ -27,7 +27,7 @@ import StringIO
 from .models import HostinfoException, ReadonlyValueException, RestrictedValueException
 from .models import Host, HostAlias, AllowedKey, KeyValue, UndoLog, RestrictedValue, Links, HostinfoCommand
 
-from .models import getUser, getActor, auditedKey, validateDate, hostinfo_authenticate
+from .models import getUser, getActor, auditedKey, validateDate
 from .models import validateKey, parseQualifiers, oneoff, getApproxObjects, getMatches
 from .models import getAliases, getHost, getOrigin, getAkCache, checkHost
 from .models import checkKey, addKeytoHost, run_from_cmdline
