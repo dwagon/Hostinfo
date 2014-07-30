@@ -2,3 +2,4 @@
 importlib
 Django
 South
+psycopg2
