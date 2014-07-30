@@ -1,0 +1,5 @@
+# importlib is for 2.6
+importlib
+Django
+South
+coverage
