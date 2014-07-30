@@ -19,7 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.db import models, connection
-# from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 import argparse
 from . import audit
@@ -107,14 +107,23 @@ class HostinfoInternalException(HostinfoException):     # pragma: no cover
 
 
 ################################################################################
-def getUser(instance):
+def getUser(instance=None):
     """ Get the user for the audittrail
+        For command line access use the persons login name
+        TODO: Handle web interface
     """
-    return hostinfo_authenticate()
+    username = user = None
+    try:
+        username = os.getlogin()
+    except OSError:
+        pass
+    if username and user is None:
+        user, created = User.objects.get_or_create(username=username)
+    return user.username[:20]
 
 
 ################################################################################
-def getActor(instance):
+def getActor(instance=None):
     """ Get what is making the change for the audit trail
     """
     return sys.argv[0][:250]
@@ -145,7 +154,7 @@ class Host(models.Model):
     ############################################################################
     def save(self, user=None):
         if not user:
-            user = hostinfo_authenticate()
+            user = getUser()
         self.hostname = self.hostname.lower()
         if not self.id:                        # Check for update
             undo = UndoLog(user=user, action='hostinfo_deletehost --lethal %s' % self.hostname)
@@ -155,7 +164,7 @@ class Host(models.Model):
     ############################################################################
     def delete(self, user=None):
         if not user:
-            user = hostinfo_authenticate()
+            user = getUser()
         undo = UndoLog(user=user, action='hostinfo_addhost %s' % self.hostname)
         undo.save()
         super(Host, self).delete()
@@ -249,7 +258,7 @@ class KeyValue(models.Model):
     ############################################################################
     def save(self, user=None, readonlychange=False):
         if not user:
-            user = hostinfo_authenticate()
+            user = getUser()
         self.value = self.value.lower()
         # Check to see if we are restricted
         if self.keyid.restrictedFlag:
@@ -275,7 +284,7 @@ class KeyValue(models.Model):
     ############################################################################
     def delete(self, user=None, readonlychange=False):
         if not user:
-            user = hostinfo_authenticate()
+            user = getUser()
         if self.keyid.readonlyFlag and not readonlychange:
             raise ReadonlyValueException(key=self.keyid, msg="%s is a read only key" % self.keyid)
         if self.keyid.get_validtype_display() == 'list':
@@ -398,23 +407,6 @@ def validateDate(datestr):
         raise TypeError("%s couldn't be converted to a known date format (e.g. YYYY-MM-DD)" % datestr)
 
     return "%04d-%02d-%02d" % (year, month, day)
-
-
-################################################################################
-def hostinfo_authenticate():
-    """ Very basic authentication - need to tie this into LDAP in the future
-    """
-    try:
-        user = os.getlogin()
-    except OSError:        # Web interface can't do os.getlogin calls
-        try:
-            user = os.environ['REMOTE_USER']
-        except KeyError:
-            try:
-                user = os.environ['REMOTE_ADDR']
-            except KeyError:
-                user = "unknown"
-    return user
 
 
 ################################################################################
