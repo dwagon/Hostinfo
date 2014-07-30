@@ -1,7 +1,0 @@
-#!/bin/sh
-
-export PYTHONPATH=hostinfo
-TEST="./hostinfo/manage.py test host.tests --settings hostinfo.settings"
-coverage run --include 'host/*,hostinfo/*' ${TEST} && coverage report -m
-
-#EOF
