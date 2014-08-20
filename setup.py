@@ -36,7 +36,7 @@ setup(
     description='ITIL CMDB for systems administrators',
     author='Dougal Scott',
     author_email='dougal.scott@gmail.com',
-    url='https://github.com.dwagon/Hostinfo',
+    url='https://github.com/dwagon/Hostinfo',
     scripts=glob('bin/*'),
     requires=['south', 'Django (>=1.6)'],
     packages=[

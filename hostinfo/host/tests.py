@@ -2884,7 +2884,6 @@ class test_url_hostcmp(unittest.TestCase):
     def test_hostcmp_dates(self):
         response = self.client.get('/hostinfo/hostcmp/uhckey.def/opts=dates')
         self.assertEquals(response.status_code, 200)
-        sys.stderr.write("content=>%s<\n" % response.content)
         self.assertIn('<title> Comparison of host details uhckey.def</title>', response.content)
         self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
         self.assertIn('<input type=checkbox name=options value=dates  checked  >Show Dates<br>', response.content)

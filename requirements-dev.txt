@@ -2,4 +2,6 @@
 importlib
 Django
 South
-coverage
+pytest
+pytest-django
+psycopg2
