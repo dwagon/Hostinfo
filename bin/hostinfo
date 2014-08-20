@@ -2,6 +2,8 @@
 
 import os
 import sys
+sys.path.insert(0, '/opt/hostinfo/lib')
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'hostinfo.settings'
 from host.models import run_from_cmdline
 
@@ -9,4 +11,4 @@ from host.models import run_from_cmdline
 if __name__ == "__main__":
     sys.exit(run_from_cmdline())
 
-#EOF
+# EOF
