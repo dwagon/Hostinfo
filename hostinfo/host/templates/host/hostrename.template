@@ -1,0 +1,15 @@
+{% extends "host/base.html" %}
+{% block title %} Merge two hosts {% endblock %}
+{% block content %}
+{% if renamed %}
+    {{srchost}} has been successfully renamed to {{dsthost}}
+{% else %}
+    Rename a host to another name
+    <form action="/hostinfo/hostrename/" method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type="submit" value="Rename">
+    </form>
+{% endif %}
+{% endblock %}
+{# EOF #}

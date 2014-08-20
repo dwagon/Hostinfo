@@ -1,10 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
-#    Copyright (C) 2012 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,36 +15,39 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from hostinfo.host.models import getHost, getOrigin, Host
-from hostinfo.host.models import HostinfoCommand, HostinfoException
 
+from host.models import getHost, getOrigin, Host
+from host.models import HostinfoCommand, HostinfoException
+
+
+###############################################################################
 class Command(HostinfoCommand):
-    description='Add a new host'
+    description = 'Add a new host'
 
     ############################################################################
     def parseArgs(self, parser):
-        parser.add_argument('host',help='The host to add', nargs='+')
-        parser.add_argument('--origin',help='The origin of this host')
+        parser.add_argument('host', help='The host to add', nargs='+')
+        parser.add_argument('--origin', help='The origin of this host')
 
     ############################################################################
     def handle(self, namespace):
-        origin=getOrigin(namespace.origin)
+        origin = getOrigin(namespace.origin)
         for host in namespace.host:
-            host=host.lower()
+            host = host.lower()
             if self.checkHost(host):
                 raise HostinfoException("Host %s already exists" % host)
             if host[0] in ('-',):
-                raise HostinfoException("Host begins with a forbidden character ('%s') - not adding" % host[0])
-            hobj=Host(hostname=host, origin=origin)
+                raise HostinfoException(
+                    "Host begins with a forbidden character ('%s') - not adding" % host[0])
+            hobj = Host(hostname=host, origin=origin)
             hobj.save()
-        return None,0
+        return None, 0
 
     ############################################################################
     def checkHost(self, host):
-        h=getHost(host)
+        h = getHost(host)
         if h:
             return True
         return False
 
 #EOF
-

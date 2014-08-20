@@ -1,0 +1,19 @@
+{% extends "host/base.html" %}
+{% block title %} Merge two hosts {% endblock %}
+{% block content %}
+{% if merged %}
+    {{srchost}} and {{dsthost}} have been merged successfully into {{dsthost}}
+{% else %}
+    {% if merging %}
+    	{% include "host/hostmerging.template" %}
+    {% else %}
+	Merge two hosts into one - all attributes from the source host are copied across to the destination host, except where these would clash with values already present.
+	<form action="/hostinfo/hostmerge/" method="POST">
+        {% csrf_token %}
+	    {{form.as_p}}
+	    <input type="submit" value="Merge">
+	</form>
+    {% endif %}
+{% endif %}
+{% endblock %}
+{# EOF #}

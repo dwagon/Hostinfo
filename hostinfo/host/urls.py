@@ -1,10 +1,8 @@
-# Local URL handled for hostinfo
+# Local URL handler for hostinfo
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: urls.py 159 2013-06-23 05:02:56Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/host/urls.py $
 #
-#    Copyright (C) 2008 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,10 +17,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import *
-import django.contrib.auth.views
+from django.conf.urls import patterns
 
-urlpatterns=patterns('hostinfo.host.views',
+urlpatterns = patterns('host.views',
     (r'^$', 'index'),
     (r'^handlePost/$', 'handlePost'),
 
@@ -44,7 +41,7 @@ urlpatterns=patterns('hostinfo.host.views',
     (r'^hostwiki/(?P<criteria>.*)/$', 'doHostwiki'),
     (r'^host/$', 'doHostlist'),
     (r'^host/(?P<hostname>\S+)/$', 'doHost'),
-    (r'^host/(?P<hostname>\S+)/wiki$', 'doHost', {'format':'wiki'}),
+    (r'^host/(?P<hostname>\S+)/wiki$', 'doHost', {'format': 'wiki'}),
     (r'^host_summary/(?P<hostname>.*)/(?P<format>\S+)$', 'doHostSummary'),
     (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
     (r'^csv/$', 'doCsvreport'),
@@ -52,12 +49,6 @@ urlpatterns=patterns('hostinfo.host.views',
     (r'^keylist/(?P<key>\S+)/$', 'doKeylist'),
     (r'^rvlist/(?P<key>\S+)/$', 'doRestrValList'),
     (r'^rvlist/(?P<key>\S+)/(?P<mode>\S+)$', 'doRestrValList'),
-    (r'^report/(?P<report>\w+)/(?P<args>.*)', 'doReport'),
-    )
-
-urlpatterns+=patterns('',
-    (r'^accounts/login/', 'django.contrib.auth.views.login'),
-    (r'^accounts/logout/', 'django.contrib.auth.views.logout', {'next_page': '/hostinfo/'}),
     )
 
 #EOF

@@ -1,0 +1,8 @@
+{% extends "host/base.html" %}
+{% block title %} Host {{ host.hostname }} details {% endblock %}
+{% block content %}
+<table>
+    {% include "host/showall.template" %}
+</table>
+{% endblock %}
+{# EOF #}

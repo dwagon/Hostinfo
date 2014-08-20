@@ -1,10 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
-#    Copyright (C) 2012 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,42 +15,53 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import re
-from hostinfo.host.models import getHost, HostAlias, addKeytoHost
-from hostinfo.host.models import RestrictedValueException, ReadonlyValueException, HostinfoException
-from hostinfo.host.models import HostinfoCommand
+from host.models import addKeytoHost
+from host.models import RestrictedValueException
+from host.models import ReadonlyValueException, HostinfoException
+from host.models import HostinfoCommand
 
+
+###############################################################################
 class Command(HostinfoCommand):
-    description='Add a value to a hosts key'
+    description = 'Add a value to a hosts key'
 
-    ############################################################################
+    ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('-o','--origin',help='The origin of this data')
-        parser.add_argument('-a','--append',help='Append to a list type key', action='store_true')
-        parser.add_argument('-u','--update',help='Replace an existing value', action='store_true')
-        parser.add_argument('--readonlyupdate',help='Write to a readonly key', action='store_true')
-        parser.add_argument('keyvalue',help='Name of the key/value pair to add (key=value)')
-        parser.add_argument('host',help='Host(s) to add this value to', nargs='+')
+        parser.add_argument('-o', '--origin', help='The origin of this data')
+        parser.add_argument('-a', '--append', help='Append to a list type key', action='store_true')
+        parser.add_argument('-u', '--update', help='Replace an existing value', action='store_true')
+        parser.add_argument('--readonlyupdate', help='Write to a readonly key', action='store_true')
+        parser.add_argument('keyvalue', help='Name of the key/value pair to add (key=value)')
+        parser.add_argument('host', help='Host(s) to add this value to', nargs='+')
 
-    ############################################################################
+    ###########################################################################
     def handle(self, namespace):
-        m=re.match("(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
+        m = re.match("(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
         if not m:
             raise HostinfoException("Must be specified in key=value format")
-        key=m.group('key').lower()
-        value=m.group('value').lower()
+        key = m.group('key').lower()
+        value = m.group('value').lower()
         for host in namespace.host:
-            host=host.lower().strip()
+            host = host.lower().strip()
             try:
-                retval=addKeytoHost(host, key, value, origin=namespace.origin, readonlyFlag=namespace.readonlyupdate, updateFlag=namespace.update, appendFlag=namespace.append)
+                addKeytoHost(
+                    host, key, value, origin=namespace.origin,
+                    readonlyFlag=namespace.readonlyupdate,
+                    updateFlag=namespace.update, appendFlag=namespace.append)
             except RestrictedValueException:
-                raise RestrictedValueException(msg="Cannot add %s=%s to a restricted key" % (key, value), key=key, retval=2)
+                raise RestrictedValueException(
+                    "Cannot add %s=%s to a restricted key" % (key, value),
+                    key=key, retval=2)
             except ReadonlyValueException:
-                raise ReadonlyValueException("Cannot add %s=%s to a readonly key" % (key, value), retval=3)
+                raise ReadonlyValueException(
+                    "Cannot add %s=%s to a readonly key" % (key, value),
+                    retval=3)
             except HostinfoException, err:
                 raise
-            except TypeError, err:
+            except TypeError, err:  # pragma: nocover
                 raise HostinfoException("Couldn't add value %s to %s - %s" % (value, host, err))
-        return None,0
+        return None, 0
 
 #EOF

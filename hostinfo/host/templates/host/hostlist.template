@@ -1,0 +1,35 @@
+{% extends "host/base.html" %}
+{% block title %} List of hosts {{ title }} {% endblock %}
+{% load local_escape %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+[ <a href="/hostinfo/hostcmp/{{title|local_escape}}">Host Comparison View</a> ]
+{{ count }} matches
+
+{% if error %}
+<h2 style="color:red"> {{error}} </h2> 
+{% endif %}
+
+<table>
+{% for host,kvlist,hostlink in hostlist %}
+    <tr><td><a class="hostname" href="/hostinfo/host/{{ host }}">{{ host }}</a></td>
+    <td>
+    {% if user.is_authenticated %}
+    	[<a href="/hostinfo/hostedit/{{ host }}">Edit {{host}}</a>]
+    {% endif %}
+    </td>
+    <td>
+    {% if hostlink %}
+    	{% for link in hostlink %}
+	    {{link|safe}}
+	{% endfor %}
+    {%endif%}
+    </td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}
+{# EOF #}

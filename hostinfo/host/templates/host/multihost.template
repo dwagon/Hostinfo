@@ -1,0 +1,29 @@
+{% extends "host/base.html" %}
+{% load local_escape %}
+{% block title %} Comparison of host details {{ title }}{% endblock %}
+{% block options %}
+    <hr>
+    <form action="/hostinfo/hostcmp/{{title|local_escape}}/" method="POST">
+        {% csrf_token %}
+	<input type=hidden name=query value={{title|local_escape}}>
+	<input type=checkbox name=options value=origin {% if origin %} checked {% endif %} >Show Origin<br>
+	<input type=checkbox name=options value=dates {% if dates %} checked {% endif %} >Show Dates<br>
+	<input type=submit value="Change Options">
+    </form>
+    <hr>
+{% endblock %}
+{% block content %}
+{% if error %}<h2 style="color:red"> {{error}} </h2>{% endif %}
+<div id="multihost_header">
+<h2 class="criteria">Criteria: {{ title }}</h2>
+[ <a href="/hostinfo/hostlist/{{title|local_escape}}">Host List View</a> ]
+{{ count }} matches<br>
+</div>
+
+<table>
+{% for host,kvlist,hostlink in hostlist %}
+    {% include "host/showall.template" %}
+{% endfor %}
+</table>
+{% endblock %}
+{# EOF #}

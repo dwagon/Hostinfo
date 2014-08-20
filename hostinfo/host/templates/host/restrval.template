@@ -1,0 +1,11 @@
+{% extends "host/base.html" %}
+{% block title %} Allowed values of {{ key }} {% endblock %}
+{% block content %}
+<h1>Allowed values of {{key}}</h1>
+<table>
+{% for rv in rvlist %}
+ <tr><td><a href="/hostinfo/hostcmp/{{key}}.eq.{{rv.value}}">{{rv.value}}</a></td></tr>
+{% endfor %}
+</table>
+{% endblock %}
+<!-- EOF -->

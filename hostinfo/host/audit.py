@@ -1,20 +1,17 @@
 # This piece of awesomeness was taken from http://code.djangoproject.com/wiki/AuditTrail
 #
-# $Id: audit.py 92 2012-06-18 01:26:21Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/audit.py $
-#
-from django.dispatch import dispatcher
 from django.db import models
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib import admin
 import copy
 import re
-import types
+import collections
 try:
     import settings_audit
 except ImportError:
     settings_audit = None
 value_error_re = re.compile("^.+'(.+)'$")
+
 
 class AuditTrail(object):
     def __init__(self, show_in_admin=False, save_change_type=True, audit_deletes=True,
@@ -51,7 +48,7 @@ class AuditTrail(object):
                     return getattr(instance, field_name)
                 except:
                     if len(field_arr) > 2:
-                        if callable(field_arr[2]):
+                        if isinstance(field_arr[2], collections.Callable):
                             fn = field_arr[2]
                             return fn(instance)
                         else:
@@ -98,16 +95,18 @@ class AuditTrail(object):
                 #dispatcher.connect(_audit_delete, signal=models.signals.pre_delete, sender=cls, weak=False)
                 ## Comment this line for pre r8223 Django builds
                 models.signals.pre_delete.connect(_audit_delete, sender=cls, weak=False)
-        
+
         ## Uncomment this line for pre r8223 Django builds
         #dispatcher.connect(_contribute, signal=models.signals.class_prepared, sender=cls, weak=False)
         ## Comment this line for pre r8223 Django builds
         models.signals.class_prepared.connect(_contribute, sender=cls, weak=False)
 
+
 class AuditTrailDescriptor(object):
     def __init__(self, manager, pk_attribute):
         self.manager = manager
         self.pk_attribute = pk_attribute
+
 
     def __get__(self, instance=None, owner=None):
         if instance == None:
@@ -117,7 +116,8 @@ class AuditTrailDescriptor(object):
             return create_audit_manager_with_pk(self.manager, self.pk_attribute, instance._get_pk_val())
 
     def __set__(self, instance, value):
-        raise AttributeError, "Audit trail may not be edited in this manner."
+        raise AttributeError("Audit trail may not be edited in this manner.")
+
 
 def create_audit_manager_with_pk(manager, pk_attribute, pk):
     """Create an audit trail manager based on the current object"""
@@ -129,12 +129,14 @@ def create_audit_manager_with_pk(manager, pk_attribute, pk):
             return super(AuditTrailWithPkManager, self).get_query_set().filter(**{pk_attribute: pk})
     return AuditTrailWithPkManager()
 
+
 def create_audit_manager_class(manager):
     """Create an audit trail manager based on the current object"""
     class AuditTrailManager(manager.__class__):
         def __init__(self):
             self.model = manager.model
     return AuditTrailManager()
+
 
 def create_audit_model(cls, **kwargs):
     """Create an audit model for the specific class"""
@@ -151,7 +153,7 @@ def create_audit_model(cls, **kwargs):
         'Meta': Meta,
         '_audit_id': models.AutoField(primary_key=True),
         '_audit_timestamp': models.DateTimeField(auto_now_add=True, db_index=True),
-        '_audit__str__': cls.__str__.im_func,
+        '_audit__str__': cls.__str__.__func__,
         '__str__': lambda self: '%s as of %s' % (self._audit__str__(), self._audit_timestamp),
         '_audit_track': _track_fields(track_fields=kwargs['track_fields'], unprocessed=True)
     }
@@ -163,7 +165,7 @@ def create_audit_model(cls, **kwargs):
     for field in cls._meta.fields:
         #if field.attname in attrs:
         if field.name in attrs:
-            raise ImproperlyConfigured, "%s cannot use %s as it is needed by AuditTrail." % (cls.__name__, field.attname)
+            raise ImproperlyConfigured("%s cannot use %s as it is needed by AuditTrail." % (cls.__name__, field.attname))
         if isinstance(field, models.AutoField):
             # Audit models have a separate AutoField
             attrs[field.name] = models.IntegerField(db_index=True, editable=False)
@@ -180,8 +182,9 @@ def create_audit_model(cls, **kwargs):
         if track_field['name'] in attrs:
             raise NameError('Field named "%s" already exists in audit version of %s' % (track_field['name'], cls.__name__))
         attrs[track_field['name']] = copy.copy(track_field['field'])
-    
+
     return type(name, (models.Model,), attrs)
+
 
 def _build_track_field(track_item):
     track = {}
@@ -194,10 +197,11 @@ def _build_track_field(track_item):
         raise TypeError('Track fields only support items that are Fields or Models.')
     return track
 
+
 def _track_fields(track_fields=None, unprocessed=False):
     # Add in the fields from the Audit class "track" attribute.
     tracks_found = []
-    
+
     if settings_audit:
         global_track_fields = getattr(settings_audit, 'GLOBAL_TRACK_FIELDS', [])
         for track_item in global_track_fields:
@@ -205,7 +209,7 @@ def _track_fields(track_fields=None, unprocessed=False):
                 tracks_found.append(track_item)
             else:
                 tracks_found.append(_build_track_field(track_item))
-    
+
     if track_fields:
         for track_item in track_fields:
             if unprocessed:

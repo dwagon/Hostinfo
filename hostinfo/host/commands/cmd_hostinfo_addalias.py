@@ -1,10 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
-#    Copyright (C) 2012 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,29 +15,34 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from hostinfo.host.models import getHost, HostAlias, getOrigin, Host
-from hostinfo.host.models import HostinfoCommand, HostinfoException
 
+from host.models import getHost, HostAlias, getOrigin, Host
+from host.models import HostinfoCommand, HostinfoException
+
+
+###############################################################################
 class Command(HostinfoCommand):
-    description='Add alias to a host'
+    description = 'Add alias to a host'
 
-    ############################################################################
+    ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('host',help='The host to add the alias for')
-        parser.add_argument('alias',help='The alias for the host')
-        parser.add_argument('--origin',help='The origin of this alias')
+        parser.add_argument('host', help='The host to add the alias for')
+        parser.add_argument('alias', help='The alias for the host')
+        parser.add_argument('--origin', help='The origin of this alias')
 
-    ############################################################################
+    ###########################################################################
     def handle(self, namespace):
-        origin=getOrigin(namespace.origin)
-        host=namespace.host.lower()
-        alias=namespace.alias.lower()
+        origin = getOrigin(namespace.origin)
+        host = namespace.host.lower()
+        alias = namespace.alias.lower()
         if not getHost(host):
             raise HostinfoException("Host %s doesn't exist" % host)
         if getHost(alias):
             raise HostinfoException("Host %s already exists" % alias)
-        haobj=HostAlias(hostid=Host.objects.get(hostname=host), alias=alias, origin=origin)
+        haobj = HostAlias(
+            hostid=Host.objects.get(hostname=host),
+            alias=alias, origin=origin)
         haobj.save()
-        return None,0
+        return None, 0
 
 #EOF

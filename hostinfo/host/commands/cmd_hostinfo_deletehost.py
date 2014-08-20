@@ -1,10 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
-#    Copyright (C) 2012 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,21 +15,28 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from hostinfo.host.models import KeyValue, HostAlias, getHost
-from hostinfo.host.models import HostinfoCommand, HostinfoException
 
+from host.models import KeyValue, HostAlias, getHost
+from host.models import HostinfoCommand, HostinfoException
+
+
+###############################################################################
 class Command(HostinfoCommand):
-    description='Delete a host'
+    description = 'Delete a host'
 
-    ############################################################################
+    ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('--lethal',help='Actually do the delete - NO UNDO', action='store_true')
-        parser.add_argument('host', help='Name of host to delete')
+        parser.add_argument(
+            '--lethal',
+            help='Actually do the delete - NO UNDO', action='store_true')
+        parser.add_argument(
+            'host',
+            help='Name of host to delete')
 
-    ############################################################################
+    ###########################################################################
     def handle(self, namespace):
-        host=namespace.host.lower()
-        h=getHost(host)
+        host = namespace.host.lower()
+        h = getHost(host)
         if not h:
             raise HostinfoException("Host %s doesn't exist" % host)
 
@@ -40,13 +44,13 @@ class Command(HostinfoCommand):
             raise HostinfoException("Didn't do delete as no --lethal specified")
 
         # Delete aliases
-        aliases=HostAlias.objects.filter(hostid=h.id)
+        aliases = HostAlias.objects.filter(hostid=h.id)
         for alias in aliases:
             if namespace.lethal:
                 alias.delete()
 
         # Delete key/values
-        kvs=KeyValue.objects.filter(hostid=h.id)    	
+        kvs = KeyValue.objects.filter(hostid=h.id)
         for kv in kvs:
             if namespace.lethal:
                 kv.delete(readonlychange=True)
@@ -54,6 +58,6 @@ class Command(HostinfoCommand):
         # Delete the host
         if namespace.lethal:
             h.delete()
-        return None,0
+        return None, 0
 
 #EOF

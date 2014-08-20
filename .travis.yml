@@ -1,0 +1,20 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+  - "3.2"
+  - "3.3"
+install:
+  - pip install .
+  - pip install -r requirements.txt
+  - pip install psycopg2
+  - pip install coverage
+addons:
+  postgresql: "9.3"
+before_script:
+  - psql -c 'create database hostinfo;' -U postgres
+  - psql -c 'create role root with createdb login;' -U postgres
+  - python hostinfo/manage.py syncdb --noinput
+script: cd hostinfo ; ./runtests 
+after_success:
+    coveralls --data_file hostinfo/.coverage

@@ -2,8 +2,6 @@
 # Hostinfo link script for nwreporter 
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: backup.sh 6 2010-01-12 07:41:47Z dwagon $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/links/backup.sh $
 
 host=$1
 

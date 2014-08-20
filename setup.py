@@ -1,19 +1,25 @@
-#!/usr/bin/env python2.7
-# 
+#!/usr/bin/env python
+#
 # Setup script for hostinfo
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: setup.py 160 2013-06-23 05:14:12Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/setup.py $
 
 import os
-import sys
-from distutils.core import setup
+from glob import glob
+from setuptools import setup
 
-setup_scripts       = [os.path.join('bin', f) for f in  os.listdir('bin') if f not in ('.svn', 'old')]
-setup_templates     = {'hostinfo.host': ['templates/*']}
+# Run from anywhere
+os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-setup_classifiers   = [
+setup_templates = {
+    'hostinfo.host': ['templates/host/*'],
+    'hostinfo.report': ['templates/report/*'],
+    }
+
+reports = [('reports', glob('reports/*'))]
+libexec = [('libexec', glob('libexec/*'))]
+
+setup_classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: Console',
     'Environment :: Web Environment',
@@ -25,26 +31,28 @@ setup_classifiers   = [
     ]
 
 setup(
-    name            = 'hostinfo',
-    version         = '1.30',
-    description     = 'ITIL CMDB for systems administrators',
-    author          = 'Dougal Scott',
-    author_email    = 'dougal.scott@gmail.com',
-    url             = 'http://code.google.com/p/hostinfo',
-    requires        = ['Django (>=1.4)'],
-    scripts         = setup_scripts,
-    packages        = [
-        'hostinfo', 
-        'hostinfo.backends', 
-        'hostinfo.host', 
-        'hostinfo.host.commands', 
-        'hostinfo.host.autoupdaters', 
-        'hostinfo.host.links', 
-        'hostinfo.host.reports', 
-        'hostinfo.host.templatetags', 
+    name='hostinfo',
+    version=open('version').read(),
+    description='ITIL CMDB for systems administrators',
+    author='Dougal Scott',
+    author_email='dougal.scott@gmail.com',
+    url='https://github.com/dwagon/Hostinfo',
+    scripts=glob('bin/*'),
+    requires=['south', 'Django (>=1.6)'],
+    packages=[
+        'hostinfo',
+        'hostinfo.host',
+        'hostinfo.host.commands',
+        'hostinfo.host.autoupdaters',
+        'hostinfo.host.links',
+        'hostinfo.host',
+        'hostinfo.host.templatetags',
+        'hostinfo.hostinfo',
+        'hostinfo.report',
     ],
-    package_data    = setup_templates,
-    classifiers     = setup_classifiers,
+    package_data=setup_templates,
+    data_files=reports + libexec,
+    classifiers=setup_classifiers,
     )
 
 #EOF

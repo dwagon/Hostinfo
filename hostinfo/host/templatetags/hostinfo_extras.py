@@ -1,11 +1,8 @@
-# 
+#
 # Provide a new template to pop elements of a list
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: hostinfo_extras.py 6 2010-01-12 07:41:47Z dwagon $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templatetags/hostinfo_extras.py $
-#
-#    Copyright (C) 2008 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,17 +20,18 @@
 from django import template
 register = template.Library()
 
+
 @register.filter
 def getnextelem(value):
     """
-    Go through a list and everytime it is called return the first element or return 
+    Go through a list and everytime it is called return the first element or return
     """
     if value:
-    	try:
-	    return value.pop(0)
-	except AttributeError:
-	    return ''
+        try:
+            return value.pop(0)
+        except AttributeError:
+            return ''
     else:
-    	return ''
+        return ''
 
 #EOF

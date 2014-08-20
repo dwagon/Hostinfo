@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-# 
+#
 # Script to generate host view links in bulk
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: bulk_hostview.py 6 2010-01-12 07:41:47Z dwagon $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/links/bulk_hostview.py $
 #
-#    Copyright (C) 2008 Dougal Scott
+#    Copyright (C) 2014 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,13 +19,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os
+import sys
 
-f=os.popen('/app/hostinfo/bin/hostinfo')
+f = os.popen('/app/hostinfo/bin/hostinfo')
 for line in f:
-    host=line.strip()
+    host = line.strip()
     if os.path.exists('/app/explorer/output/%s.html' % host):
-    	print "%s http://opscmdb/explorers/%s.html HostView" % (host, host)
+        print "%s http://opscmdb/explorers/%s.html HostView" % (host, host)
 f.close()
 
 sys.exit(0)

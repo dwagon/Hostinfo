@@ -1,10 +1,8 @@
 #!/usr/bin/env python
-# 
+#
 # Script to generate host detail view links in bulk
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
-# $Id: bulk_showpage.py 6 2010-01-12 07:41:47Z dwagon $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/links/bulk_showpage.py $
 #
 #    Copyright (C) 2008 Dougal Scott
 #
@@ -21,12 +19,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os
+import sys
 
-f=os.popen('/app/hostinfo/bin/hostinfo')
+f = os.popen('/app/hostinfo/bin/hostinfo')
 for line in f:
-    host=line.strip()
-    print "%s http://opscmdb/hostinfo/host/%s/ HostDetails" % (host,host)
+    host = line.strip()
+    print "%s http://opscmdb/hostinfo/host/%s/ HostDetails" % (host, host)
 f.close()
 
 sys.exit(0)

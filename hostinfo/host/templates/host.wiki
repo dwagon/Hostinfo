@@ -1,5 +1,4 @@
 {% spaceless %}
-{#  $Id: host.wiki 97 2012-06-23 09:47:43Z dougal.scott@gmail.com $ 				#}
 {#										#}
 {#										#}
 {#    Copyright (C) 2012 Dougal Scott						#}

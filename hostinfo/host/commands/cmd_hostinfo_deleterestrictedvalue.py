@@ -1,9 +1,6 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
 #    Copyright (C) 2012 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,28 +15,33 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import re
-from hostinfo.host.models import AllowedKey, RestrictedValue, HostinfoException
-from hostinfo.host.models import HostinfoCommand
+from host.models import RestrictedValue, HostinfoException
+from host.models import HostinfoCommand
 
+
+###############################################################################
 class Command(HostinfoCommand):
-    description='Remove an allowable value from a restricted key'
+    description = 'Remove an allowable value from a restricted key'
 
-    ############################################################################
+    ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('keyvalue',help='Name of the key/value pair to disallow (key=value)')
+        parser.add_argument(
+            'keyvalue',
+            help='Name of the key/value pair to disallow (key=value)')
 
-    ############################################################################
+    ###########################################################################
     def handle(self, namespace):
-        m=re.match("(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
+        m = re.match("(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
         if not m:
             raise HostinfoException("Must be specified in key=value format")
-        key=m.group('key').lower()
-        value=m.group('value').lower()
-        rvallist=RestrictedValue.objects.filter(keyid__key=key, value=value)
-        if len(rvallist)!=1:
+        key = m.group('key').lower()
+        value = m.group('value').lower()
+        rvallist = RestrictedValue.objects.filter(keyid__key=key, value=value)
+        if len(rvallist) != 1:
             raise HostinfoException("No key %s=%s in the restrictedvalue list" % (key, value))
         rvallist[0].delete()
-        return None,0
+        return None, 0
 
 #EOF

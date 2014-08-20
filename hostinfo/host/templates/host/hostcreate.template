@@ -1,0 +1,16 @@
+{% extends "host/base.html" %}
+{% block title %} Create a new host {% endblock %}
+{% block content %}
+{% if created %}
+    {{newhost}} has been successfully created<br>
+    <a href="/hostinfo/hostedit/{{newhost}}">Now edit {{newhost}}</a>
+{% else %}
+    Create a new host
+    <form action="/hostinfo/hostcreate/" method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type="submit" value="Create">
+    </form>
+{% endif %}
+{% endblock %}
+{# EOF #}

@@ -1,9 +1,6 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-# $Id: models.py 101 2012-06-23 11:09:39Z dougal.scott@gmail.com $
-# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/models.py $
-#
 #    Copyright (C) 2012 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,23 +15,26 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from hostinfo.host.models import HostAlias, HostinfoException
-from hostinfo.host.models import HostinfoCommand
 
+from host.models import HostAlias, HostinfoException
+from host.models import HostinfoCommand
+
+
+###############################################################################
 class Command(HostinfoCommand):
-    description='Delete an alias from a host'
+    description = 'Delete an alias from a host'
 
-    ############################################################################
+    ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('alias',help='The alias to delete')
+        parser.add_argument('alias', help='The alias to delete')
 
-    ############################################################################
+    ###########################################################################
     def handle(self, namespace):
-        alias=namespace.alias.lower()
-        aliases=HostAlias.objects.filter(alias=alias)
-        if len(aliases)==0:
+        alias = namespace.alias.lower()
+        aliases = HostAlias.objects.filter(alias=alias)
+        if len(aliases) == 0:
             raise HostinfoException("No alias called %s" % alias)
         aliases[0].delete()
-        return None,0
+        return None, 0
 
 #EOF

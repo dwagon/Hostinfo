@@ -1,0 +1,17 @@
+{% extends "host/base.html" %}
+{% block title %} Editing {{host}} {% endblock %}
+
+{% block content %}
+{% if editing %}
+    {% include "host/hostediting.template" %}
+{% else %}
+    Change the values of a host
+    <form action="/hostinfo/hostedit/" method="POST">
+    {% csrf_token %}
+	{{form.as_p}}
+	<input type="submit" value="Edit">
+    </form>
+{% endif %}
+
+{% endblock %}
+{# EOF #}

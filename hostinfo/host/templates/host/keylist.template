@@ -1,0 +1,15 @@
+{% extends "host/base.html" %}
+{% block title %} Values of {{ key }} {% endblock %}
+{% block content %}
+{% load local_escape %}
+<table>
+<tr><th>{{ key }}</th><td>({{ numkeys }} different values)</td></tr>
+ <tr><td></td> <td><a href="/hostinfo/hostcmp/{{ key }}.defined">{{key.title}} set</a> ({{ numdef }} instance{{numdef|pluralize}} - {{pctdef|floatformat:1}}%) </td></tr>
+ <tr><td></td> <td><a href="/hostinfo/hostcmp/{{ key }}.undefined">No {{key}} set</a> ({{ numundef }} instance{{numdef|pluralize}} - {{pctundef|floatformat:1}}%) </td></tr>
+ <tr><td></td> &nbsp; <td></td></tr>
+{% for kv in keylist %}
+ <tr><td></td> <td><a class="keyvalue" href="/hostinfo/hostcmp/{{ key }}.eq.{{ kv.0|local_escape }}">{{ kv.0 }}</a> ({{ kv.1 }} instance{{kv.1|pluralize}} {{kv.2|floatformat:1}}%) </td></tr>
+{% endfor %}
+</table>
+{% endblock %}
+<!-- EOF -->
