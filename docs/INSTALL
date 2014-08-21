@@ -8,7 +8,9 @@
         * SQLite [http:/www.sqlite.org]
     * Web interface functionality can be gained by installing:
         * apache [http:/www.apache.org]
-        * mod_python [http:/www.modpython.org]
+        or 
+        * nginx [http:/www.nginx.org]
+        * wsgi
     * Wiki interface functionality can be gained by installing:
         * MediaWiki [http:/www.mediawiki.org]
 
@@ -18,10 +20,11 @@
 
 * Edit settings.py to change the following:
     * ADMINS
-    * DATABASE_ENGINE
-    * DATABASE_NAME
-    * DATABASE_USER
-    * DATABASE_PASSWORD
+    * DATABASES
+        * ENGINE
+        * NAME
+        * USER
+        * PASSWORD
     * SECRET_KEY
   settings.py will generally be installed under where python installs new packages.
   (E.g. /usr/local/lib/python/dist-packages)
@@ -60,21 +63,6 @@
     * Show the details you have for your hosts
         hostinfo --showall hostA
 
-* To get the web site working you will need to install mod_python
-    * Add the following to your apache config
-	<Location "/hostinfo">
-	    SetHandler python-program
-	    PythonHandler django.core.handlers.modpython
-	    SetEnv DJANGO_SETTINGS_MODULE hostinfo.settings
-	    PythonPath "['/usr/local/lib/python', '/usr/local/lib/python/site-packages/'] + sys.path"
-	</Location>
-
-	<Location "/hostinfo-admin">
-	    SetHandler python-program
-	    PythonHandler django.core.handlers.modpython
-	    SetEnv DJANGO_SETTINGS_MODULE hostinfo.settings
-	    PythonPath "['/usr/local/lib/python', '/usr/local/lib/python/site-packages/'] + sys.path"
-	</Location>
     * Change the email address in templates/base.html - this is where suggestions get sent to
     * Copy the images from TODO to TODO
 
