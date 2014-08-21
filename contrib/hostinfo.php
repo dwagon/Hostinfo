@@ -77,7 +77,6 @@ function crit_format($crit)
  */
 function render_hostinfo ( $input , $argv, &$parser )
 {
-    #$urlbase = "http://opscmdb";
     $urlbase = "http://localhost:8000";
 
     if ( ! isset($argv['type']))
