@@ -152,14 +152,14 @@ class Host(models.Model):
         )
 
     ############################################################################
-    def save(self, user=None):
+    def save(self, user=None, **kwargs):
         if not user:
             user = getUser()
         self.hostname = self.hostname.lower()
         if not self.id:                        # Check for update
             undo = UndoLog(user=user, action='hostinfo_deletehost --lethal %s' % self.hostname)
             undo.save()
-        super(Host, self).save()
+        super(Host, self).save(**kwargs)
 
     ############################################################################
     def delete(self, user=None):
@@ -256,7 +256,7 @@ class KeyValue(models.Model):
         )
 
     ############################################################################
-    def save(self, user=None, readonlychange=False):
+    def save(self, user=None, readonlychange=False, **kwargs):
         if not user:
             user = getUser()
         self.value = self.value.lower()
@@ -279,7 +279,7 @@ class KeyValue(models.Model):
             undo.save()
 
         # Actually do the saves
-        super(KeyValue, self).save()
+        super(KeyValue, self).save(**kwargs)
 
     ############################################################################
     def delete(self, user=None, readonlychange=False):
@@ -320,13 +320,13 @@ class UndoLog(models.Model):
         pass
 
     ############################################################################
-    def save(self):
+    def save(self, **kwargs):
         if hasattr(self.user, 'username'):
             self.user.username = self.user.username[:200]
         else:
             self.user = self.user[:200]
         self.action = self.action[:200]
-        super(UndoLog, self).save()
+        super(UndoLog, self).save(**kwargs)
 
 
 ################################################################################
@@ -726,4 +726,4 @@ def run_from_cmdline():
         return exc.retval
     return retval
 
-#EOF
+# EOF
