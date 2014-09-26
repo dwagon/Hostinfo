@@ -2,9 +2,12 @@
 
 import os
 import sys
+import django
+
 sys.path.insert(0, '/opt/hostinfo/lib')
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'hostinfo.settings'
+django.setup()
 from host.models import run_from_cmdline
 
 ################################################################################
