@@ -18,7 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.db import models, connection
+from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from simple_history.models import HistoricalRecords
@@ -30,37 +30,6 @@ import time
 
 _akcache = None
 debugFlag = False
-
-
-################################################################################
-class MyProfiler:       # pragma: no cover
-    def __init__(self, fn):
-        self.fn = fn
-        MyProfiler.pid = os.getpid()
-
-    def __call__(self, *args, **kwargs):
-        if not debugFlag:
-            return self.fn(*args, **kwargs)
-        predbqueries = connection.queries[:]
-        self.log("* %s %s" % (self.fn.__name__, args))
-        start = time.time()
-        output = self.fn(*args, **kwargs)
-        end = time.time()
-        postdbqueries = connection.queries[:]
-        self.log("> %s %d DB Queries" % (self.fn.__name__, len(postdbqueries)-len(predbqueries)))
-        for q in postdbqueries:
-            if q not in predbqueries:
-                self.log("    %s %s" % (self.fn.__name__, q))
-        self.log("> %s %f secs" % (self.fn.__name__, (end-start)))
-        self.log("")
-
-        return output
-
-    @staticmethod
-    def log(msg):
-        f = open('/tmp/profile_%d.out' % MyProfiler.pid, 'a')
-        f.write("%s\n" % msg)
-        f.close()
 
 
 ################################################################################
