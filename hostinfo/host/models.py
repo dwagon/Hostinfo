@@ -21,8 +21,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from simple_history.models import HistoricalRecords
 import argparse
-from . import audit
 import os
 import re
 import sys
@@ -92,11 +92,11 @@ def getUser(instance=None):
 
 
 ################################################################################
-def getActor(instance=None):
-    """ Get what is making the change for the audit trail
-    """
-    return sys.argv[0][:250]
-
+# def getActor(instance=None):
+#    """ Get what is making the change for the audit trail
+#    """
+#    return sys.argv[0][:250]
+#
 
 ############################################################################
 def auditedKey(instance):
@@ -114,11 +114,7 @@ class Host(models.Model):
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
     docpage = models.URLField(blank=True, null=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), ),
-        show_in_admin=True
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     def save(self, user=None, **kwargs):
@@ -164,10 +160,7 @@ class HostAlias(models.Model):
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), )
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     def __unicode__(self):
@@ -194,10 +187,7 @@ class AllowedKey(models.Model):
     reservedFlag1 = models.BooleanField(default=True)
     reservedFlag2 = models.BooleanField(default=True)
     docpage = models.URLField(blank=True, null=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), )
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     def __unicode__(self):
@@ -218,11 +208,7 @@ class KeyValue(models.Model):
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), ),
-        check_audit=auditedKey,
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     def save(self, user=None, readonlychange=False, **kwargs):
@@ -248,6 +234,8 @@ class KeyValue(models.Model):
             undo.save()
 
         # Actually do the saves
+        if not self.keyid.auditFlag:
+            self.skip_history_when_saving = True
         super(KeyValue, self).save(**kwargs)
 
     ############################################################################
@@ -309,10 +297,7 @@ class RestrictedValue(models.Model):
     value = models.CharField(max_length=200)
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), )
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     def __unicode__(self):
@@ -331,10 +316,7 @@ class Links(models.Model):
     url = models.CharField(max_length=200)
     tag = models.CharField(max_length=100)
     modifieddate = models.DateField(auto_now=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), )
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     class Meta:
