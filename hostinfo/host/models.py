@@ -234,6 +234,8 @@ class KeyValue(models.Model):
             undo.save()
 
         # Actually do the saves
+        if not self.keyid.auditFlag:
+            self.skip_history_when_saving = True
         super(KeyValue, self).save(**kwargs)
 
     ############################################################################
