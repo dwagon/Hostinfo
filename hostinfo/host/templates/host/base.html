@@ -19,7 +19,10 @@
 <html>
 <head>
 <title>{% block title %}No title set {% endblock %}</title>
-<link rel="stylesheet" type="text/css" href="{% static "hostinfo/hostinfo_style.css" %}"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="/static/b/js/bootstrap.min.js"></script>
+<link href="/static/b/css/bootstrap.min.css" rel="stylesheet" media="all">
+<link href="/static/hostinfo_style.css" rel="stylesheet" media="all">
 </head>
 
 
@@ -32,10 +35,9 @@
 	<a href="/hostinfo/">Home</a></br>
 	<form action="/hostinfo/handlePost/" method="POST"> {% csrf_token %} <input type="search" value="Hostname" name="hostre"> </form></br>
 	{% if csvavailable %}
-	<a href="{{csvavailable}}"><img src="{% static "hostinfo/csv_report.gif" %}" alt="CSV Report"/></a>
+	<a href="{{csvavailable}}" role="button" class="btn btn-primary">CSV Report</a>
 	{% endif %}
-	<a href="mailto:dougal.scott@gmail.com&subject=HostInfo Suggestion"><img
-    src={% static "hostinfo/suggestion.gif" %} alt="Send a suggestion to Sysadmins"/></a>
+	<a href="mailto:dougal.scott@gmail.com&subject=HostInfo Suggestion" role="button" class="btn btn-primary">Feedback</a>
 
 	<br>
     {% if user.is_authenticated %}
