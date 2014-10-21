@@ -480,7 +480,7 @@ def doHostlist(request, criteria='', options=''):
 
 
 ################################################################################
-def doHostcmp(request, criteria, options=''):
+def doHostcmp(request, criteria='', options=''):
     """ Display a list of matching hosts with their details"""
     if request.method == 'POST' and 'options' in request.POST:
         options = 'opts='
