@@ -17,7 +17,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.utils import unittest
+from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 import sys
@@ -25,25 +25,27 @@ import time
 import StringIO
 
 from .models import HostinfoException, ReadonlyValueException, RestrictedValueException
-from .models import Host, HostAlias, AllowedKey, KeyValue, UndoLog, RestrictedValue, Links, HostinfoCommand
+from .models import Host, HostAlias, AllowedKey, KeyValue, RestrictedValue, Links
 
-from .models import getUser, getActor, auditedKey, validateDate
-from .models import validateKey, parseQualifiers, oneoff, getApproxObjects, getMatches
-from .models import getAliases, getHost, getOrigin, getAkCache, checkHost
+from .models import validateDate
+from .models import parseQualifiers, getMatches
+from .models import getHost, getAkCache, checkHost
 from .models import checkKey, addKeytoHost, run_from_cmdline
 
-from .views import hostviewrepr, getHostMergeKeyData, mergeKey, doHostMerging
-from .views import doHostMergeChoose, doHostMerge, doHostRenameChoose, doHostRename
-from .views import doHostCreateChoose, doHostCreate, doHostEditChoose, doHostEdit
-from .views import handlePost, doHostEditChanges, getLinks, getWebLinks, getWikiLinks
-from .views import getHostDetails, doHostSummary, doHost, doHostDataFormat, doHostlist
-from .views import doHostcmp, orderHostList, doHostwikiTable, doHostwiki, doCsvreport
-from .views import getHostList, csvDump, index
-from .views import doRestrValList, doKeylist
+from .views import getHostMergeKeyData, hostviewrepr
+# from .views import mergeKey, doHostMerging
+# from .views import doHostMergeChoose, doHostMerge, doHostRenameChoose, doHostRename
+# from .views import doHostCreateChoose, doHostCreate, doHostEditChoose, doHostEdit
+# from .views import handlePost, doHostEditChanges, getLinks, getWebLinks, getWikiLinks
+# from .views import getHostDetails, doHostSummary, doHost, doHostDataFormat, doHostlist
+# from .views import doHostcmp, orderHostList, doHostwikiTable, doHostwiki, doCsvreport
+from .views import orderHostList
+# from .views import getHostList, csvDump, index
+# from .views import doRestrValList, doKeylist
 
 
 ###############################################################################
-class test_SingleKey(unittest.TestCase):
+class test_SingleKey(TestCase):
     """ Test operations on a single values key """
     def setUp(self):
         self.host = Host(hostname='host')
@@ -123,7 +125,7 @@ class test_SingleKey(unittest.TestCase):
 
 
 ###############################################################################
-class test_ListKey(unittest.TestCase):
+class test_ListKey(TestCase):
     """ Test operations on a list of values key """
     def setUp(self):
         self.host = Host(hostname='host')
@@ -207,7 +209,7 @@ class test_ListKey(unittest.TestCase):
 
 
 ###############################################################################
-class test_Restricted(unittest.TestCase):
+class test_Restricted(TestCase):
     """ Test operations on a restricted key
     """
     def setUp(self):
@@ -235,7 +237,7 @@ class test_Restricted(unittest.TestCase):
 
 
 ###############################################################################
-class test_DateKey(unittest.TestCase):
+class test_DateKey(TestCase):
     """ Test operations on a date based key
     """
     def setUp(self):
@@ -264,7 +266,7 @@ class test_DateKey(unittest.TestCase):
 
 
 ###############################################################################
-class test_DateValidator(unittest.TestCase):
+class test_DateValidator(TestCase):
     """ Test validateDate()
     """
 
@@ -283,7 +285,7 @@ class test_DateValidator(unittest.TestCase):
 
 
 ###############################################################################
-class test_HostAlias(unittest.TestCase):
+class test_HostAlias(TestCase):
     """ Test HostAlias class
     """
     def setUp(self):
@@ -304,7 +306,7 @@ class test_HostAlias(unittest.TestCase):
 
 
 ###############################################################################
-class test_Links(unittest.TestCase):
+class test_Links(TestCase):
     """ Test Links
     """
     def setUp(self):
@@ -329,7 +331,7 @@ class test_Links(unittest.TestCase):
 
 
 ###############################################################################
-class test_parseQualifiers(unittest.TestCase):
+class test_parseQualifiers(TestCase):
     def setUp(self):
         self.key = AllowedKey(key='kpq', validtype=1)
         self.key.save()
@@ -377,7 +379,7 @@ class test_parseQualifiers(unittest.TestCase):
 
 
 ###############################################################################
-class test_getMatches(unittest.TestCase):
+class test_getMatches(TestCase):
     # The use of set's in the test cases is to make sure that the order
     # of the results is not an issue
     def setUp(self):
@@ -607,7 +609,7 @@ class test_getMatches(unittest.TestCase):
 
 
 ###############################################################################
-class test_getHost(unittest.TestCase):
+class test_getHost(TestCase):
     ###########################################################################
     def setUp(self):
         self.h1 = Host(hostname='h1')
@@ -640,7 +642,7 @@ class test_getHost(unittest.TestCase):
 
 
 ###############################################################################
-class test_checkKey(unittest.TestCase):
+class test_checkKey(TestCase):
     ###########################################################################
     def setUp(self):
         self.ak = AllowedKey(key='ak_checkkey')
@@ -659,11 +661,12 @@ class test_checkKey(unittest.TestCase):
     def test_checknoexists(self):
         with self.assertRaises(HostinfoException) as cm:
             rc = checkKey('ak_badkey')
+            print rc
         self.assertEquals(cm.exception.msg, "Must use an existing key, not ak_badkey")
 
 
 ###############################################################################
-class test_checkHost(unittest.TestCase):
+class test_checkHost(TestCase):
     ###########################################################################
     def setUp(self):
         self.h = Host(hostname='test_check_host')
@@ -685,7 +688,7 @@ class test_checkHost(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_hostinfo(unittest.TestCase):
+class test_cmd_hostinfo(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -867,7 +870,7 @@ class test_cmd_hostinfo(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_addalias(unittest.TestCase):
+class test_cmd_addalias(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -917,7 +920,7 @@ class test_cmd_addalias(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_addhost(unittest.TestCase):
+class test_cmd_addhost(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -970,7 +973,7 @@ class test_cmd_addhost(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_addkey(unittest.TestCase):
+class test_cmd_addkey(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1097,7 +1100,7 @@ class test_cmd_addkey(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_addrestrictedvalue(unittest.TestCase):
+class test_cmd_addrestrictedvalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1157,7 +1160,7 @@ class test_cmd_addrestrictedvalue(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_addvalue(unittest.TestCase):
+class test_cmd_addvalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1263,7 +1266,7 @@ class test_cmd_addvalue(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_deletealias(unittest.TestCase):
+class test_cmd_deletealias(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1300,7 +1303,7 @@ class test_cmd_deletealias(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_deletehost(unittest.TestCase):
+class test_cmd_deletehost(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1369,7 +1372,7 @@ class test_cmd_deletehost(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_deleterestrictedvalue(unittest.TestCase):
+class test_cmd_deleterestrictedvalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1434,7 +1437,7 @@ class test_cmd_deleterestrictedvalue(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_deletevalue(unittest.TestCase):
+class test_cmd_deletevalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1519,25 +1522,16 @@ class test_cmd_deletevalue(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_history(unittest.TestCase):
+class test_cmd_history(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
         from commands.cmd_hostinfo_history import Command
 
-        self.clearHistory()
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
         self.t = time.strftime("%Y-%m-%d", time.localtime())
-
-    ###########################################################################
-    def clearHistory(self):
-        from django.db import connection        # Need evil to test evil
-        cursor = connection.cursor()
-        cursor.execute("DELETE FROM host_keyvalue_audit")
-        cursor.execute("DELETE FROM host_host_audit")
-        cursor.close()
 
     ###########################################################################
     def test_badhost(self):
@@ -1547,7 +1541,6 @@ class test_cmd_history(unittest.TestCase):
 
     ###########################################################################
     def test_origin(self):
-        self.clearHistory()
         host = Host(hostname='host_history_o', origin='host_origin')
         host.save()
         ak = AllowedKey(key='key4_dv')
@@ -1567,7 +1560,6 @@ class test_cmd_history(unittest.TestCase):
     def test_actor(self):
         """ Make sure that we are saving the actor properly
         """
-        self.clearHistory()
         host = Host(hostname='host_history_a')
         host.save()
         ak = AllowedKey(key='key5_dv')
@@ -1597,7 +1589,6 @@ class test_cmd_history(unittest.TestCase):
     def test_valadd(self):
         host = Host(hostname='host_history_va')
         host.save()
-        self.clearHistory()
         ak = AllowedKey(key='key3_dv')
         ak.save()
         kv = KeyValue(keyid=ak, hostid=host, value='historic')
@@ -1618,7 +1609,6 @@ class test_cmd_history(unittest.TestCase):
         ak.save()
         kv = KeyValue(keyid=ak, hostid=host, value='historic')
         kv.save()
-        self.clearHistory()
         kv.delete()
         namespace = self.parser.parse_args(['host_history_vd'])
         output = self.cmd.handle(namespace)
@@ -1631,7 +1621,6 @@ class test_cmd_history(unittest.TestCase):
     def test_noaudit(self):
         host = Host(hostname='host_history_na')
         host.save()
-        self.clearHistory()
         ak1 = AllowedKey(key='key5_na', auditFlag=False)
         ak1.save()
         ak2 = AllowedKey(key='key6_na')
@@ -1652,7 +1641,7 @@ class test_cmd_history(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_import(unittest.TestCase):
+class test_cmd_import(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1670,7 +1659,7 @@ class test_cmd_import(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_listalias(unittest.TestCase):
+class test_cmd_listalias(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1732,7 +1721,7 @@ class test_cmd_listalias(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_listrestrictedvalue(unittest.TestCase):
+class test_cmd_listrestrictedvalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1767,7 +1756,7 @@ class test_cmd_listrestrictedvalue(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_mergehost(unittest.TestCase):
+class test_cmd_mergehost(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1885,7 +1874,7 @@ class test_cmd_mergehost(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_renamehost(unittest.TestCase):
+class test_cmd_renamehost(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -1927,7 +1916,7 @@ class test_cmd_renamehost(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_replacevalue(unittest.TestCase):
+class test_cmd_replacevalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -2014,7 +2003,7 @@ class test_cmd_replacevalue(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_showkey(unittest.TestCase):
+class test_cmd_showkey(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -2065,7 +2054,7 @@ class test_cmd_showkey(unittest.TestCase):
 
 
 ###############################################################################
-class test_cmd_undolog(unittest.TestCase):
+class test_cmd_undolog(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
@@ -2104,7 +2093,7 @@ class test_cmd_undolog(unittest.TestCase):
 
 
 ###############################################################################
-class test_run_from_cmdline(unittest.TestCase):
+class test_run_from_cmdline(TestCase):
     ###########################################################################
     def setUp(self):
         self.oldargv = sys.argv
@@ -2131,7 +2120,7 @@ class test_run_from_cmdline(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_hostmerge(unittest.TestCase):
+class test_url_hostmerge(TestCase):
     ###########################################################################
     def setUp(self):
         self.client = Client()
@@ -2190,7 +2179,7 @@ class test_url_hostmerge(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_hostrename(unittest.TestCase):
+class test_url_hostrename(TestCase):
     ###########################################################################
     def setUp(self):
         self.client = Client()
@@ -2239,7 +2228,7 @@ class test_url_hostrename(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_index(unittest.TestCase):
+class test_url_index(TestCase):
     ###########################################################################
     def setUp(self):
         self.client = Client()
@@ -2259,7 +2248,7 @@ class test_url_index(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_handlePost(unittest.TestCase):
+class test_url_handlePost(TestCase):
     ###########################################################################
     def setUp(self):
         self.client = Client()
@@ -2289,7 +2278,7 @@ class test_url_handlePost(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_keylist(unittest.TestCase):
+class test_url_keylist(TestCase):
     """ Test views doKeylist function"""
     ###########################################################################
     def setUp(self):
@@ -2348,7 +2337,7 @@ class test_url_keylist(unittest.TestCase):
 
 
 ###############################################################################
-class test_hostviewrepr(unittest.TestCase):
+class test_hostviewrepr(TestCase):
     ###########################################################################
     def setUp(self):
         self.key = AllowedKey(key='hvrkey', validtype=1)
@@ -2376,7 +2365,7 @@ class test_hostviewrepr(unittest.TestCase):
 
 
 ###############################################################################
-class test_getHostMergeKeyData(unittest.TestCase):
+class test_getHostMergeKeyData(TestCase):
     ###########################################################################
     def setUp(self):
         self.host1 = Host(hostname='hmkdhost1')
@@ -2419,7 +2408,7 @@ class test_getHostMergeKeyData(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_rvlist(unittest.TestCase):
+class test_url_rvlist(TestCase):
     """ Test doRestrValList function and /hostinfo/rvlist url
         (r'^rvlist/(?P<key>\S+)/$', 'doRestrValList'),
         (r'^rvlist/(?P<key>\S+)/(?P<mode>\S+)$', 'doRestrValList'),
@@ -2471,7 +2460,7 @@ class test_url_rvlist(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_host_summary(unittest.TestCase):
+class test_url_host_summary(TestCase):
     # (r'^host_summary/(?P<hostname>.*)/(?P<format>\S+)$', 'doHostSummary'),
     # (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
     ###########################################################################
@@ -2526,7 +2515,7 @@ class test_url_host_summary(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_host_edit(unittest.TestCase):
+class test_url_host_edit(TestCase):
     ###########################################################################
     def setUp(self):
         self.user = User.objects.create_user('fred', 'fred@example.com', 'secret')
@@ -2602,15 +2591,15 @@ class test_url_host_edit(unittest.TestCase):
             [t.name for t in response.templates],
             ['host/hostedit.template', 'host/base.html', 'host/hostediting.template']
             )
-        #kv=KeyValue.objects.filter(hostid=self.host, keyid=self.key1)
-        #self.assertEquals(kv[0].value, 'newval')
-        #kv=KeyValue.objects.filter(hostid=self.host, keyid=self.key3)
-        #self.assertEquals(kv[0].value, 'v2')
-        #TODO
+        # kv=KeyValue.objects.filter(hostid=self.host, keyid=self.key1)
+        # self.assertEquals(kv[0].value, 'newval')
+        # kv=KeyValue.objects.filter(hostid=self.host, keyid=self.key3)
+        # self.assertEquals(kv[0].value, 'v2')
+        # TODO
 
 
 ###############################################################################
-class test_url_hostlist(unittest.TestCase):
+class test_url_hostlist(TestCase):
     """
     (r'^hostlist/(?P<criteria>.*)/(?P<options>opts=.*)?$', 'doHostlist'),
     (r'^host/$', 'doHostlist'),
@@ -2756,7 +2745,7 @@ class test_url_hostlist(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_csv(unittest.TestCase):
+class test_url_csv(TestCase):
     """
     (r'^csv/$', 'doCsvreport'),
     (r'^csv/(?P<criteria>.*)/$', 'doCsvreport'),
@@ -2794,7 +2783,7 @@ class test_url_csv(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_hostwikitable(unittest.TestCase):
+class test_url_hostwikitable(TestCase):
     """
     (r'^hostwikitable/(?P<criteria>.*?)(?P<options>/(?:order=|print=).*)?$', 'doHostwikiTable'),
     """
@@ -2840,7 +2829,7 @@ class test_url_hostwikitable(unittest.TestCase):
 
 
 ###############################################################################
-class test_url_hostcmp(unittest.TestCase):
+class test_url_hostcmp(TestCase):
     """
     (r'^hostcmp/(?P<criteria>.*)/(?P<options>opts=.*)?$', 'doHostcmp'),
     """
@@ -2911,7 +2900,7 @@ class test_url_hostcmp(unittest.TestCase):
 
 
 ###############################################################################
-class test_orderhostlist(unittest.TestCase):
+class test_orderhostlist(TestCase):
     def setUp(self):
         self.key1 = AllowedKey(key='ohlkey1')
         self.key1.save()
@@ -2966,4 +2955,4 @@ class test_orderhostlist(unittest.TestCase):
         out = orderHostList(self.hosts, 'ohlkey2')
         self.assertEquals(out, self.hosts)
 
-#EOF
+# EOF
