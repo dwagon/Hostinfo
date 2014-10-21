@@ -9,7 +9,7 @@
     <form action="/hostinfo/hostcreate/" method="POST">
     {% csrf_token %}
     {{form.as_p}}
-    <input type="submit" value="Create">
+    <input type="submit" value="Create" class="btn btn-primary">
     </form>
 {% endif %}
 {% endblock %}

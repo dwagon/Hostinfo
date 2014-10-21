@@ -42,7 +42,7 @@
 </select> </td>
 <td><input type=text name=_newvalue.new value=''></td></tr>
 </table>
-<input type="submit" value="Change">
+<input type="submit" value="Change" class="btn btn-primary">
 <input type="reset">
 </form>
 {# EOF #}

@@ -9,7 +9,7 @@
     <form action="/hostinfo/hostedit/" method="POST">
     {% csrf_token %}
 	{{form.as_p}}
-	<input type="submit" value="Edit">
+	<input type="submit" value="Edit" class="btn btn-primary">
     </form>
 {% endif %}
 

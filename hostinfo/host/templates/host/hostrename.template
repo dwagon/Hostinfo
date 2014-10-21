@@ -8,7 +8,7 @@
     <form action="/hostinfo/hostrename/" method="POST">
     {% csrf_token %}
     {{form.as_p}}
-    <input type="submit" value="Rename">
+    <input type="submit" value="Rename" class="btn btn-primary">
     </form>
 {% endif %}
 {% endblock %}

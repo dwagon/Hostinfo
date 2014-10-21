@@ -38,7 +38,7 @@
     {% endfor %}
 </table>
 Note that "{{srchost}}" will be permanently deleted if you go ahead.<br>
-<input name="_hostmerging" type="submit" value="Merge">
+<input name="_hostmerging" type="submit" value="Merge" class="btn btn-primary">
 <input type="reset">
 <form>
 {# EOF #}

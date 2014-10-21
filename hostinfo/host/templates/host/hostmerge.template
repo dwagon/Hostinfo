@@ -11,7 +11,7 @@
 	<form action="/hostinfo/hostmerge/" method="POST">
         {% csrf_token %}
 	    {{form.as_p}}
-	    <input type="submit" value="Merge">
+	    <input type="submit" value="Merge" class="btn btn-primary">
 	</form>
     {% endif %}
 {% endif %}

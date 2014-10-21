@@ -43,9 +43,9 @@ function delItem(num) {
 }
 </script>
 
-<ul id="reportlist">
-<li> <a href="/report/">Reports</a>
-<li> <a href="/hostinfo/host">All elements</a> Return a list of all {{ numhosts }} elements known
+<ul id="reportlist" class="list-group">
+<li class="list-group-item"> <a href="/report/">Reports</a>
+<li class="list-group-item"> <a href="/hostinfo/host">All elements</a> Return a list of all {{ numhosts }} elements known
 </ul>
 <hr>
 {% if user.is_authenticated %}
@@ -84,16 +84,16 @@ Criteria Search:
 <input id="plusbtn" type="button" onclick="addItem();" value="+">
 <input id="negbtn" type="button" onclick="delItem(0);" value="-">
 </ul>
-<input type="submit" value="search">
+<input type="submit" value="search" class="btn btn-primary">
 </form>
 </div>
 
 <hr>
 
 KeyList:
-<ul id="keylist">
+<ul class="list-group">
 {% for keytype in keys %}
-    <li> Show all values of <a class="keyname" href="/hostinfo/keylist/{{ keytype }}">{{keytype}}</a> - <span class="keydesc">{{keytype.desc}}</span>
+    <li class="list-group-item"> Show all values of <a class="keyname" href="/hostinfo/keylist/{{ keytype }}">{{keytype}}</a> - <span class="keydesc">{{keytype.desc}}</span>
 {% endfor %}
 </ul>
 {% endblock %}

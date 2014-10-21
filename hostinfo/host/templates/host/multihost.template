@@ -3,14 +3,22 @@
 {% block title %} Comparison of host details {{ title }}{% endblock %}
 {% block options %}
     <hr>
-    <form action="/hostinfo/hostcmp/{{title|local_escape}}/" method="POST">
+    <form role="form" action="/hostinfo/hostcmp/{{title|local_escape}}/" method="POST">
         {% csrf_token %}
 	<input type=hidden name=query value={{title|local_escape}}>
-	<input type=checkbox name=options value=origin {% if origin %} checked {% endif %} >Show Origin<br>
-	<input type=checkbox name=options value=dates {% if dates %} checked {% endif %} >Show Dates<br>
-	<input type=submit value="Change Options">
+    <div class="checkbox">
+        <label>
+            <input type=checkbox name=options value=origin {% if origin %} checked {% endif %} >Show Origin
+        </label>
+    </div>
+    <div class="checkbox">
+        <label>
+            <input type=checkbox name=options value=dates {% if dates %} checked {% endif %} >Show Dates
+        </label>
+    </div>
+
+	<input type="submit" value="Change Options" class="btn btn-primary">
     </form>
-    <hr>
 {% endblock %}
 {% block content %}
 {% if error %}<h2 style="color:red"> {{error}} </h2>{% endif %}
@@ -20,9 +28,11 @@
 {{ count }} matches<br>
 </div>
 
-<table>
+<table class="table table-striped table-condensed">
 {% for host,kvlist,hostlink in hostlist %}
+    <tr><td>
     {% include "host/showall.template" %}
+    </td></tr>
 {% endfor %}
 </table>
 {% endblock %}
