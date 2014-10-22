@@ -30,7 +30,7 @@
 <div id="sidebar">
     {% block sidebar %}
 	<a href="{% url 'index' %}">Home</a></br>
-	<form action="/hostinfo/handlePost/" method="POST"> {% csrf_token %} <input type="search" value="Hostname" name="hostre"> </form></br>
+	<form action="{% url 'formhandler' %}" method="POST"> {% csrf_token %} <input type="search" value="Hostname" name="hostre"> </form></br>
 	{% if csvavailable %}
         <a href="{{csvavailable}}"><img src="{% static "hostinfo/csv_report.gif" %}" alt="CSV Report"/></a>
 	{% endif %}

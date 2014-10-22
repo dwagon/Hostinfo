@@ -6,7 +6,7 @@
     <a href="{% url 'hostEdit' newhost %}">Now edit {{newhost}}</a>
 {% else %}
     Create a new host
-    <form action="/hostinfo/hostcreate/" method="POST">
+    <form action="{% url 'hostCreate' %}" method="POST">
         {% csrf_token %}
         {{form.as_p}}
         <input type="submit" value="Create">

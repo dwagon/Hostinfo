@@ -63,7 +63,7 @@ Edits:
 {% endif %}
 
 Criteria Search:
-<form action="/hostinfo/handlePost/" method="POST">
+<form action="{% url 'formhandler' %}" method="POST">
 {% csrf_token %}
 <ul id="formlist">
 <li> <select id=key name=key0>
