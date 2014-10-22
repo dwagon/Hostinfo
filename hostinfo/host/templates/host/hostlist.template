@@ -15,17 +15,17 @@
 
 <table>
 {% for host,kvlist,hostlink in hostlist %}
-    <tr><td><a class="hostname" href="/hostinfo/host/{{ host }}">{{ host }}</a></td>
+    <tr><td><a class="hostname" href="{% url 'host' host %}">{{ host }}</a></td>
     <td>
     {% if user.is_authenticated %}
-    	[<a href="/hostinfo/hostedit/{{ host }}">Edit {{host}}</a>]
+        [<a href="{% url 'hostEdit' host %}">Edit {{host}}</a>]
     {% endif %}
     </td>
     <td>
     {% if hostlink %}
-    	{% for link in hostlink %}
-	    {{link|safe}}
-	{% endfor %}
+        {% for link in hostlink %}
+            {{link|safe}}
+        {% endfor %}
     {%endif%}
     </td>
     </tr>
