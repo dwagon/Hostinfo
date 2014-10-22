@@ -20,25 +20,26 @@
 from django.conf.urls import patterns, url
 from .views import (
     index, doHostlist, doHostMerge, doHostMergeChoose, doHost, doKeylist,
-    doHostRenameChoose, doHostEditChoose, doHostCreateChoose, doHostEdit
+    doHostRenameChoose, doHostEditChoose, doHostCreateChoose, doHostEdit,
+    handlePost, doHostCreate, doHostRename
     )
 
 urlpatterns = patterns(
     'host.views',
     url(r'^$', index, name='index'),
-    (r'^handlePost/$', 'handlePost'),
+    url(r'^handlePost/$', handlePost, name='formhandler'),
 
     url(r'^hostedit/$', doHostEditChoose, name='hostEditChoose'),
     url(r'^hostedit/(?P<hostname>\S+)/$', doHostEdit, name='hostEdit'),
 
     url(r'^hostcreate/$', doHostCreateChoose, name='hostCreateChoose'),
-    (r'^hostcreate/(?P<hostname>\S+)/$', 'doHostCreate'),
+    url(r'^hostcreate/(?P<hostname>\S+)/$', doHostCreate, name='hostCreate'),
 
     url(r'^hostmerge/$', doHostMergeChoose, name='hostMergeChoose'),
     url(r'^hostmerge/(?P<srchost>\S+)/(?P<dsthost>\S+)$', doHostMerge, name='hostMerge'),
 
     url(r'^hostrename/$', doHostRenameChoose, name='hostRenameChoose'),
-    url(r'^hostrename/(?P<srchost>\S+)/(?P<dsthost>\S+)$', 'doHostRename'),
+    url(r'^hostrename/(?P<srchost>\S+)/(?P<dsthost>\S+)$', doHostRename, name='hostRename'),
 
     (r'^hostlist/(?P<criteria>.*)/(?P<options>opts=.*)?$', 'doHostlist'),
     url(r'^hostlist/$', doHostlist, name='hostlist'),
