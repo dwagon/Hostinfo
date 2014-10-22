@@ -32,8 +32,8 @@
 <td width="10%" valign="top">
 <div id="sidebar">
     {% block sidebar %}
-	<br> <a href="/hostinfo/" role="button" class="btn btn-primary">Hostinfo</a></br>
-    <br> <form action="/hostinfo/handlePost/" method="POST"> {% csrf_token %} <input class="form-control" type="search" placeholder="Hostname" name="hostre"> </form></br>
+	<br> <a href="{% url 'index' %}" role="button" class="btn btn-primary">Hostinfo</a></br>
+    <br> <form action="{% url 'formhandler' %}" method="POST"> {% csrf_token %} <input class="form-control" type="search" placeholder="Hostname" name="hostre"> </form></br>
 	{% if csvavailable %}
         <br><a href="{{csvavailable}}" role="button" class="btn btn-primary">CSV Report</a></br>
 	{% endif %}
@@ -41,9 +41,9 @@
 
 	<br>
     {% if user.is_authenticated %}
-	    <a href="/accounts/logout/" role="button" class="btn btn-xs btn-primary">Logout {{user.username}}</a>
+	    <a href="{% url 'logoff' %}" role="button" class="btn btn-xs btn-primary">Logout {{user.username}}</a>
 	{% else %}
-	    <a href="/accounts/login/" role="button" class="btn btn-xs btn-primary">Login</a>
+	    <a href="{% url 'login' %}" role="button" class="btn btn-xs btn-primary">Login</a>
 	{% endif %}
 
     {% endblock %}

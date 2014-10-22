@@ -12,8 +12,8 @@ urlpatterns = patterns(
 
 urlpatterns += patterns(
     '',
-    (r'^accounts/login/', 'django.contrib.auth.views.login'),
-    (r'^accounts/logout/', 'django.contrib.auth.views.logout', {'next_page': '/hostinfo/'}),
+    url(r'^accounts/login/', 'django.contrib.auth.views.login', name='login'),
+    url(r'^accounts/logout/', 'django.contrib.auth.views.logout', {'next_page': '/hostinfo/'}, name='logoff'),
 )
 
-#EOF
+# EOF
