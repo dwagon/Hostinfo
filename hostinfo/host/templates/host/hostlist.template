@@ -6,8 +6,8 @@
 
 <h2>{{ title }}</h2>
 
-[ <a href="/hostinfo/hostcmp/{{title|local_escape}}">Host Comparison View</a> ]
-{{ count }} matches
+{{ count }} matches<br>
+<a href="/hostinfo/hostcmp/{{title|local_escape}}">Host Comparison View</a>
 
 {% if error %}
 <h2 style="color:red"> {{error}} </h2> 
@@ -16,13 +16,13 @@
 <table class="table table-striped">
 {% for host,kvlist,hostlink in hostlist %}
     <tr>
-    <td><a class="hostname" href="{% url 'host' host %}">{{ host }}</a></td>
-    <td>
+    <td><a class="hostname" href="{% url 'host' host %}">{{ host }}</a>
     {% if user.is_authenticated %}
+        &nbsp;
         <a href="{% url 'hostEdit' host %}"><span class="glyphicon glyphicon-edit"></span></a>
     {% endif %}
     </td>
-    <td>
+    <td align="left">
     {% if hostlink %}
         {% for link in hostlink %}
             {{link|safe}}

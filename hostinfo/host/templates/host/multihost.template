@@ -24,8 +24,8 @@
 {% if error %}<h2 style="color:red"> {{error}} </h2>{% endif %}
 <div id="multihost_header">
 <h2 class="criteria">Criteria: {{ title }}</h2>
-[ <a href="/hostinfo/hostlist/{{title|local_escape}}">Host List View</a> ]
 {{ count }} matches<br>
+<a href="/hostinfo/hostlist/{{title|local_escape}}">Host List View</a>
 </div>
 
 <table class="table table-condensed">
