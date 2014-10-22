@@ -28,7 +28,7 @@
 {{ count }} matches<br>
 </div>
 
-<table class="table table-striped table-condensed">
+<table class="table table-condensed">
 {% for host,kvlist,hostlink in hostlist %}
     <tr><td>
     {% include "host/showall.template" %}
