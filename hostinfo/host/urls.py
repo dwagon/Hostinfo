@@ -17,40 +17,44 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
+from .views import (
+    index, doHostlist, doHostMerge, doHostMergeChoose, doHost, doKeylist,
+    doHostRenameChoose, doHostEditChoose, doHostCreateChoose, doHostEdit
+    )
 
-urlpatterns = patterns('host.views',
-    (r'^$', 'index'),
+urlpatterns = patterns(
+    'host.views',
+    url(r'^$', index, name='index'),
     (r'^handlePost/$', 'handlePost'),
 
-    (r'^hostedit/$', 'doHostEditChoose'),
-    (r'^hostedit/(?P<hostname>\S+)/$', 'doHostEdit'),
+    url(r'^hostedit/$', doHostEditChoose, name='hostEditChoose'),
+    url(r'^hostedit/(?P<hostname>\S+)/$', doHostEdit, name='hostEdit'),
 
-    (r'^hostcreate/$', 'doHostCreateChoose'),
+    url(r'^hostcreate/$', doHostCreateChoose, name='hostCreateChoose'),
     (r'^hostcreate/(?P<hostname>\S+)/$', 'doHostCreate'),
 
-    (r'^hostmerge/$', 'doHostMergeChoose'),
-    (r'^hostmerge/(?P<srchost>\S+)/(?P<dsthost>\S+)$', 'doHostMerge'),
+    url(r'^hostmerge/$', doHostMergeChoose, name='hostMergeChoose'),
+    url(r'^hostmerge/(?P<srchost>\S+)/(?P<dsthost>\S+)$', doHostMerge, name='hostMerge'),
 
-    (r'^hostrename/$', 'doHostRenameChoose'),
-    (r'^hostrename/(?P<srchost>\S+)/(?P<dsthost>\S+)$', 'doHostRename'),
+    url(r'^hostrename/$', doHostRenameChoose, name='hostRenameChoose'),
+    url(r'^hostrename/(?P<srchost>\S+)/(?P<dsthost>\S+)$', 'doHostRename'),
 
     (r'^hostlist/(?P<criteria>.*)/(?P<options>opts=.*)?$', 'doHostlist'),
-    (r'^hostlist/$', 'doHostlist'),
+    url(r'^hostlist/$', doHostlist, name='hostlist'),
     (r'^hostcmp/(?P<criteria>.*)/(?P<options>opts=.*)?$', 'doHostcmp'),
     (r'^hostcmp/$', 'doHostcmp'),
     (r'^hostwikitable/(?P<criteria>.*?)(?P<options>/(?:order=|print=).*)?$', 'doHostwikiTable'),
     (r'^hostwiki/(?P<criteria>.*)/$', 'doHostwiki'),
-    (r'^host/$', 'doHostlist'),
-    (r'^host/(?P<hostname>\S+)/$', 'doHost'),
+    url(r'^host/(?P<hostname>\S+)/$', doHost, name='host'),
     (r'^host/(?P<hostname>\S+)/wiki$', 'doHost', {'format': 'wiki'}),
     (r'^host_summary/(?P<hostname>.*)/(?P<format>\S+)$', 'doHostSummary'),
     (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
     (r'^csv/$', 'doCsvreport'),
     (r'^csv/(?P<criteria>.*)/$', 'doCsvreport'),
-    (r'^keylist/(?P<key>\S+)/$', 'doKeylist'),
+    url(r'^keylist/(?P<key>\S+)/$', doKeylist, name='keylist'),
     (r'^rvlist/(?P<key>\S+)/$', 'doRestrValList'),
     (r'^rvlist/(?P<key>\S+)/(?P<mode>\S+)$', 'doRestrValList'),
     )
 
-#EOF
+# EOF
