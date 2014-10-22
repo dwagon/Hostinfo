@@ -390,7 +390,7 @@ def getLinks(hostid=None, hostname=None):
 def getWebLinks(hostid=None, hostname=None):
     weblinks = []
     for url, tag in getLinks(hostid, hostname):
-        weblinks.append('(<a class="foreignlink" href="%s">%s</a>)' % (url, tag))
+        weblinks.append('<a class="foreignlink" href="%s">%s</a>' % (url, tag))
     return weblinks
 
 
