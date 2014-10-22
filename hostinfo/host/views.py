@@ -339,15 +339,15 @@ def doHostEditChanges(request, hostname):
         #instance = m.group('instance')
         newvalue = str(v)
 
-    keyobj = AllowedKey.objects.get(key=key)
-    if keyobj.get_validtype_display() == 'list':
-        if key not in listdata:
-            listdata[key] = []
-        if newvalue and newvalue != '-Unknown-':
-            listdata[key].append(newvalue)
-    else:
-        if keyobj.get_validtype_display() == 'date':
-            newvalue = validateDate(newvalue)
+        keyobj = AllowedKey.objects.get(key=key)
+        if keyobj.get_validtype_display() == 'list':
+            if key not in listdata:
+                listdata[key] = []
+            if newvalue and newvalue != '-Unknown-':
+                listdata[key].append(newvalue)
+        else:
+            if keyobj.get_validtype_display() == 'date':
+                newvalue = validateDate(newvalue)
 
         # If the value is the same - no change; blank - delete; different - new value
         keyval = KeyValue.objects.get(keyid=keyobj, hostid=hostobj)
@@ -369,10 +369,10 @@ def doHostEditChanges(request, hostname):
                 kv = KeyValue(hostid=hostobj, keyid=keyobj, value=val, origin='webform')
                 kv.save(request.user)
 
-    for val in existingvals:
-        if val not in listdata[key]:
-            kv = KeyValue.objects.get(hostid=hostobj, keyid=keyobj, value=val)
-            kv.delete(request.user)
+        for val in existingvals:
+            if val not in listdata[key]:
+                kv = KeyValue.objects.get(hostid=hostobj, keyid=keyobj, value=val)
+                kv.delete(request.user)
 
 
 ################################################################################
