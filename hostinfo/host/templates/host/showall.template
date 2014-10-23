@@ -25,17 +25,17 @@
             <div class="col-md-9">
                 {% for val in vallist %}
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-8">
                             <a class="valuelink" href="/hostinfo/hostlist/{{key}}.eq.{{val.value|local_escape}}">{{val.value}}</a>
                         </div>
                         {% if origin or dates %}
                             {% if origin %}
-                                <div class="col-sm-3">
+                                <div class="col-sm-2">
                                     Origin: {{val.origin}}
                                 </div>
                             {% endif %}
                             {% if dates %}
-                                <div class="col-sm-6">
+                                <div class="col-sm-2">
                                     Modified: {{val.modifieddate}} Created: {{val.createdate}}
                                 </div>
                             {% endif %}
