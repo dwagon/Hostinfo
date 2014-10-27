@@ -90,3 +90,4 @@ HOSTINFO_REPORT_DIR = '/tmp/reports'
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = "/opt/hostinfo/static/"
