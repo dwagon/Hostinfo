@@ -24,8 +24,7 @@
     * cd /opt/hostinfo/Hostinfo/hostinfo
     * ./manage migrate
     * ./manage createsuperuser
-    * vi /opt/hostinfo/Hostinfo/bin/hostinfo
-        Change to #!/opt/hostinfo/bin/python
+    * ./manage collectstatic
 * cd /opt/hostinfo/Hostinfo/bin
     for i in *
     do
@@ -36,6 +35,4 @@
 * sudo initctl reload-configuration
 * sudo cp ./hostinfo_nginx.conf /etc/nginx/sites-available/hostinfo.conf && symlink to /etc/nginx/sites-enabled
 * sudo /etc/init.d/nginx reload
-* sudo cp ./hostinfo_start.sh /opt/hostinfo/Hostinfo/hostinfo/start.sh
-
 
