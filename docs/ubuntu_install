@@ -21,6 +21,7 @@
     * vi /opt/hostinfo/Hostinfo/hostinfo/hostinfo/settings.py
         * Change username, password in DATABASE
         * Randomize SECRET_KEY
+        * Change TIME_ZONE and USE_TZ options appropriately
     * cd /opt/hostinfo/Hostinfo/hostinfo
     * ./manage migrate
     * ./manage createsuperuser
