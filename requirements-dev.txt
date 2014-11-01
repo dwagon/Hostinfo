@@ -4,3 +4,4 @@ Django
 pytest
 pytest-django
 psycopg2
+sphinx
