@@ -1,5 +1,8 @@
 .. _wikilinks:
 
+Wiki Links
+==========
+
 As part of the concept of self-documentation it is possible to put content from hostinfo directly into a wiki page using the ``Include`` extension and the ``hostinfo`` homegrown extensions based on the ``Include`` extension.
 
 Tables of values

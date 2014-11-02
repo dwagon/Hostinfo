@@ -3,45 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to hostinfo's documentation!
-====================================
-
-Contents:
-
-.. toctree::
-    :maxdepth: 2
-    
-    Commands
-    hostinfo.rst
-    hostinfo_addalias.rst
-    hostinfo_addhost.rst
-    hostinfo_addkey.rst
-    hostinfo_addlink.rst
-    hostinfo_addrestrictedvalue.rst
-    hostinfo_addvalue.rst
-    hostinfo_deletealias.rst
-    hostinfo_deletehost.rst
-    hostinfo_deletelink.rst
-    hostinfo_deleterestrictedvalue.rst
-    hostinfo_deletevalue.rst
-    hostinfo_history.rst
-    hostinfo_listalias.rst
-    hostinfo_listrestrictedvalue.rst
-    hostinfo_mergehost.rst
-    hostinfo_renamehost.rst
-    hostinfo_replacevalue.rst
-    hostinfo_showkey.rst
-    ubuntu_install
-    DjangoModels
-    ExampleKeys
-    gettingStarted
-    prerequisites
-    hostinfo_import
-    hostinfo_undolog
-    link_generator
-    install
-    wikilinks
-
 Overview
 ========
 
@@ -49,7 +10,7 @@ Hostinfo is a host catalog or configuration management database (CMDB) allowing 
 
 There are three main interfaces to hostinfo:
 
-    * :doc:`wikilinks` Wiki (read-only)
+    * :doc:`wikilinks` (read-only)
     * Shell command line - see below (read-write)
     * Web (read-write)
 
@@ -110,6 +71,11 @@ There are three data types in use:
 * Everything is stored in a string format in the database
 * Some keys have been set to be restricted which means that they can only take on certain values - and there a number of commands which set those available values.
 * Each key is set to be one of the above
+
+Other Details
+=============
+
+* :doc:`DjangoModels`
 
 Indices and tables
 ==================

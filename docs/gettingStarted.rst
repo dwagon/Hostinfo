@@ -63,7 +63,11 @@ Then add details that you know about that host::
 
 Most of the details that come out of uname (for unix servers) should
 probably have keys associated with them. This also makes it easy
-to automate the population of hostinfo. Suggested keys:
+to automate the population of hostinfo. 
+
+Suggested keys:
 *  os - operating system (uname -s)
 *  osrev - revision of operating system (uname -r)
 *  arch - architecture of machines (uname -m) - useful if you have OS's that run on different architectures (e.g. solaris on sun4u/i86pc; linux on pretty much everything)
+
+See :doc:`ExampleKeys` for some hints about what sort of keys to create
