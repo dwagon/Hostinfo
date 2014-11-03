@@ -47,6 +47,7 @@ Initialise the database ::
     cd /opt/hostinfo/Hostinfo/hostinfo
     ./manage migrate
     ./manage createsuperuser
+    ./manage collectstatic
 
 Link the executables to somewhere findable, or put ``/opt/hostinfo/Hostinfo/bin`` in your path ::
 

@@ -4,7 +4,7 @@ Database models
 http://hostinfo.googlecode.com/files/DB_Schema.png
 
 Generic Details
-===============
+---------------
 Almost all classes have some shared attributes:
 
 * origin - a string representing the origin of the data, generally the user who made the change
@@ -16,7 +16,7 @@ Almost all classes have some shared attributes:
 All tables/models have an implicit *id* field which is the primary key for the table. Foreign Key relationships are tied to this id. This also means that if you change the name of a host it is only changing the name associated with an id, not creating a new host instance with a new name. 
 
 Host
-====
+----
 
 This a base class storing core details about the host of which there is only really the hostname. Everything else is in other models and linked to this one.
 
@@ -26,7 +26,7 @@ Attributes
 * **hostname** - the name of the host
 
 HostAlias
-=========
+---------
 
 Any host can have multiple aliases. An alias can only point to a single host. Any reference to an alias should be the same as if you referred to the real name itself.
 
@@ -37,7 +37,7 @@ Attributes
 * **alias** - The alias itself
 
 AllowedKey
-==========
+----------
 
 This is where the definitions of the different keys are kept
 
@@ -56,7 +56,7 @@ Attributes
 * **auditFlag** - a boolean which if set (the default) will track changes to related values.
 
 KeyValue
-========
+--------
 
 This is the table where the values that make up hostinfo are stored.
 
@@ -68,7 +68,7 @@ Attributes
 * **value** - the value
 
 UndoLog
-=======
+-------
 
 The undo log is a list of commands required to reverse actions. It is accessed by the user with [hostinfo_undolog]
 
@@ -80,7 +80,7 @@ Attributes
 * **action** - What action is required to undo their change
 
 RestrictedValue
-===============
+---------------
 
 This is where the list of acceptable values are kept for the keys that have a restricted list of values.
 
@@ -91,7 +91,7 @@ Attributes
 * **value** - An acceptable value for that key
 
 Links
-=====
+-----
 
 Links are URLs that are related to the host. A host can have many links, but only one of each tag. A tag is something like 'System Handbook', 'Backups' or 'Monitoring'
 
