@@ -167,6 +167,17 @@ You can get hostinfo to show everything that it knows about the hosts that match
 * If you add a ``--origin`` to the showall it will also tell you where the data (both host and keys) came from. This only works in the long showall output, not in the CSV formatted output.
 * If you add a ``--times`` to the showall it will tell you creation and modification times for the data. This only works in the long showall output, not in the CSV formatted output.
 
+Specifying a host without interpretation
+----------------------------------------
+Occassionally you may have a FQDN hostname that contains, by accident,
+one of the expressions used above, for example foo.lt.example.com.
+This makes it awkward to refer to as hostinfo keeps complaining
+about no key called 'foo'. To get around this you can specify the
+host exactly without interpretation. Obviously this can only be
+done for single hosts at a time.::
+
+    % hostinfo --host example.lt.foo.com
+
 Output in CSV or XML formats
 ----------------------------
 

@@ -725,6 +725,14 @@ class test_cmd_hostinfo(TestCase):
         self.ak2.delete()
 
     ###########################################################################
+    def test_explicit_host(self):
+        th1 = Host(hostname='h4.lt.com', origin='me')
+        namespace = self.parser.parse_args(['--host', 'h4.lt.com'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, ('h4.lt.com\n', 0))
+        th1.delete()
+
+    ###########################################################################
     def test_hostinfo(self):
         namespace = self.parser.parse_args([])
         output = self.cmd.handle(namespace)
