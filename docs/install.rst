@@ -41,6 +41,7 @@ Edit the settings file (``/opt/hostinfo/Hostinfo/hostinfo/hostinfo/settings.py``
 
 * Change the username, password in ``DATABASE``
 * Randomize the ``SECRET_KEY``
+* Change TIME_ZONE and USE_TZ options appropriately
 
 Initialise the database ::
 
