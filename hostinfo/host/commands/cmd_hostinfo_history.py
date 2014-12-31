@@ -33,6 +33,10 @@ class Command(HostinfoCommand):
     ###########################################################################
     def parseArgs(self, parser):
         parser.add_argument(
+            '-o', '--origin',
+            help='Show the origin of the change', action='store_true',
+            dest='originFlag')
+        parser.add_argument(
             '-a', '--actor',
             help='Show the actor of the change', action='store_true',
             dest='actorFlag')
@@ -51,7 +55,7 @@ class Command(HostinfoCommand):
                 msg = "deleted %s:%s on %s" % (host.hostname, key, kv.history_date)
             elif kv.history_type == '~':
                 msg = "changed %s:%s to %s on %s" % (host.hostname, key, kv.value, kv.history_date)
-            if namespace.origin:
+            if namespace.originFlag:
                 msg = "%s %s" % (msg, kv.origin)
             outstr += "%s\n" % msg
         return outstr, 0
