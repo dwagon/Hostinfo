@@ -1,4 +1,4 @@
-<form action="/hostinfo/hostmerge/{{srchost}}/{{dsthost}}" method="POST">
+<form action="{% url 'hostMerge' srchost dsthost %}" method="POST">
 {% csrf_token %}
 <input type=hidden name=_srchost value={{srchost}}>
 <input type=hidden name=_dsthost value={{dsthost}}>
@@ -38,7 +38,7 @@
     {% endfor %}
 </table>
 Note that "{{srchost}}" will be permanently deleted if you go ahead.<br>
-<input name="_hostmerging" type="submit" value="Merge">
+<input name="_hostmerging" type="submit" value="Merge" class="btn btn-primary">
 <input type="reset">
 <form>
 {# EOF #}

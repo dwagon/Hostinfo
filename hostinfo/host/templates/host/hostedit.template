@@ -6,10 +6,10 @@
     {% include "host/hostediting.template" %}
 {% else %}
     Change the values of a host
-    <form action="/hostinfo/hostedit/" method="POST">
+    <form action="{% url 'hostEditChoose' %}" method="POST">
     {% csrf_token %}
 	{{form.as_p}}
-	<input type="submit" value="Edit">
+	<input type="submit" value="Edit" class="btn btn-primary">
     </form>
 {% endif %}
 

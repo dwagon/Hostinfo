@@ -18,11 +18,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.db import models, connection
+from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from simple_history.models import HistoricalRecords
 import argparse
-from . import audit
 import os
 import re
 import sys
@@ -30,37 +30,6 @@ import time
 
 _akcache = None
 debugFlag = False
-
-
-################################################################################
-class MyProfiler:       # pragma: no cover
-    def __init__(self, fn):
-        self.fn = fn
-        MyProfiler.pid = os.getpid()
-
-    def __call__(self, *args, **kwargs):
-        if not debugFlag:
-            return self.fn(*args, **kwargs)
-        predbqueries = connection.queries[:]
-        self.log("* %s %s" % (self.fn.__name__, args))
-        start = time.time()
-        output = self.fn(*args, **kwargs)
-        end = time.time()
-        postdbqueries = connection.queries[:]
-        self.log("> %s %d DB Queries" % (self.fn.__name__, len(postdbqueries)-len(predbqueries)))
-        for q in postdbqueries:
-            if q not in predbqueries:
-                self.log("    %s %s" % (self.fn.__name__, q))
-        self.log("> %s %f secs" % (self.fn.__name__, (end-start)))
-        self.log("")
-
-        return output
-
-    @staticmethod
-    def log(msg):
-        f = open('/tmp/profile_%d.out' % MyProfiler.pid, 'a')
-        f.write("%s\n" % msg)
-        f.close()
 
 
 ################################################################################
@@ -123,11 +92,11 @@ def getUser(instance=None):
 
 
 ################################################################################
-def getActor(instance=None):
-    """ Get what is making the change for the audit trail
-    """
-    return sys.argv[0][:250]
-
+# def getActor(instance=None):
+#    """ Get what is making the change for the audit trail
+#    """
+#    return sys.argv[0][:250]
+#
 
 ############################################################################
 def auditedKey(instance):
@@ -145,21 +114,17 @@ class Host(models.Model):
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
     docpage = models.URLField(blank=True, null=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), ),
-        show_in_admin=True
-        )
+    history = HistoricalRecords()
 
     ############################################################################
-    def save(self, user=None):
+    def save(self, user=None, **kwargs):
         if not user:
             user = getUser()
         self.hostname = self.hostname.lower()
         if not self.id:                        # Check for update
             undo = UndoLog(user=user, action='hostinfo_deletehost --lethal %s' % self.hostname)
             undo.save()
-        super(Host, self).save()
+        super(Host, self).save(**kwargs)
 
     ############################################################################
     def delete(self, user=None):
@@ -195,10 +160,7 @@ class HostAlias(models.Model):
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), )
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     def __unicode__(self):
@@ -225,10 +187,7 @@ class AllowedKey(models.Model):
     reservedFlag1 = models.BooleanField(default=True)
     reservedFlag2 = models.BooleanField(default=True)
     docpage = models.URLField(blank=True, null=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), )
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     def __unicode__(self):
@@ -249,14 +208,10 @@ class KeyValue(models.Model):
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), ),
-        check_audit=auditedKey,
-        )
+    history = HistoricalRecords()
 
     ############################################################################
-    def save(self, user=None, readonlychange=False):
+    def save(self, user=None, readonlychange=False, **kwargs):
         if not user:
             user = getUser()
         self.value = self.value.lower()
@@ -279,7 +234,9 @@ class KeyValue(models.Model):
             undo.save()
 
         # Actually do the saves
-        super(KeyValue, self).save()
+        if not self.keyid.auditFlag:
+            self.skip_history_when_saving = True
+        super(KeyValue, self).save(**kwargs)
 
     ############################################################################
     def delete(self, user=None, readonlychange=False):
@@ -320,13 +277,13 @@ class UndoLog(models.Model):
         pass
 
     ############################################################################
-    def save(self):
+    def save(self, **kwargs):
         if hasattr(self.user, 'username'):
             self.user.username = self.user.username[:200]
         else:
             self.user = self.user[:200]
         self.action = self.action[:200]
-        super(UndoLog, self).save()
+        super(UndoLog, self).save(**kwargs)
 
 
 ################################################################################
@@ -340,10 +297,7 @@ class RestrictedValue(models.Model):
     value = models.CharField(max_length=200)
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), )
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     def __unicode__(self):
@@ -362,10 +316,7 @@ class Links(models.Model):
     url = models.CharField(max_length=200)
     tag = models.CharField(max_length=100)
     modifieddate = models.DateField(auto_now=True)
-    audit = audit.AuditTrail(track_fields=(
-        ('user', models.CharField(max_length=20), getUser),
-        ('actor', models.CharField(max_length=250), getActor), )
-        )
+    history = HistoricalRecords()
 
     ############################################################################
     class Meta:
@@ -726,4 +677,4 @@ def run_from_cmdline():
         return exc.retval
     return retval
 
-#EOF
+# EOF

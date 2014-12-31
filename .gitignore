@@ -4,3 +4,4 @@ MANIFEST
 build
 db.sqlite3
 dist
+docs/_build

@@ -37,7 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'south',
+    'simple_history',
     'host',
     'hostinfo',
     'report',
@@ -90,3 +90,4 @@ HOSTINFO_REPORT_DIR = '/tmp/reports'
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = "/opt/hostinfo/static/"

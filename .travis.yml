@@ -13,7 +13,7 @@ addons:
   postgresql: "9.3"
 before_script:
   - psql -c 'create database hostinfo;' -U postgres
-  - psql -c 'create role root with createdb login;' -U postgres
+  - psql -c 'create role hostinfo with createdb login;' -U postgres
   - python hostinfo/manage.py syncdb --noinput
 script: cd hostinfo ; ./runtests 
 after_success:

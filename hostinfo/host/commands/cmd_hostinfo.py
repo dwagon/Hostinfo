@@ -19,7 +19,7 @@ import sys
 import time
 
 from host.models import AllowedKey, KeyValue, parseQualifiers
-from host.models import getMatches, getAkCache, Host
+from host.models import getMatches, getAkCache, Host, getHost
 from host.models import getAliases, RestrictedValue
 from host.models import HostinfoCommand, HostinfoException
 
@@ -66,6 +66,8 @@ class Command(HostinfoCommand):
         parser.add_argument(
             '--valuereport', help="Print out frequencies of values", nargs=1)
         parser.add_argument(
+            '--host', help="For this specific host", nargs=1)
+        parser.add_argument(
             '--csv', help="Print data in CSV format", action='store_true')
         parser.add_argument(
             '--xml', help="Print data in XML format", action='store_true')
@@ -93,11 +95,18 @@ class Command(HostinfoCommand):
         self.printout = namespace.printout
         _akcache = getAkCache()
         _hostcache = self.getHostCache()
-        try:
-            qualifiers = parseQualifiers(namespace.criteria)
-        except TypeError, err:  # pragma: no cover
-            raise HostinfoException(err)
-        matches = getMatches(qualifiers)
+        if namespace.host:
+            host = getHost(namespace.host[0])
+            if host:
+                matches = [host.id]
+            else:
+                matches = []
+        else:
+            try:
+                qualifiers = parseQualifiers(namespace.criteria)
+            except TypeError, err:  # pragma: no cover
+                raise HostinfoException(err)
+            matches = getMatches(qualifiers)
         output = self.Display(matches)
         if matches:
             retval = 0
