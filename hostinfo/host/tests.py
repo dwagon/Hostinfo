@@ -2688,7 +2688,10 @@ class test_url_hostlist(TestCase):
         self.assertEquals(response.context['count'], 2)
         self.assertEquals(
             response.context['hostlist'],
-            [(u'hosthl1', [], ['(<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>)']), (u'hosthl2', [(u'urlkey', [self.kv1])], [])]
+            [
+                (u'hosthl1', [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
+                (u'hosthl2', [(u'urlkey', [self.kv1])], [])
+            ]
             )
 
     ###########################################################################
@@ -2732,7 +2735,7 @@ class test_url_hostlist(TestCase):
         self.assertEquals(
             response.context['hostlist'],
             [
-                (self.host1.hostname, [], ['(<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>)']),
+                (self.host1.hostname, [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
                 (self.host2.hostname, [(self.key.key, [self.kv1])], [])
             ]
             )
@@ -2749,7 +2752,11 @@ class test_url_hostlist(TestCase):
         self.assertEquals(response.context['count'], 2)
         self.assertEquals(response.context['origin'], True)
         self.assertEquals(response.context['dates'], True)
-        self.assertEquals(response.context['hostlist'], [(self.host1.hostname, [], ['(<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>)']), (self.host2.hostname, [(self.key.key, [self.kv1])], []) ])
+        self.assertEquals(response.context['hostlist'], [
+            (self.host1.hostname, [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
+            (self.host2.hostname, [(self.key.key, [self.kv1])], [])
+            ]
+        )
 
 
 ###############################################################################
