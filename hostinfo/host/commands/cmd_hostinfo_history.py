@@ -46,6 +46,8 @@ class Command(HostinfoCommand):
     def handle(self, namespace):
         outstr = ""
         host = getHost(namespace.host)
+        if not host:
+            return outstr, 1
         kvchanges = KeyValue.history.filter(hostid_id=host.id).order_by('history_date')
         for kv in kvchanges:
             key = self.getKeyName(kv.keyid_id)

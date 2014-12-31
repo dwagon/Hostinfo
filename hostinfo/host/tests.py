@@ -1545,7 +1545,7 @@ class test_cmd_history(TestCase):
     def test_badhost(self):
         namespace = self.parser.parse_args(['badhost'])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('', 0))
+        self.assertEquals(output, ('', 1))
 
     ###########################################################################
     def test_origin(self):
