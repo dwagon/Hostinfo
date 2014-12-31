@@ -1603,7 +1603,7 @@ class test_cmd_history(TestCase):
         kv.save()
         namespace = self.parser.parse_args(['host_history_va'])
         output = self.cmd.handle(namespace)
-        self.assertTrue('added key3_dv:historic on host_history_va' in output[0])
+        self.assertTrue('added host_history_va:key3_dv with historic' in output[0])
         self.assertTrue(self.t in output[0])
         kv.delete()
         ak.delete()
