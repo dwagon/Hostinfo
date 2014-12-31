@@ -48,6 +48,7 @@ urlpatterns = patterns(
     (r'^hostwikitable/(?P<criteria>.*?)(?P<options>/(?:order=|print=).*)?$', 'doHostwikiTable'),
     (r'^hostwiki/(?P<criteria>.*)/$', 'doHostwiki'),
     url(r'^host/(?P<hostname>\S+)/$', doHost, name='host'),
+    url(r'^host/$', doHostlist),
     (r'^host/(?P<hostname>\S+)/wiki$', 'doHost', {'format': 'wiki'}),
     (r'^host_summary/(?P<hostname>.*)/(?P<format>\S+)$', 'doHostSummary'),
     (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),

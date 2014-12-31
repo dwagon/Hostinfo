@@ -2688,7 +2688,10 @@ class test_url_hostlist(TestCase):
         self.assertEquals(response.context['count'], 2)
         self.assertEquals(
             response.context['hostlist'],
-            [(u'hosthl1', [], ['(<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>)']), (u'hosthl2', [(u'urlkey', [self.kv1])], [])]
+            [
+                (u'hosthl1', [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
+                (u'hosthl2', [(u'urlkey', [self.kv1])], [])
+            ]
             )
 
     ###########################################################################
