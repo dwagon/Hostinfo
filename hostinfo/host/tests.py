@@ -1549,7 +1549,7 @@ class test_cmd_history(TestCase):
 
     ###########################################################################
     def test_origin(self):
-        host = Host(hostname='host_history_o', origin='host_origin')
+        host = Host(hostname='host_history_o')
         host.save()
         ak = AllowedKey(key='key4_dv')
         ak.save()
@@ -1557,8 +1557,7 @@ class test_cmd_history(TestCase):
         kv.save()
         namespace = self.parser.parse_args(['-o', 'host_history_o'])
         output = self.cmd.handle(namespace)
-        self.assertTrue('origin host_origin' in output[0])
-        self.assertTrue('origin kv_origin' in output[0])
+        self.assertTrue('kv_origin' in output[0])
         self.assertTrue(self.t in output[0])
         kv.delete()
         ak.delete()
