@@ -25,7 +25,7 @@
 <div id="multihost_header">
 <h2 class="criteria">Criteria: {{ title }}</h2>
 {{ count }} matches<br>
-<a href="/hostinfo/hostlist/{{title|local_escape}}">Host List View</a>
+<a href="/hostinfo/hostlist/{{criteria}}">Host List View</a>
 </div>
 
 <table class="table table-condensed">
