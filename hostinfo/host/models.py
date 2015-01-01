@@ -91,13 +91,6 @@ def getUser(instance=None):
     return user.username[:20]
 
 
-################################################################################
-# def getActor(instance=None):
-#    """ Get what is making the change for the audit trail
-#    """
-#    return sys.argv[0][:250]
-#
-
 ############################################################################
 def auditedKey(instance):
     """ Return True if the AllowKey should be audited

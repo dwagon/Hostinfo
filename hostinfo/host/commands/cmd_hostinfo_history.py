@@ -36,10 +36,10 @@ class Command(HostinfoCommand):
             '-o', '--origin',
             help='Show the origin of the change', action='store_true',
             dest='originFlag')
-        parser.add_argument(
-            '-a', '--actor',
-            help='Show the actor of the change', action='store_true',
-            dest='actorFlag')
+#        parser.add_argument(
+#            '-a', '--actor',
+#            help='Show the actor of the change', action='store_true',
+#            dest='actorFlag')
         parser.add_argument('host', help='Host to show the history of')
 
     ###########################################################################
