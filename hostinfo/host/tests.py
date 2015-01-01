@@ -660,8 +660,7 @@ class test_checkKey(TestCase):
     ###########################################################################
     def test_checknoexists(self):
         with self.assertRaises(HostinfoException) as cm:
-            rc = checkKey('ak_badkey')
-            print rc
+            checkKey('ak_badkey')
         self.assertEquals(cm.exception.msg, "Must use an existing key, not ak_badkey")
 
 
