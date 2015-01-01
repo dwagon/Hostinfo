@@ -2507,7 +2507,7 @@ class test_url_host_summary(TestCase):
             ['host/hostpage.template', 'host/base.html']
             )
         self.assertEquals(response.context['host'], 'hosths')
-        self.assertEquals(response.context['hostlink'], ['(<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>)'])
+        self.assertEquals(response.context['hostlink'], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>'])
         self.assertEquals(response.context['kvlist'], [('hskey', [self.kv1, self.kv2])])
         self.assertEquals(response.context['aliases'], ['a1'])
 
@@ -2891,8 +2891,8 @@ class test_url_hostcmp(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertIn('<title> Comparison of host details uhckey.def</title>', response.content)
         self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
-        self.assertIn('<input type=checkbox name=options value=dates  checked  >Show Dates<br>', response.content)
-        self.assertIn('<input type=checkbox name=options value=origin  >Show Origin<br>', response.content)
+        self.assertIn('<input type=checkbox name=options value=dates  checked  >Show Dates', response.content)
+        self.assertIn('<input type=checkbox name=options value=origin  >Show Origin', response.content)
         self.assertIn('Modified:', response.content)
         self.assertIn('Created:', response.content)
         self.assertEquals(
@@ -2906,8 +2906,8 @@ class test_url_hostcmp(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertIn('<title> Comparison of host details uhckey.def</title>', response.content)
         self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
-        self.assertIn('<input type=checkbox name=options value=origin  checked  >Show Origin<br>', response.content)
-        self.assertIn('<input type=checkbox name=options value=dates  >Show Dates<br>', response.content)
+        self.assertIn('<input type=checkbox name=options value=origin  checked  >Show Origin', response.content)
+        self.assertIn('<input type=checkbox name=options value=dates  >Show Dates', response.content)
         self.assertIn('Origin:', response.content)
         self.assertEquals(
             set([t.name for t in response.templates]),
