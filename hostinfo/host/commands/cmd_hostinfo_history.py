@@ -52,11 +52,11 @@ class Command(HostinfoCommand):
         for kv in kvchanges:
             key = self.getKeyName(kv.keyid_id)
             if kv.history_type == '+':
-                msg = "added %s:%s with %s on %s" % (host.hostname, key, kv.value, kv.history_date)
+                msg = "added %s:%s=%s on %s" % (host.hostname, key, kv.value, kv.history_date)
             elif kv.history_type == '-':
-                msg = "deleted %s:%s on %s" % (host.hostname, key, kv.history_date)
+                msg = "deleted %s:%s=%s on %s" % (host.hostname, key, kv.value, kv.history_date)
             elif kv.history_type == '~':
-                msg = "changed %s:%s to %s on %s" % (host.hostname, key, kv.value, kv.history_date)
+                msg = "changed %s:%s=%s on %s" % (host.hostname, key, kv.value, kv.history_date)
             if namespace.originFlag:
                 msg = "%s %s" % (msg, kv.origin)
             outstr += "%s\n" % msg
