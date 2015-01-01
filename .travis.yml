@@ -16,3 +16,4 @@ before_script:
 script: cd hostinfo ; ./runtests 
 after_success:
     coveralls --data_file hostinfo/.coverage
+    coveralls --data_file .coverage
