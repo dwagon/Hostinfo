@@ -726,10 +726,13 @@ class test_cmd_hostinfo(TestCase):
 
     ###########################################################################
     def test_explicit_host(self):
-        th1 = Host(hostname='h4.lt.com', origin='me')
-        namespace = self.parser.parse_args(['--host', 'h4.lt.com'])
+        hname = 'good.lt.bad'
+        th1 = Host(hostname=hname, origin='me')
+        th1.save()
+        namespace = self.parser.parse_args(['--host', hname])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('h4.lt.com\n', 0))
+        self.assertIn(hname, output[0])
+        self.assertEquals(output[1], 0)
         th1.delete()
 
     ###########################################################################
