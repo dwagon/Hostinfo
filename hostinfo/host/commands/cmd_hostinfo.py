@@ -104,7 +104,7 @@ class Command(HostinfoCommand):
         else:
             try:
                 qualifiers = parseQualifiers(namespace.criteria)
-            except TypeError, err:  # pragma: no cover
+            except TypeError as err:  # pragma: no cover
                 raise HostinfoException(err)
             matches = getMatches(qualifiers)
         output = self.Display(matches)

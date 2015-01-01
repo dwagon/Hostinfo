@@ -40,7 +40,7 @@ def doReport(request, report, args=''):
         repmodule = module_from_path(reportmodule)
         try:
             return repmodule.doReport(request, args)
-        except Exception, err:
+        except Exception as err:
             return render(request, 'report/error.template', {'error': err})
 
 

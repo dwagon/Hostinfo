@@ -62,9 +62,9 @@ class Command(HostinfoCommand):
                 raise ReadonlyValueException(
                     "Cannot add %s=%s to a readonly key" % (key, value),
                     retval=3)
-            except HostinfoException, err:
+            except HostinfoException as err:
                 raise
-            except TypeError, err:  # pragma: nocover
+            except TypeError as err:  # pragma: nocover
                 raise HostinfoException("Couldn't add value %s to %s - %s" % (value, host, err))
         return None, 0
 

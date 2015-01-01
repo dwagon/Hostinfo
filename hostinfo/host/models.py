@@ -425,13 +425,13 @@ def oneoff(val):
         A page of true awesomeness
     """
     import string
-    alphabet = string.lowercase+string.digits
+    alphabet = string.ascii_lowercase + string.digits
     s = [(val[:i], val[i:]) for i in range(len(val)+1)]
-    deletes = [a+b[1:] for a, b in s if b]
-    transposes = [a+b[1]+b[0]+b[2:] for a, b in s if len(b) > 1]
-    replaces = [a+c+b[1:] for a, b in s for c in alphabet if b]
-    inserts = [a+c+b for a, b in s for c in alphabet]
-    return set(deletes+transposes+replaces+inserts)
+    deletes = [a + b[1:] for a, b in s if b]
+    transposes = [a + b[1] + b[0] + b[2:] for a, b in s if len(b) > 1]
+    replaces = [a + c + b[1:] for a, b in s for c in alphabet if b]
+    inserts = [a + c + b for a, b in s for c in alphabet]
+    return set(deletes + transposes + replaces + inserts)
 
 
 ################################################################################

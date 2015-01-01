@@ -22,7 +22,10 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 import sys
 import time
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from .models import HostinfoException, ReadonlyValueException, RestrictedValueException
 from .models import Host, HostAlias, AllowedKey, KeyValue, RestrictedValue, Links
@@ -691,7 +694,7 @@ class test_cmd_hostinfo(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo import Command
+        from .commands.cmd_hostinfo import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -891,7 +894,7 @@ class test_cmd_addalias(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_addalias import Command
+        from .commands.cmd_hostinfo_addalias import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -941,7 +944,7 @@ class test_cmd_addhost(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_addhost import Command
+        from .commands.cmd_hostinfo_addhost import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -994,7 +997,7 @@ class test_cmd_addkey(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_addkey import Command
+        from .commands.cmd_hostinfo_addkey import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1121,7 +1124,7 @@ class test_cmd_addrestrictedvalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_addrestrictedvalue import Command
+        from .commands.cmd_hostinfo_addrestrictedvalue import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1181,7 +1184,7 @@ class test_cmd_addvalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_addvalue import Command
+        from .commands.cmd_hostinfo_addvalue import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1300,7 +1303,7 @@ class test_cmd_deletealias(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_deletealias import Command
+        from .commands.cmd_hostinfo_deletealias import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1337,7 +1340,7 @@ class test_cmd_deletehost(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_deletehost import Command
+        from .commands.cmd_hostinfo_deletehost import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1406,7 +1409,7 @@ class test_cmd_deleterestrictedvalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_deleterestrictedvalue import Command
+        from .commands.cmd_hostinfo_deleterestrictedvalue import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1471,7 +1474,7 @@ class test_cmd_deletevalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_deletevalue import Command
+        from .commands.cmd_hostinfo_deletevalue import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1556,7 +1559,7 @@ class test_cmd_history(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_history import Command
+        from .commands.cmd_hostinfo_history import Command
 
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
@@ -1677,7 +1680,7 @@ class test_cmd_import(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_import import Command
+        from .commands.cmd_hostinfo_import import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1695,7 +1698,7 @@ class test_cmd_listalias(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_listalias import Command
+        from .commands.cmd_hostinfo_listalias import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1757,7 +1760,7 @@ class test_cmd_listrestrictedvalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_listrestrictedvalue import Command
+        from .commands.cmd_hostinfo_listrestrictedvalue import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1792,7 +1795,7 @@ class test_cmd_mergehost(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_mergehost import Command
+        from .commands.cmd_hostinfo_mergehost import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1805,7 +1808,7 @@ class test_cmd_mergehost(TestCase):
         self.key2 = AllowedKey(key='mergelist', validtype=2)
         self.key2.save()
         self.stderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = StringIO()
 
     ###########################################################################
     def tearDown(self):
@@ -1910,7 +1913,7 @@ class test_cmd_renamehost(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_renamehost import Command
+        from .commands.cmd_hostinfo_renamehost import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1952,7 +1955,7 @@ class test_cmd_replacevalue(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_replacevalue import Command
+        from .commands.cmd_hostinfo_replacevalue import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -1967,7 +1970,7 @@ class test_cmd_replacevalue(TestCase):
         self.kv2 = KeyValue(hostid=self.host2, keyid=self.key, value='before')
         self.kv2.save()
         self.stderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = StringIO()
 
     ###########################################################################
     def tearDown(self):
@@ -2039,7 +2042,7 @@ class test_cmd_showkey(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_showkey import Command
+        from .commands.cmd_hostinfo_showkey import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -2090,7 +2093,7 @@ class test_cmd_undolog(TestCase):
     ###########################################################################
     def setUp(self):
         import argparse
-        from commands.cmd_hostinfo_undolog import Command
+        from .commands.cmd_hostinfo_undolog import Command
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
@@ -2130,7 +2133,7 @@ class test_run_from_cmdline(TestCase):
     def setUp(self):
         self.oldargv = sys.argv
         self.stderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = StringIO()
 
     ###########################################################################
     def tearDown(self):
@@ -2235,7 +2238,7 @@ class test_url_hostrename(TestCase):
             {'srchost': 'urenamehost1', 'dsthost': 'urenamed'},
             follow=True)
 
-        self.assertIn('urenamehost1 has been successfully renamed to urenamed', response.content)
+        self.assertIn(b'urenamehost1 has been successfully renamed to urenamed', response.content)
 
         self.assertEquals(response.status_code, 200)
         self.assertEquals(
@@ -2911,11 +2914,11 @@ class test_url_hostcmp(TestCase):
     def test_hostcmp(self):
         response = self.client.get('/hostinfo/hostcmp/uhckey.def/')
         self.assertEquals(response.status_code, 200)
-        self.assertIn('<title> Comparison of host details uhckey.def</title>', response.content)
-        self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
-        self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc2">hostuhc2</a>', response.content)
-        self.assertIn('<a class="keyname" href="/hostinfo/keylist/uhckey">uhckey</a>', response.content)
-        self.assertIn('<a class="valuelink" href="/hostinfo/hostlist/uhckey.eq.val2">val2</a>', response.content)
+        self.assertIn(b'<title> Comparison of host details uhckey.def</title>', response.content)
+        self.assertIn(b'<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
+        self.assertIn(b'<a class="hostname" href="/hostinfo/host/hostuhc2">hostuhc2</a>', response.content)
+        self.assertIn(b'<a class="keyname" href="/hostinfo/keylist/uhckey">uhckey</a>', response.content)
+        self.assertIn(b'<a class="valuelink" href="/hostinfo/hostlist/uhckey.eq.val2">val2</a>', response.content)
         self.assertEquals(
             set([t.name for t in response.templates]),
             set(['host/multihost.template', 'host/base.html', 'host/showall.template'])
@@ -2925,12 +2928,12 @@ class test_url_hostcmp(TestCase):
     def test_hostcmp_dates(self):
         response = self.client.get('/hostinfo/hostcmp/uhckey.def/opts=dates')
         self.assertEquals(response.status_code, 200)
-        self.assertIn('<title> Comparison of host details uhckey.def</title>', response.content)
-        self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
-        self.assertIn('<input type=checkbox name=options value=dates  checked  >Show Dates', response.content)
-        self.assertIn('<input type=checkbox name=options value=origin  >Show Origin', response.content)
-        self.assertIn('Modified:', response.content)
-        self.assertIn('Created:', response.content)
+        self.assertIn(b'<title> Comparison of host details uhckey.def</title>', response.content)
+        self.assertIn(b'<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
+        self.assertIn(b'<input type=checkbox name=options value=dates  checked  >Show Dates', response.content)
+        self.assertIn(b'<input type=checkbox name=options value=origin  >Show Origin', response.content)
+        self.assertIn(b'Modified:', response.content)
+        self.assertIn(b'Created:', response.content)
         self.assertEquals(
             set([t.name for t in response.templates]),
             set(['host/multihost.template', 'host/base.html', 'host/showall.template'])
@@ -2940,11 +2943,11 @@ class test_url_hostcmp(TestCase):
     def test_hostcmp_origin(self):
         response = self.client.get('/hostinfo/hostcmp/uhckey.def/opts=origin')
         self.assertEquals(response.status_code, 200)
-        self.assertIn('<title> Comparison of host details uhckey.def</title>', response.content)
-        self.assertIn('<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
-        self.assertIn('<input type=checkbox name=options value=origin  checked  >Show Origin', response.content)
-        self.assertIn('<input type=checkbox name=options value=dates  >Show Dates', response.content)
-        self.assertIn('Origin:', response.content)
+        self.assertIn(b'<title> Comparison of host details uhckey.def</title>', response.content)
+        self.assertIn(b'<a class="hostname" href="/hostinfo/host/hostuhc1">hostuhc1</a>', response.content)
+        self.assertIn(b'<input type=checkbox name=options value=origin  checked  >Show Origin', response.content)
+        self.assertIn(b'<input type=checkbox name=options value=dates  >Show Dates', response.content)
+        self.assertIn(b'Origin:', response.content)
         self.assertEquals(
             set([t.name for t in response.templates]),
             set(['host/multihost.template', 'host/base.html', 'host/showall.template'])
