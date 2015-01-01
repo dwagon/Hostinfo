@@ -1,5 +1,3 @@
-# importlib is for 2.6
-importlib
 Django
 psycopg2
 django-simple-history
