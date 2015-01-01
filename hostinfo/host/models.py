@@ -207,7 +207,7 @@ class KeyValue(models.Model):
     def save(self, user=None, readonlychange=False, **kwargs):
         if not user:
             user = getUser()
-        self.value = self.value.lower()
+        self.value = self.value.lower().strip()
         # Check to see if we are restricted
         if self.keyid.restrictedFlag:
             rk = RestrictedValue.objects.filter(keyid=self.keyid, value=self.value)

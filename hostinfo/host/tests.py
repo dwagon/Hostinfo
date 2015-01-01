@@ -1276,6 +1276,19 @@ class test_cmd_addvalue(TestCase):
         key.delete()
 
     ###########################################################################
+    def test_whitespacevalue(self):
+        """ Confirm that values are stripped before adding - Iss02 """
+        key = AllowedKey(key='key_addvalue_t1', validtype=1)
+        key.save()
+        namespace = self.parser.parse_args(['key_addvalue_t1= VALUE', 'testhost'])
+        retval = self.cmd.handle(namespace)
+        self.assertEquals(retval, (None, 0))
+        kv = KeyValue.objects.filter()[0]
+        self.assertEquals(kv.hostid, self.host)
+        self.assertEquals(kv.value, 'value')
+        key.delete()
+
+    ###########################################################################
     def test_missingkey(self):
         namespace = self.parser.parse_args(['mkey=value', 'testhost'])
         with self.assertRaises(HostinfoException) as cm:
