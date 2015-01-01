@@ -2641,9 +2641,22 @@ class test_url_hostlist(TestCase):
 
     ###########################################################################
     def test_hostlist(self):
-        """ Test that no criteria gets nowhere """
+        """ Test that no criteria gets all hosts """
         response = self.client.get('/hostinfo/hostlist/')
-        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue('error' not in response.context)
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['host/hostlist.template', 'host/base.html']
+            )
+        self.assertEquals(response.context['count'], 2)
+        self.assertEquals(
+            response.context['hostlist'],
+            [
+                (u'hosthl1', [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
+                (u'hosthl2', [(u'urlkey', [self.kv1])], [])
+            ]
+            )
 
     ###########################################################################
     def test_badkey(self):
