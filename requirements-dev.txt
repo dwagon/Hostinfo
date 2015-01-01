@@ -6,4 +6,4 @@ pytest-django
 psycopg2
 sphinx
 coverage
-coveralls
+python_coveralls
