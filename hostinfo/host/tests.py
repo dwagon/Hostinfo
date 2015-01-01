@@ -1590,7 +1590,7 @@ class test_cmd_history(TestCase):
         host.save()
         namespace = self.parser.parse_args(['host_history_ha'])
         output = self.cmd.handle(namespace)
-        self.assertTrue('added host_history_ha' in output[0])
+        self.assertTrue('Host:host_history_ha added' in output[0])
         self.assertTrue(self.t in output[0])
         host.delete()
 
