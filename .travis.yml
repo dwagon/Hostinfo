@@ -15,5 +15,4 @@ before_script:
   - python hostinfo/manage.py syncdb --noinput
 script: cd hostinfo ; ./runtests 
 after_success:
-    coveralls --data_file hostinfo/.coverage
     coveralls --data_file .coverage
