@@ -879,6 +879,13 @@ class test_cmd_hostinfo(TestCase):
         self.assertEquals(output[0], '')
         self.assertEquals(output[1], 1)
 
+    ###########################################################################
+    def test_hostinfo_valuereport_badkey(self):
+        """ Make sure the key exists for a valuereport - Iss06 """
+        namespace = self.parser.parse_args(['--valuereport', 'badkey'])
+        with self.assertRaises(HostinfoException):
+            self.cmd.handle(namespace)
+
 
 ###############################################################################
 class test_cmd_addalias(TestCase):

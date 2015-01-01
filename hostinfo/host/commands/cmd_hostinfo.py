@@ -20,7 +20,7 @@ import time
 
 from host.models import AllowedKey, KeyValue, parseQualifiers
 from host.models import getMatches, getAkCache, Host, getHost
-from host.models import getAliases, RestrictedValue
+from host.models import getAliases, RestrictedValue, checkKey
 from host.models import HostinfoCommand, HostinfoException
 
 
@@ -141,6 +141,7 @@ class Command(HostinfoCommand):
         outstr = ""
         values = {}
         hostids = set()   # hostids that match the criteria
+        checkKey(self.namespace.valuereport[0])
         total = len(matches)
         if total == 0:
             return ""
