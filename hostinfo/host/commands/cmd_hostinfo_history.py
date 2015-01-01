@@ -22,7 +22,7 @@
 
 from django.core.exceptions import ObjectDoesNotExist
 from host.models import AllowedKey, getHost, KeyValue
-from host.models import HostinfoCommand
+from host.models import HostinfoCommand, Host
 
 
 ###############################################################################
@@ -48,6 +48,17 @@ class Command(HostinfoCommand):
         host = getHost(namespace.host)
         if not host:
             return outstr, 1
+        hostchanges = Host.history.filter(id=host.id).order_by('history_date')
+        for hc in hostchanges:
+            if hc.history_type == '+':
+                msg = "Host:%s added on %s" % (host.hostname, hc.history_date)
+# simple_history currently can't handle deleted hosts
+#            elif hc.history_type == '-':
+#                msg = "Host:%s deleted on %s" % (host.hostname, hc.history_date)
+            if namespace.originFlag:
+                msg = "%s %s" % (msg, hc.origin)
+            outstr += "%s\n" % msg
+
         kvchanges = KeyValue.history.filter(hostid_id=host.id).order_by('history_date')
         for kv in kvchanges:
             key = self.getKeyName(kv.keyid_id)
