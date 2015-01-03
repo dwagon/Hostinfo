@@ -557,7 +557,7 @@ def doHostwikiTable(request, criturl, options=None):
         output += "!%s\n" % p.title()
     for host in hl:
         output += "|-\n"
-    output += "| [[Host:%s|%s]]\n" % (host, host)
+    output += "| [[Host:%s|%s]]\n" % (host.hostname, host.hostname)
     for p in printers:
         kv = KeyValue.objects.filter(keyid__key=p, hostid=host.id)
         if len(kv) == 0:
