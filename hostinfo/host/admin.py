@@ -4,7 +4,7 @@
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
 from django.contrib import admin
-from models import Host, HostAlias, AllowedKey, KeyValue, RestrictedValue, UndoLog, Links
+from .models import Host, HostAlias, AllowedKey, KeyValue, RestrictedValue, UndoLog, Links
 from simple_history.admin import SimpleHistoryAdmin
 
 

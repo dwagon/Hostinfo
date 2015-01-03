@@ -39,7 +39,7 @@ class Command(HostinfoCommand):
         self.namespace = namespace
         try:
             xmltree = xml.etree.ElementTree.parse(namespace.xmlfile)
-        except IOError, exc:
+        except IOError as exc:
             if exc.errno == 2:
                 raise HostinfoException("File %s doesn't exist" % namespace.xmlfile)
             else:

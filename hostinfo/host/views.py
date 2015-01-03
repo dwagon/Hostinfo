@@ -27,7 +27,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from .models import Host, KeyValue, AllowedKey, parseQualifiers
-from .models import getAkCache, RestrictedValue
+from .models import getAkCache, RestrictedValue, HostinfoException
 from .models import Links, getMatches, getHost, validateDate
 from .models import getAliases, RestrictedValueException
 
@@ -308,7 +308,7 @@ def handlePost(request):
                 expr += "%s.%s.%s/" % (
                     request.POST['key%s' % num].strip(),
                     request.POST['op%s' % num].strip(),
-                    request.POST['value%s' % num].strip())
+                    request.POST['value%s' % num].strip().replace('/', '.slash.'))
         expr = expr[:-1]
         return HttpResponseRedirect('/hostinfo/hostlist/%s' % (expr))
 
@@ -336,7 +336,7 @@ def doHostEditChanges(request, hostname):
         if not m:
             continue
         key = m.group('key')
-        #instance = m.group('instance')
+        # instance = m.group('instance')
         newvalue = str(v)
 
         keyobj = AllowedKey.objects.get(key=key)
@@ -409,7 +409,7 @@ def getHostDetails(request, hostname, format):
     if not host:
         raise Http404
 
-    keyvals = hostviewrepr(host)
+    keyvals = hostviewrepr(host.hostname)
     elapsed = time.time()-starttime
     d = {
         'host': host.hostname,
@@ -446,20 +446,21 @@ def doHost(request, hostname, format='web'):
 
 
 ################################################################################
-def doHostDataFormat(request, criteria='', options=''):
+def doHostDataFormat(request, criteria=[], options=''):
     starttime = time.time()
     hl = getHostList(criteria)
     data = []
     for host in hl:
-        data.append((host.hostname, hostviewrepr(host), getWebLinks(hostid=host.id)))
+        data.append((host.hostname, hostviewrepr(host.hostname), getWebLinks(hostid=host.id)))
     data.sort()
     elapsed = time.time()-starttime
 
     d = {
         'hostlist': data,
         'elapsed': "%0.4f" % elapsed,
-        'csvavailable': '/hostinfo/csv/%s' % criteria,
-        'title': criteria.replace('.slash.', '/'),
+        'csvavailable': '/hostinfo/csv/%s' % criteriaToWeb(criteria),
+        'title': " AND ".join(criteria),
+        'criteria': criteriaToWeb(criteria),
         'user': request.user,
         'count': len(data)
         }
@@ -471,27 +472,29 @@ def doHostDataFormat(request, criteria='', options=''):
 
 
 ################################################################################
-def doHostlist(request, criteria='', options=''):
+def doHostlist(request, criturl='', options=''):
     """ Display a list of matching hosts by name only"""
+    criteria = criteriaFromWeb(criturl)
     try:
         return render(request, 'host/hostlist.template', doHostDataFormat(request, criteria, options))
-    except Exception as err:
+    except HostinfoException as err:
         return render(request, 'host/hostlist.template', {'error': err})
 
 
 ################################################################################
-def doHostcmp(request, criteria='', options=''):
+def doHostcmp(request, criturl='', options=''):
     """ Display a list of matching hosts with their details"""
+    criteria = criteriaFromWeb(criturl)
     if request.method == 'POST' and 'options' in request.POST:
         options = 'opts='
         if 'dates' in request.POST.getlist('options'):
             options += 'dates,'
         if 'origin' in request.POST.getlist('options'):
             options += 'origin,'
-        return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criteria, options[:-1]))
+        return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criturl, options[:-1]))
     try:
         return render(request, 'host/multihost.template', doHostDataFormat(request, criteria, options))
-    except Exception as err:
+    except HostinfoException as err:
         return render(request, 'host/multihost.template', {'error': err})
 
 
@@ -515,21 +518,22 @@ def orderHostList(hostlist, order):
         else:
             val = ",".join([key.value for key in kv])
         tmp.append((val, host))
-    tmp.sort()
+    tmp.sort(key=lambda x: x[0])
     if direct == NEGATIVE:
         tmp.reverse()
-    hostlist = [host for val, host in tmp]
+    hostlist = [h for v, h in tmp]
     return hostlist
 
 
 ################################################################################
-def doHostwikiTable(request, criteria, options=None):
+def doHostwikiTable(request, criturl, options=None):
     """ Generate a table in wiki format - we can't (well, I can't)
     template this as the contents of the formatting are specified
     in the url
 
     options=/print=a,b,c/order=d
     """
+    criteria = criteriaFromWeb(criturl)
     printers = []
     order = None
     if options:
@@ -553,7 +557,7 @@ def doHostwikiTable(request, criteria, options=None):
         output += "!%s\n" % p.title()
     for host in hl:
         output += "|-\n"
-    output += "| [[Host:%s|%s]]\n" % (host, host)
+    output += "| [[Host:%s|%s]]\n" % (host.hostname, host.hostname)
     for p in printers:
         kv = KeyValue.objects.filter(keyid__key=p, hostid=host.id)
         if len(kv) == 0:
@@ -568,20 +572,36 @@ def doHostwikiTable(request, criteria, options=None):
 
 
 ################################################################################
-def doHostwiki(request, criteria):
+def doHostwiki(request, criturl):
     """ Display a list of matching hosts with their details"""
+    criteria = criteriaFromWeb(criturl)
     try:
         return render(request, 'hostlist.wiki', doHostDataFormat(request, criteria))
-    except Exception as err:
+    except HostinfoException as err:
         return render(request, 'hostlist.wiki', {'error': err})
 
 
 ################################################################################
-def doCsvreport(request, criteria=''):
+def doCsvreport(request, criturl=''):
+    criteria = criteriaFromWeb(criturl)
     hl = getHostList(criteria)
-    if not criteria:
-        criteria = 'allhosts'
-    return csvDump(hl, '%s.csv' % criteria)
+    if not criturl:
+        criturl = 'allhosts'
+    return csvDump(hl, '%s.csv' % criturl)
+
+
+################################################################################
+def criteriaToWeb(criteria):
+    """ Convert a criteria list to a URL format """
+    crit = "/".join([c.replace('/', '.slash.') for c in criteria])
+    return crit
+
+
+################################################################################
+def criteriaFromWeb(criteria):
+    """ Covert a URL formatted criteria to a list """
+    crit = [c.replace(".slash.", '/') for c in criteria.split('/')]
+    return crit
 
 
 ################################################################################
@@ -590,8 +610,7 @@ def getHostList(criteria):
     for host in Host.objects.all():
         allhosts[host.id] = host
 
-    crit = [crit.replace('.slash.', '/') for crit in criteria.split('/')]
-    qualifiers = parseQualifiers(crit)
+    qualifiers = parseQualifiers(criteria)
     hostids = getMatches(qualifiers)
     hosts = [allhosts[hid] for hid in hostids]
     return hosts
@@ -604,8 +623,8 @@ def csvDump(hostlist, filename):
     # Convert list of hosts into all required data
     data = []
     for host in hostlist:
-        data.append((host.hostname, hostviewrepr(host), getWebLinks(hostid=host.id)))
-    data.sort()
+        data.append((host.hostname, hostviewrepr(host.hostname), getWebLinks(hostid=host.id)))
+    data.sort(key=lambda x: x[0])
 
     # Grab all the headings
     hdrs = []
@@ -696,4 +715,4 @@ def doKeylist(request, key):
     }
     return render(request, 'host/keylist.template', d)
 
-#EOF
+# EOF

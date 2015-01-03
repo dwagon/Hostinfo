@@ -1,8 +1,7 @@
-# importlib is for 2.6
-importlib
 Django
 pytest
 pytest-django
 psycopg2
 sphinx
 coverage
+python_coveralls

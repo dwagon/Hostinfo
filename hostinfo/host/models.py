@@ -128,7 +128,7 @@ class Host(models.Model):
         super(Host, self).delete()
 
     ############################################################################
-    def __unicode__(self):
+    def __str__(self):
         return "%s" % self.hostname
 
     ############################################################################
@@ -156,7 +156,7 @@ class HostAlias(models.Model):
     history = HistoricalRecords()
 
     ############################################################################
-    def __unicode__(self):
+    def __str__(self):
         return "%s -> %s" % (self.alias, self.hostid.hostname)
 
     ############################################################################
@@ -183,7 +183,7 @@ class AllowedKey(models.Model):
     history = HistoricalRecords()
 
     ############################################################################
-    def __unicode__(self):
+    def __str__(self):
         return "%s" % self.key
 
     ############################################################################
@@ -207,7 +207,7 @@ class KeyValue(models.Model):
     def save(self, user=None, readonlychange=False, **kwargs):
         if not user:
             user = getUser()
-        self.value = self.value.lower()
+        self.value = self.value.lower().strip()
         # Check to see if we are restricted
         if self.keyid.restrictedFlag:
             rk = RestrictedValue.objects.filter(keyid=self.keyid, value=self.value)
@@ -249,7 +249,7 @@ class KeyValue(models.Model):
         super(KeyValue, self).delete()
 
     ############################################################################
-    def __unicode__(self):
+    def __str__(self):
         return "%s=%s" % (self.keyid.key, self.value)
 
     ############################################################################
@@ -293,7 +293,7 @@ class RestrictedValue(models.Model):
     history = HistoricalRecords()
 
     ############################################################################
-    def __unicode__(self):
+    def __str__(self):
         return "%s %s" % (self.keyid.key, self.value)
 
     ############################################################################
@@ -425,13 +425,13 @@ def oneoff(val):
         A page of true awesomeness
     """
     import string
-    alphabet = string.lowercase+string.digits
+    alphabet = string.ascii_lowercase + string.digits
     s = [(val[:i], val[i:]) for i in range(len(val)+1)]
-    deletes = [a+b[1:] for a, b in s if b]
-    transposes = [a+b[1]+b[0]+b[2:] for a, b in s if len(b) > 1]
-    replaces = [a+c+b[1:] for a, b in s for c in alphabet if b]
-    inserts = [a+c+b for a, b in s for c in alphabet]
-    return set(deletes+transposes+replaces+inserts)
+    deletes = [a + b[1:] for a, b in s if b]
+    transposes = [a + b[1] + b[0] + b[2:] for a, b in s if len(b) > 1]
+    replaces = [a + c + b[1:] for a, b in s for c in alphabet if b]
+    inserts = [a + c + b for a, b in s for c in alphabet]
+    return set(deletes + transposes + replaces + inserts)
 
 
 ################################################################################

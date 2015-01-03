@@ -1,13 +1,12 @@
 {% extends "host/base.html" %}
 {% block title %} List of hosts {{ title }} {% endblock %}
-{% load local_escape %}
 
 {% block content %}
 
 <h2>{{ title }}</h2>
 
 {{ count }} matches<br>
-<a href="/hostinfo/hostcmp/{{title|local_escape}}">Host Comparison View</a>
+<a href="/hostinfo/hostcmp/{{criteria}}">Host Comparison View</a>
 
 {% if error %}
 <h2 style="color:red"> {{error}} </h2> 
