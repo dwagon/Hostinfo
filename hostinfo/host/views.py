@@ -518,7 +518,7 @@ def orderHostList(hostlist, order):
         else:
             val = ",".join([key.value for key in kv])
         tmp.append((val, host))
-    tmp.sort()
+    tmp.sort(key=lambda x: x[0])
     if direct == NEGATIVE:
         tmp.reverse()
     hostlist = [h for v, h in tmp]
