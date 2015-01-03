@@ -38,7 +38,7 @@ setup(
     author_email='dougal.scott@gmail.com',
     url='https://github.com/dwagon/Hostinfo',
     scripts=glob('bin/*'),
-    requires=['south', 'Django (>=1.6)'],
+    requires=['Django (>=1.7)'],
     packages=[
         'hostinfo',
         'hostinfo.host',
