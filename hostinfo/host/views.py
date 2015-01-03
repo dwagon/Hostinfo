@@ -409,7 +409,7 @@ def getHostDetails(request, hostname, format):
     if not host:
         raise Http404
 
-    keyvals = hostviewrepr(host)
+    keyvals = hostviewrepr(host.hostname)
     elapsed = time.time()-starttime
     d = {
         'host': host.hostname,
@@ -451,7 +451,7 @@ def doHostDataFormat(request, criteria=[], options=''):
     hl = getHostList(criteria)
     data = []
     for host in hl:
-        data.append((host.hostname, hostviewrepr(host), getWebLinks(hostid=host.id)))
+        data.append((host.hostname, hostviewrepr(host.hostname), getWebLinks(hostid=host.id)))
     data.sort()
     elapsed = time.time()-starttime
 
@@ -623,8 +623,8 @@ def csvDump(hostlist, filename):
     # Convert list of hosts into all required data
     data = []
     for host in hostlist:
-        data.append((host.hostname, hostviewrepr(host), getWebLinks(hostid=host.id)))
-    data.sort()
+        data.append((host.hostname, hostviewrepr(host.hostname), getWebLinks(hostid=host.id)))
+    data.sort(key=lambda x: x[0])
 
     # Grab all the headings
     hdrs = []
