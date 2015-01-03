@@ -2833,7 +2833,7 @@ class test_url_csv(TestCase):
         self.assertEquals(response["Content-Disposition"], "attachment; filename=allhosts.csv")
         self.assertEquals(
             response.content,
-            "hostname,csvkey\r\nhostcsv1,\r\nhostcsv2,val\r\n"
+            b"hostname,csvkey\r\nhostcsv1,\r\nhostcsv2,val\r\n"
             )
 
 
@@ -2873,14 +2873,14 @@ class test_url_hostwikitable(TestCase):
         response = self.client.get('/hostinfo/hostwikitable/hwtkey.ne.val')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response["Content-Type"], "text/html; charset=utf-8")
-        self.assertEquals(response.content, "{| border=1\n|-\n!Hostname\n|-\n| [[Host:hosthwt1|hosthwt1]]\n|}\n")
+        self.assertEquals(response.content, b"{| border=1\n|-\n!Hostname\n|-\n| [[Host:hosthwt1|hosthwt1]]\n|}\n")
 
     ###########################################################################
     def test_wikitable_print(self):
         response = self.client.get('/hostinfo/hostwikitable/hwtkey.def/print=hwtkey/order=hwtkey')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response["Content-Type"], "text/html; charset=utf-8")
-        self.assertEquals(response.content, "{| border=1\n|-\n!Hostname\n!Hwtkey\n|-\n| [[Host:hosthwt2|hosthwt2]]\n| val\n|}\n")
+        self.assertEquals(response.content, b"{| border=1\n|-\n!Hostname\n!Hwtkey\n|-\n| [[Host:hosthwt2|hosthwt2]]\n| val\n|}\n")
 
 
 ###############################################################################
