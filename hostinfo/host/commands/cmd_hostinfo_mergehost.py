@@ -111,9 +111,9 @@ class Command(HostinfoCommand):
                 if not self.kidding:
                     srckey.delete(readonlychange=True)
             else:
-                sys.stderr.write("Collision: %s src=%s dst=%s\n" % (srckey.keyid, srckey.value, dstkey.value))
-                sys.stderr.write("To keep dst %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (dsthostobj, dstkey.value, dstkey.keyid, dstkey.value, srchostobj))
-                sys.stderr.write("To keep src %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (srchostobj, srckey.value, srckey.keyid, srckey.value, dsthostobj))
+                sys.stderr.write("Collision: %s src=%s dst=%s\n" % (srckey.keyid.key, srckey.value, dstkey.value))
+                sys.stderr.write("To keep dst %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (dsthostobj.hostname, dstkey.value, dstkey.keyid.key, dstkey.value, srchostobj.hostname))
+                sys.stderr.write("To keep src %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (srchostobj.hostname, srckey.value, srckey.keyid.key, srckey.value, dsthostobj.hostname))
                 return False
         else:
             if not self.kidding:
