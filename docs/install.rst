@@ -42,6 +42,7 @@ Edit the settings file (``/opt/hostinfo/Hostinfo/hostinfo/hostinfo/settings.py``
 * Change the username, password in ``DATABASE``
 * Randomize the ``SECRET_KEY``
 * Change TIME_ZONE and USE_TZ options appropriately
+* Change DEBUG to False if you are using it in production
 
 Initialise the database ::
 
@@ -67,7 +68,7 @@ Configure the web server::
 Configure the startup script::
 
     cd /opt/hostinfo/Hostinfo/contrib
-    cp hostinfo_init.conf /etc/init/hostinfo
+    cp hostinfo_init.conf /etc/init/hostinfo.conf
     initctl reload-configuration
     start hostinfo
     
