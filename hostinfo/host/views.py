@@ -27,14 +27,13 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from .models import Host, KeyValue, AllowedKey, parseQualifiers
-from .models import getAkCache, RestrictedValue, HostinfoException
+from .models import getAK, RestrictedValue, HostinfoException
 from .models import Links, getMatches, getHost, validateDate
 from .models import getAliases, RestrictedValueException
 
 from .forms import hostMergeForm, hostRenameForm, hostCreateForm
 from .forms import hostEditForm
 
-_akcache = None
 _hostcache = None
 _convertercache = None
 
@@ -270,14 +269,13 @@ def doHostEdit(request, hostname):
         else:
             return HttpResponseRedirect('/hostinfo/host/%s' % hostname)
     # User has selected which host to change
-    akcache = getAkCache()
     keyvals = hostviewrepr(hostname)
     kvlist = []
     usedkeys = set()
     for key, vals in keyvals:
         usedkeys.add(key)
-        vtype = akcache[key].get_validtype_display()
-        if akcache[key].restrictedFlag:
+        vtype = getAK(key).get_validtype_display()
+        if getAK(key).restrictedFlag:
             reslist = [v[0] for v in RestrictedValue.objects.filter(keyid__key=key).values_list('value')]
             reslist.insert(0, '-Unknown-')
         else:

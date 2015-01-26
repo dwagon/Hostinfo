@@ -30,10 +30,10 @@ except ImportError:
 from .models import HostinfoException, ReadonlyValueException, RestrictedValueException
 from .models import Host, HostAlias, AllowedKey, KeyValue, RestrictedValue, Links
 
-from .models import validateDate
+from .models import validateDate, clearAKcache
 from .models import parseQualifiers, getMatches
-from .models import getHost, getAkCache, checkHost
-from .models import checkKey, addKeytoHost, run_from_cmdline
+from .models import getHost, checkHost, getAK
+from .models import addKeytoHost, run_from_cmdline
 
 from .views import getHostMergeKeyData, hostviewrepr
 # from .views import mergeKey, doHostMerging
@@ -51,6 +51,7 @@ from .views import orderHostList
 class test_SingleKey(TestCase):
     """ Test operations on a single values key """
     def setUp(self):
+        clearAKcache()
         self.host = Host(hostname='host')
         self.host.save()
         self.key = AllowedKey(key='single', validtype=1)
@@ -63,7 +64,7 @@ class test_SingleKey(TestCase):
 
     ###########################################################################
     def checkValue(self, host, key):
-        keyid = checkKey(key)
+        keyid = getAK(key)
         hostid = getHost(host)
         kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
         return kv[0].value
@@ -131,9 +132,10 @@ class test_SingleKey(TestCase):
 class test_ListKey(TestCase):
     """ Test operations on a list of values key """
     def setUp(self):
+        clearAKcache()
         self.host = Host(hostname='host')
         self.host.save()
-        self.key = AllowedKey(key='list', validtype=2)
+        self.key = AllowedKey(key='lk_list', validtype=2)
         self.key.save()
 
     ###########################################################################
@@ -143,7 +145,7 @@ class test_ListKey(TestCase):
 
     ###########################################################################
     def checkValue(self, host, key):
-        keyid = checkKey(key)
+        keyid = getAK(key)
         hostid = getHost(host)
         kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
         ans = [k.value for k in kv]
@@ -155,8 +157,8 @@ class test_ListKey(TestCase):
     ###########################################################################
     def test_adds(self):
         """Test adding a simple value """
-        addKeytoHost(host='host', key='list', value='a')
-        self.assertEquals(self.checkValue('host', 'list'), 'a')
+        addKeytoHost(host='host', key='lk_list', value='a')
+        self.assertEquals(self.checkValue('host', 'lk_list'), 'a')
 
     ###########################################################################
     def test_readonly(self):
@@ -171,38 +173,38 @@ class test_ListKey(TestCase):
     ###########################################################################
     def test_addtwice(self):
         """ Test adding the same value again """
-        addKeytoHost(host='host', key='list', value='a')
-        addKeytoHost(host='host', key='list', value='a')
-        self.assertEquals(self.checkValue('host', 'list'), 'a')
+        addKeytoHost(host='host', key='lk_list', value='a')
+        addKeytoHost(host='host', key='lk_list', value='a')
+        self.assertEquals(self.checkValue('host', 'lk_list'), 'a')
 
     ###########################################################################
     def test_changevalue(self):
         """ Add a value without override"""
-        addKeytoHost(host='host', key='list', value='a')
+        addKeytoHost(host='host', key='lk_list', value='a')
         with self.assertRaises(HostinfoException):
-            addKeytoHost(host='host', key='list', value='b')
-        self.assertEquals(self.checkValue('host', 'list'), 'a')
+            addKeytoHost(host='host', key='lk_list', value='b')
+        self.assertEquals(self.checkValue('host', 'lk_list'), 'a')
 
     ###########################################################################
     def test_override(self):
         """ Add a value with override"""
-        addKeytoHost(host='host', key='list', value='a')
-        addKeytoHost(host='host', key='list', value='b', updateFlag=True)
-        self.assertEquals(self.checkValue('host', 'list'), 'b')
+        addKeytoHost(host='host', key='lk_list', value='a')
+        addKeytoHost(host='host', key='lk_list', value='b', updateFlag=True)
+        self.assertEquals(self.checkValue('host', 'lk_list'), 'b')
 
     ###########################################################################
     def test_nohost(self):
         """ Test adding to a host that doesn't exist"""
         with self.assertRaises(HostinfoException):
-            addKeytoHost(host='hostnot', key='list', value='b')
+            addKeytoHost(host='hostnot', key='lk_list', value='b')
 
     ###########################################################################
     def test_append(self):
         """ Test to make sure we can append
         """
-        addKeytoHost(host='host', key='list', value='a')
-        addKeytoHost(host='host', key='list', value='b', appendFlag=True)
-        self.assertEquals(self.checkValue('host', 'list'), ['a', 'b'])
+        addKeytoHost(host='host', key='lk_list', value='a')
+        addKeytoHost(host='host', key='lk_list', value='b', appendFlag=True)
+        self.assertEquals(self.checkValue('host', 'lk_list'), ['a', 'b'])
 
     ###########################################################################
     def test_badkey(self):
@@ -216,6 +218,7 @@ class test_Restricted(TestCase):
     """ Test operations on a restricted key
     """
     def setUp(self):
+        clearAKcache()
         self.host = Host(hostname='host')
         self.host.save()
         self.key = AllowedKey(key='restr', validtype=1, restrictedFlag=True)
@@ -244,6 +247,7 @@ class test_DateKey(TestCase):
     """ Test operations on a date based key
     """
     def setUp(self):
+        clearAKcache()
         self.host = Host(hostname='host')
         self.host.save()
         self.key = AllowedKey(key='date', validtype=3)
@@ -256,7 +260,7 @@ class test_DateKey(TestCase):
 
     ###########################################################################
     def checkValue(self, host, key):
-        keyid = checkKey(key)
+        keyid = getAK(key)
         hostid = getHost(host)
         kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
         return kv[0].value
@@ -292,6 +296,7 @@ class test_HostAlias(TestCase):
     """ Test HostAlias class
     """
     def setUp(self):
+        clearAKcache()
         self.host = Host(hostname='host')
         self.host.save()
         self.alias = HostAlias(hostid=self.host, alias='alias')
@@ -313,6 +318,7 @@ class test_Links(TestCase):
     """ Test Links
     """
     def setUp(self):
+        clearAKcache()
         self.host = Host(hostname='host')
         self.host.save()
         self.l1 = Links(hostid=self.host, url='http://localhost', tag='here')
@@ -336,9 +342,9 @@ class test_Links(TestCase):
 ###############################################################################
 class test_parseQualifiers(TestCase):
     def setUp(self):
+        clearAKcache()
         self.key = AllowedKey(key='kpq', validtype=1)
         self.key.save()
-        getAkCache()
 
     ###########################################################################
     def tearDown(self):
@@ -386,6 +392,7 @@ class test_getMatches(TestCase):
     # The use of set's in the test cases is to make sure that the order
     # of the results is not an issue
     def setUp(self):
+        clearAKcache()
         # hostA: single=100, list==[alpha, beta], date=2012/12/25
         # hostB: list=[alpha]
         self.host = Host(hostname='hostgma')
@@ -407,7 +414,6 @@ class test_getMatches(TestCase):
         self.datekey = AllowedKey(key='date', validtype=3)
         self.datekey.save()
         addKeytoHost(host='hostgma', key='date', value='2012/12/25')
-        getAkCache()
 
     ###########################################################################
     def tearDown(self):
@@ -615,6 +621,7 @@ class test_getMatches(TestCase):
 class test_getHost(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.h1 = Host(hostname='h1')
         self.h1.save()
         self.al = HostAlias(hostid=self.h1, alias='a1')
@@ -645,9 +652,10 @@ class test_getHost(TestCase):
 
 
 ###############################################################################
-class test_checkKey(TestCase):
+class test_getAK(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.ak = AllowedKey(key='ak_checkkey')
         self.ak.save()
 
@@ -657,13 +665,13 @@ class test_checkKey(TestCase):
 
     ###########################################################################
     def test_checkexists(self):
-        rc = checkKey('ak_checkkey')
+        rc = getAK('ak_checkkey')
         self.assertTrue(rc)
 
     ###########################################################################
     def test_checknoexists(self):
         with self.assertRaises(HostinfoException) as cm:
-            checkKey('ak_badkey')
+            getAK('ak_badkey')
         self.assertEquals(cm.exception.msg, "Must use an existing key, not ak_badkey")
 
 
@@ -671,6 +679,7 @@ class test_checkKey(TestCase):
 class test_checkHost(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.h = Host(hostname='test_check_host')
         self.h.save()
 
@@ -693,6 +702,7 @@ class test_checkHost(TestCase):
 class test_cmd_hostinfo(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo import Command
         self.cmd = Command()
@@ -784,7 +794,7 @@ class test_cmd_hostinfo(TestCase):
         namespace = self.parser.parse_args(['-p', 'badkey'])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "No key called badkey")
+        self.assertEquals(cm.exception.msg, "Must use an existing key, not badkey")
 
     ###########################################################################
     def test_hostinfo_csv(self):
@@ -893,6 +903,7 @@ class test_cmd_hostinfo(TestCase):
 class test_cmd_addalias(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_addalias import Command
         self.cmd = Command()
@@ -943,6 +954,7 @@ class test_cmd_addalias(TestCase):
 class test_cmd_addhost(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_addhost import Command
         self.cmd = Command()
@@ -996,6 +1008,7 @@ class test_cmd_addhost(TestCase):
 class test_cmd_addkey(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_addkey import Command
         self.cmd = Command()
@@ -1123,6 +1136,7 @@ class test_cmd_addkey(TestCase):
 class test_cmd_addrestrictedvalue(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_addrestrictedvalue import Command
         self.cmd = Command()
@@ -1183,6 +1197,7 @@ class test_cmd_addrestrictedvalue(TestCase):
 class test_cmd_addvalue(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_addvalue import Command
         self.cmd = Command()
@@ -1302,6 +1317,7 @@ class test_cmd_addvalue(TestCase):
 class test_cmd_deletealias(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_deletealias import Command
         self.cmd = Command()
@@ -1339,6 +1355,7 @@ class test_cmd_deletealias(TestCase):
 class test_cmd_deletehost(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_deletehost import Command
         self.cmd = Command()
@@ -1408,6 +1425,7 @@ class test_cmd_deletehost(TestCase):
 class test_cmd_deleterestrictedvalue(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_deleterestrictedvalue import Command
         self.cmd = Command()
@@ -1473,6 +1491,7 @@ class test_cmd_deleterestrictedvalue(TestCase):
 class test_cmd_deletevalue(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_deletevalue import Command
         self.cmd = Command()
@@ -1558,6 +1577,7 @@ class test_cmd_deletevalue(TestCase):
 class test_cmd_history(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_history import Command
 
@@ -1679,6 +1699,7 @@ class test_cmd_history(TestCase):
 class test_cmd_import(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_import import Command
         self.cmd = Command()
@@ -1697,6 +1718,7 @@ class test_cmd_import(TestCase):
 class test_cmd_listalias(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_listalias import Command
         self.cmd = Command()
@@ -1759,6 +1781,7 @@ class test_cmd_listalias(TestCase):
 class test_cmd_listrestrictedvalue(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_listrestrictedvalue import Command
         self.cmd = Command()
@@ -1794,6 +1817,7 @@ class test_cmd_listrestrictedvalue(TestCase):
 class test_cmd_mergehost(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_mergehost import Command
         self.cmd = Command()
@@ -1912,6 +1936,7 @@ class test_cmd_mergehost(TestCase):
 class test_cmd_renamehost(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_renamehost import Command
         self.cmd = Command()
@@ -1954,6 +1979,7 @@ class test_cmd_renamehost(TestCase):
 class test_cmd_replacevalue(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_replacevalue import Command
         self.cmd = Command()
@@ -2041,6 +2067,7 @@ class test_cmd_replacevalue(TestCase):
 class test_cmd_showkey(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_showkey import Command
         self.cmd = Command()
@@ -2092,6 +2119,7 @@ class test_cmd_showkey(TestCase):
 class test_cmd_undolog(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         import argparse
         from .commands.cmd_hostinfo_undolog import Command
         self.cmd = Command()
@@ -2131,6 +2159,7 @@ class test_cmd_undolog(TestCase):
 class test_run_from_cmdline(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.oldargv = sys.argv
         self.stderr = sys.stderr
         sys.stderr = StringIO()
@@ -2158,6 +2187,7 @@ class test_run_from_cmdline(TestCase):
 class test_url_hostmerge(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.user = User.objects.create_user('test', '', 'passwd')
         self.user.save()
@@ -2217,6 +2247,7 @@ class test_url_hostmerge(TestCase):
 class test_url_hostrename(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.user = User.objects.create_user('test', '', 'passwd')
         self.user.save()
@@ -2266,6 +2297,7 @@ class test_url_hostrename(TestCase):
 class test_url_index(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
 
     ###########################################################################
@@ -2286,6 +2318,7 @@ class test_url_index(TestCase):
 class test_url_handlePost(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.key = AllowedKey(key='postkey', validtype=1)
         self.key.save()
@@ -2317,6 +2350,7 @@ class test_url_keylist(TestCase):
     """ Test views doKeylist function"""
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.key = AllowedKey(key='urlkey', validtype=1)
         self.key.save()
@@ -2375,6 +2409,7 @@ class test_url_keylist(TestCase):
 class test_hostviewrepr(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.key = AllowedKey(key='hvrkey', validtype=1)
         self.key.save()
         self.host = Host(hostname='hvrhost1')
@@ -2403,6 +2438,7 @@ class test_hostviewrepr(TestCase):
 class test_getHostMergeKeyData(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.host1 = Host(hostname='hmkdhost1')
         self.host1.save()
         self.host2 = Host(hostname='hmkdhost2')
@@ -2450,6 +2486,7 @@ class test_url_rvlist(TestCase):
         """
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.key = AllowedKey(key='rvlkey', validtype=1, restrictedFlag=True)
         self.key.save()
@@ -2500,6 +2537,7 @@ class test_url_host_summary(TestCase):
     # (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.host = Host(hostname='hosths')
         self.host.save()
@@ -2553,6 +2591,7 @@ class test_url_host_summary(TestCase):
 class test_url_host_edit(TestCase):
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.user = User.objects.create_user('fred', 'fred@example.com', 'secret')
         self.user.save()
         self.client = Client()
@@ -2641,6 +2680,7 @@ class test_url_hostlist(TestCase):
     """
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.host1 = Host(hostname='hosthl1')
         self.host1.save()
@@ -2654,7 +2694,6 @@ class test_url_hostlist(TestCase):
         self.key.save()
         self.kv1 = KeyValue(hostid=self.host2, keyid=self.key, value='val')
         self.kv1.save()
-        getAkCache()
 
     ###########################################################################
     def tearDown(self):
@@ -2807,6 +2846,7 @@ class test_url_csv(TestCase):
     """
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.host1 = Host(hostname='hostcsv1')
         self.host1.save()
@@ -2816,7 +2856,6 @@ class test_url_csv(TestCase):
         self.key.save()
         self.kv1 = KeyValue(hostid=self.host2, keyid=self.key, value='val')
         self.kv1.save()
-        getAkCache()
 
     ###########################################################################
     def tearDown(self):
@@ -2844,6 +2883,7 @@ class test_url_hostwikitable(TestCase):
     """
     ###########################################################################
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.host1 = Host(hostname='hosthwt1')
         self.host1.save()
@@ -2857,7 +2897,6 @@ class test_url_hostwikitable(TestCase):
         self.key.save()
         self.kv1 = KeyValue(hostid=self.host2, keyid=self.key, value='val')
         self.kv1.save()
-        getAkCache()
 
     ###########################################################################
     def tearDown(self):
@@ -2889,6 +2928,7 @@ class test_url_hostcmp(TestCase):
     (r'^hostcmp/(?P<criteria>.*)/(?P<options>opts=.*)?$', 'doHostcmp'),
     """
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.host1 = Host(hostname='hostuhc1')
         self.host1.save()
@@ -2900,7 +2940,6 @@ class test_url_hostcmp(TestCase):
         self.kv1.save()
         self.kv2 = KeyValue(hostid=self.host2, keyid=self.key, value='val2')
         self.kv2.save()
-        getAkCache()
 
     ###########################################################################
     def tearDown(self):
@@ -2957,6 +2996,7 @@ class test_url_hostcmp(TestCase):
 ###############################################################################
 class test_orderhostlist(TestCase):
     def setUp(self):
+        clearAKcache()
         self.key1 = AllowedKey(key='ohlkey1')
         self.key1.save()
         self.key2 = AllowedKey(key='ohlkey2', validtype=2)

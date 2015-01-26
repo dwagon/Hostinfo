@@ -28,8 +28,7 @@ import re
 import sys
 import time
 
-_akcache = None
-debugFlag = False
+_akcache = {None: None}
 
 
 ################################################################################
@@ -354,14 +353,6 @@ def validateDate(datestr):
 
 
 ################################################################################
-def validateKey(key):
-    if not _akcache:
-        getAkCache()
-    if key not in _akcache:
-        raise HostinfoException("Must use an existing key, not %s" % key)
-
-
-################################################################################
 def parseQualifiers(args):
     """
     Go through the supplied qualifiers and analyse them, generate
@@ -384,8 +375,6 @@ def parseQualifiers(args):
         ]
 
     qualifiers = []
-    if not _akcache:
-        getAkCache()
     for arg in args:
         if arg == '':
             continue
@@ -398,10 +387,10 @@ def parseQualifiers(args):
             if mo:
                 key = mo.group('key').lower()
                 if opts.get('validkey', True):
-                    validateKey(key)
+                    getAK(key)
                 val = mo.group('val').lower()
                 if opts['threeparts']:
-                    if _akcache[key].get_validtype_display() == 'date':
+                    if getAK(key).get_validtype_display() == 'date':
                         val = validateDate(val)
                 qualifiers.append((op, key, val))
                 matched = True
@@ -462,9 +451,9 @@ def getMatches(qualifiers):
     difference between all hosts and the hosts that have that value set.
     """
     hostids = set([host.id for host in Host.objects.all()])
-    if not _akcache:
-        getAkCache()
     for q, k, v in qualifiers:        # qualifier, key, value
+        if q != 'hostre':   # hostre doesn't put a key into key
+            key = getAK(k)
         mode = 'intersection'
         queryset = set([])        # Else if no match it won't have a queryset defined
         if q == 'host':
@@ -473,25 +462,25 @@ def getMatches(qualifiers):
             queryset = hostqs | aliasqs
             vals = []
         elif q == 'equal':
-            vals = KeyValue.objects.filter(keyid=_akcache[k].id, value=v).values('hostid')
+            vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')
         elif q == 'lessthan':
-            vals = KeyValue.objects.filter(keyid=_akcache[k].id, value__lt=v).values('hostid')
+            vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values('hostid')
         elif q == 'approx':
-            vals = getApproxObjects(keyid=_akcache[k].id, value=v)
+            vals = getApproxObjects(keyid=key.id, value=v)
         elif q == 'greaterthan':
-            vals = KeyValue.objects.filter(keyid=_akcache[k].id, value__gt=v).values('hostid')
+            vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values('hostid')
         elif q == 'contains':
-            vals = KeyValue.objects.filter(keyid=_akcache[k].id, value__contains=v).values('hostid')
+            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values('hostid')
         elif q == 'notcontains':
-            vals = KeyValue.objects.filter(keyid=_akcache[k].id, value__contains=v).values('hostid')
+            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values('hostid')
             mode = 'difference'
         elif q == 'def':
-            vals = KeyValue.objects.filter(keyid=_akcache[k].id).values('hostid')
+            vals = KeyValue.objects.filter(keyid=key.id).values('hostid')
         elif q == 'unequal':
-            vals = KeyValue.objects.filter(keyid=_akcache[k].id, value=v).values('hostid')
+            vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')
             mode = 'difference'
         elif q == 'undef':
-            vals = KeyValue.objects.filter(keyid=_akcache[k].id).values('hostid')
+            vals = KeyValue.objects.filter(keyid=key.id).values('hostid')
             mode = 'difference'
         elif q == 'hostre':
             vals = [{'hostid': h['id']} for h in Host.objects.filter(hostname__contains=k).values('id')]
@@ -569,18 +558,6 @@ def getOrigin(origin):
 
 
 ################################################################################
-def getAkCache():
-    """ Get the mapping between keynames and keyids
-    """
-    global _akcache
-    _akcache = {}
-    aks = AllowedKey.objects.all()
-    for ak in aks:
-        _akcache[ak.key] = ak
-    return _akcache
-
-
-################################################################################
 def checkHost(host):
     """ Check to make sure that a host exists
     """
@@ -592,17 +569,30 @@ def checkHost(host):
 
 
 ################################################################################
-def checkKey(key):
-    k = AllowedKey.objects.filter(key=key)
-    if not k:
-        raise HostinfoException("Must use an existing key, not %s" % key)
-    return k[0]
+def clearAKcache():
+    """ Remove the contents of the allowedkey cache - mostly for test purposes
+    """
+    global _akcache
+    _akcache = {None: None}
+
+
+################################################################################
+def getAK(key):
+    """ Lookup AllowedKeys. This is a oft repeated expensive activity so
+        cache it """
+    global _akcache
+    if key not in _akcache:
+        try:
+            _akcache[key] = AllowedKey.objects.get(key=key)
+        except ObjectDoesNotExist:
+            raise HostinfoException("Must use an existing key, not %s" % key)
+    return _akcache[key]
 
 
 ################################################################################
 def addKeytoHost(host, key, value, origin=None, updateFlag=False, readonlyFlag=False, appendFlag=False):
     retval = 0
-    keyid = checkKey(key)
+    keyid = getAK(key)
     hostid = getHost(host)
     origin = getOrigin(origin)
     if not hostid:
