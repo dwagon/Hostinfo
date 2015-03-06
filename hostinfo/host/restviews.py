@@ -1,44 +1,57 @@
 from .models import Host, AllowedKey, KeyValue, HostAlias, Links
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core.urlresolvers import reverse
+from django.views.decorators.http import require_http_methods
 
 
 ###############################################################################
+@require_http_methods(["GET"])
 def HostDetail(request, pk=None, name=None):
     if pk:
         hostid = get_object_or_404(Host, id=pk)
     elif name:
         hostid = get_object_or_404(Host, hostname=name)
-    return JsonResponse(HostSerialize(hostid))
+    return JsonResponse(HostSerialize(hostid, request))
 
 
 ###############################################################################
+@require_http_methods(["GET"])
+def HostList(request):
+    hosts = get_list_or_404(Host)
+    ans = [HostShortSerialize(h, request) for h in hosts]
+    return JsonResponse(ans, safe=False)
+
+
+###############################################################################
+@require_http_methods(["GET"])
 def KeyDetail(request, pk=None, name=None):
     if pk:
         keyid = get_object_or_404(AllowedKey, id=pk)
     elif name:
         keyid = get_object_or_404(AllowedKey, key=name)
-    return JsonResponse(AllowedKeySerialize(keyid))
+    return JsonResponse(AllowedKeySerialize(keyid, request))
 
 
 ###############################################################################
+@require_http_methods(["GET"])
 def AliasDetail(request, pk=None, name=None):
     if pk:
         keyid = get_object_or_404(HostAlias, id=pk)
     elif name:
         keyid = get_object_or_404(HostAlias, alias=name)
-    return JsonResponse(HostAliasSerialize(keyid))
+    return JsonResponse(HostAliasSerialize(keyid, request))
 
 
 ###############################################################################
+@require_http_methods(["GET"])
 def KValDetail(request, pk=None):
     keyid = get_object_or_404(KeyValue, id=pk)
-    return JsonResponse(KeyValueSerialize(keyid))
+    return JsonResponse(KeyValueSerialize(keyid, request))
 
 
 ###############################################################################
-def HostSerialize(obj):
+def HostSerialize(obj, request):
     keys = {}
     for ak in AllowedKey.objects.all():
         keys[ak.id] = ak.key
@@ -47,14 +60,14 @@ def HostSerialize(obj):
         keyname = keys[k.keyid_id]
         if keyname not in keyvals:
             keyvals[keyname] = []
-        keyvals[keyname].append(KeyValueSerialize(k))
+        keyvals[keyname].append(KeyValueSerialize(k, request))
 
     aliases = []
     for h in HostAlias.objects.filter(hostid=obj):
-        aliases.append(HostAliasSerialize(h))
+        aliases.append(HostAliasSerialize(h, request))
     links = []
     for l in Links.objects.filter(hostid=obj):
-        links.append(LinkSerialize(l))
+        links.append(LinkSerialize(l, request))
 
     ans = {
         'id': obj.id,
@@ -70,10 +83,10 @@ def HostSerialize(obj):
 
 
 ###############################################################################
-def AllowedKeySerialize(obj):
+def AllowedKeySerialize(obj, request):
     ans = {
         'id': obj.id,
-        'url': reverse('restkey', args=(obj.id,)),
+        'url': request.build_absolute_uri(reverse('restkey', args=(obj.id,))),
         'key': obj.key,
         'validtype': obj.get_validtype_display(),
         'desc': obj.desc,
@@ -86,19 +99,19 @@ def AllowedKeySerialize(obj):
 
 
 ###############################################################################
-def HostShortSerialize(obj):
+def HostShortSerialize(obj, request):
     return {
         'hostid': obj.id,
         'hostname': obj.hostname,
-        'url': reverse('resthost', args=(obj.id,)),
+        'url': request.build_absolute_uri(reverse('resthost', args=(obj.id,))),
     }
 
 
 ###############################################################################
-def LinkSerialize(obj):
+def LinkSerialize(obj, request):
     ans = {
         'id': obj.id,
-        'host': HostShortSerialize(obj.hostid),
+        'host': HostShortSerialize(obj.hostid, request),
         'url': obj.url,
         'tag': obj.url,
         'modifieddate': obj.modifieddate
@@ -107,11 +120,11 @@ def LinkSerialize(obj):
 
 
 ###############################################################################
-def KeyValueSerialize(obj):
+def KeyValueSerialize(obj, request):
     ans = {
         'id': obj.id,
-        'url': reverse('restkval', args=(obj.id,)),
-        'host': HostShortSerialize(obj.hostid),
+        'url': request.build_absolute_uri(reverse('restkval', args=(obj.id,))),
+        'host': HostShortSerialize(obj.hostid, request),
         'keyid': obj.keyid.id,
         'key': obj.keyid.key,
         'value': obj.value,
@@ -123,11 +136,11 @@ def KeyValueSerialize(obj):
 
 
 ###############################################################################
-def HostAliasSerialize(obj):
+def HostAliasSerialize(obj, request):
     ans = {
         'id': obj.id,
-        'url': reverse('restalias', args=(obj.id,)),
-        'host': HostShortSerialize(obj.hostid),
+        'url': request.build_absolute_uri(reverse('restalias', args=(obj.id,))),
+        'host': HostShortSerialize(obj.hostid, request),
         'alias': obj.alias,
         'origin': obj.origin,
         'createdate': obj.createdate,
