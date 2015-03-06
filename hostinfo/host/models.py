@@ -148,7 +148,7 @@ class Host(models.Model):
 ################################################################################
 ################################################################################
 class HostAlias(models.Model):
-    hostid = models.ForeignKey(Host, db_index=True)
+    hostid = models.ForeignKey(Host, db_index=True, related_name='aliases')
     alias = models.CharField(max_length=200, unique=True)
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
@@ -305,7 +305,7 @@ class RestrictedValue(models.Model):
 ################################################################################
 ################################################################################
 class Links(models.Model):
-    hostid = models.ForeignKey(Host, db_index=True)
+    hostid = models.ForeignKey(Host, db_index=True, related_name='links')
     url = models.CharField(max_length=200)
     tag = models.CharField(max_length=100)
     modifieddate = models.DateField(auto_now=True)
