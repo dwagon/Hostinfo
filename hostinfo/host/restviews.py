@@ -1,8 +1,20 @@
 from .models import Host, AllowedKey, KeyValue, HostAlias, Links
-from django.http import JsonResponse
+from .models import parseQualifiers, getMatches, getHost
+from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core.urlresolvers import reverse
 from django.views.decorators.http import require_http_methods
+
+
+###############################################################################
+@require_http_methods(["GET"])
+def HostQuery(request, query):
+    criteria = query.split('/')
+    qualifiers = parseQualifiers(criteria)
+    matches = getMatches(qualifiers)
+    hosts = [Host.objects.get(id=pk) for pk in matches]
+    ans = [HostShortSerialize(h, request) for h in hosts]
+    return JsonResponse(ans, safe=False)
 
 
 ###############################################################################
@@ -11,7 +23,9 @@ def HostDetail(request, pk=None, name=None):
     if pk:
         hostid = get_object_or_404(Host, id=pk)
     elif name:
-        hostid = get_object_or_404(Host, hostname=name)
+        hostid = getHost(hostname=name)
+        if not hostid:
+            raise Http404("Host %s does not exist" % name)
     return JsonResponse(HostSerialize(hostid, request))
 
 
