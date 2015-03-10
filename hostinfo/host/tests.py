@@ -3022,16 +3022,22 @@ class test_restHost(TestCase):
         self.key.save()
         self.kv = KeyValue(hostid=self.host, keyid=self.key, value='val')
         self.kv.save()
+        self.alias1 = HostAlias(hostid=self.host, alias='rhalias')
+        self.alias1.save()
+        self.alias2 = HostAlias(hostid=self.host, alias='rhalias2')
+        self.alias2.save()
         getAkCache()
 
     ###########################################################################
     def tearDown(self):
+        self.alias1.delete()
+        self.alias2.delete()
         self.kv.delete()
         self.key.delete()
         self.host.delete()
 
     ###########################################################################
-    def test_list(self):
+    def test_hostlist(self):
         response = self.client.get('/api/v1/host/')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content)
@@ -3039,8 +3045,16 @@ class test_restHost(TestCase):
         self.assertEquals(ans['hosts'][0]['hostname'], 'hostrh')
 
     ###########################################################################
-    def test_details(self):
+    def test_hostdetails(self):
         response = self.client.get('/api/v1/host/hostrh/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['host']['keyvalues']['rhkey'][0]['value'], 'val')
+
+    ###########################################################################
+    def test_alias_details(self):
+        response = self.client.get('/api/v1/host/rhalias/')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content)
         self.assertEquals(ans['result'], 'ok')
@@ -3058,6 +3072,57 @@ class test_restHost(TestCase):
         ans = json.loads(response.content)
         self.assertEquals(ans['result'], '1 matching hosts')
         self.assertEquals(ans['hosts'][0]['hostname'], 'hostrh')
+
+    ###########################################################################
+    def test_bad_query(self):
+        response = self.client.get('/api/v1/query/badkey=val/')
+        self.assertEquals(response.status_code, 406)
+        ans = json.loads(response.content)
+        self.assertIn('badkey', ans['error'])
+
+    ###########################################################################
+    def test_list_alias(self):
+        response = self.client.get('/api/v1/host/hostrh/alias/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'ok')
+        al = [a['alias'] for a in ans['aliases']]
+        self.assertEquals(sorted(al), ['rhalias', 'rhalias2'])
+
+    ###########################################################################
+    def test_get_alias(self):
+        response = self.client.get('/api/v1/host/hostrh/alias/rhalias/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['aliases'][0]['alias'], 'rhalias')
+
+    ###########################################################################
+    def test_set_alias(self):
+        response = self.client.post('/api/v1/host/hostrh/alias/rhalias3/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'created')
+        aliases = HostAlias.objects.filter(hostid=self.host, alias='rhalias3')
+        self.assertEqual(len(aliases), 1)
+
+    ###########################################################################
+    def test_set_duplicate_alias(self):
+        response = self.client.post('/api/v1/host/hostrh/alias/rhalias2/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'duplicate')
+        aliases = HostAlias.objects.filter(hostid=self.host, alias='rhalias2')
+        self.assertEqual(len(aliases), 1)
+
+    ###########################################################################
+    def test_delete_alais(self):
+        response = self.client.delete('/api/v1/host/hostrh/alias/rhalias2/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'deleted')
+        aliases = HostAlias.objects.filter(hostid=self.host, alias='rhalias2')
+        self.assertEqual(len(aliases), 0)
 
 
 # EOF

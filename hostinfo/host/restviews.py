@@ -62,7 +62,7 @@ def HostAliasRest(request, pk=None, name=None, aliaspk=None, alias=None):
         return JsonResponse(ans)
     elif request.method == "POST":
         if HostAlias.objects.filter(hostid=hostid, alias=alias):
-            result = 'already exists'
+            result = 'duplicate'
         else:
             ha = HostAlias(hostid=hostid, alias=alias)
             ha.save()
@@ -193,7 +193,7 @@ def KeyValueSerialize(obj, request):
 def HostAliasSerialize(obj, request):
     ans = {
         'id': obj.id,
-        'url': request.build_absolute_uri(reverse('restalias', args=(obj.hostid.hostname, obj.id,))),
+        'url': request.build_absolute_uri(reverse('hostaliasrest', args=(obj.hostid.hostname, obj.id,))),
         'host': HostShortSerialize(obj.hostid, request),
         'alias': obj.alias,
         'origin': obj.origin,
