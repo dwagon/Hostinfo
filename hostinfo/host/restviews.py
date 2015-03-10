@@ -17,25 +17,29 @@ def HostQuery(request, query):
         return JsonResponse({'error': str(exc)}, status=406)
     matches = getMatches(qualifiers)
     hosts = [Host.objects.get(id=pk) for pk in matches]
-    ans = [HostShortSerialize(h, request) for h in hosts]
-    return JsonResponse(ans, safe=False)
+    ans = {
+        'result': '%d matching hosts' % len(hosts),
+        'hosts': [HostShortSerialize(h, request) for h in hosts],
+    }
+    return JsonResponse(ans)
 
 
 ###############################################################################
 @require_http_methods(["GET"])
-def HostDetail(request, pk=None, name=None):
-    hostid = getReferredHost(pk, name)
-    return JsonResponse(HostSerialize(hostid, request))
+def HostDetail(request, hostpk=None, hostname=None):
+    hostid = getReferredHost(hostpk, hostname)
+    ans = {'result': 'ok', 'host': HostSerialize(hostid, request)}
+    return JsonResponse(ans)
 
 
 ###############################################################################
-def getReferredHost(pk=None, name=None):
-    if pk:
-        hostid = get_object_or_404(Host, id=pk)
-    elif name:
-        hostid = getHost(hostname=name)
+def getReferredHost(hostpk=None, hostname=None):
+    if hostpk:
+        hostid = get_object_or_404(Host, id=hostpk)
+    elif hostname:
+        hostid = getHost(hostname=hostname)
         if not hostid:
-            raise Http404("Host %s does not exist" % name)
+            raise Http404("Host %s does not exist" % hostname)
     return hostid
 
 
@@ -54,31 +58,33 @@ def HostAliasRest(request, pk=None, name=None, aliaspk=None, alias=None):
             else:
                 ha = get_list_or_404(HostAlias, hostid=hostid, alias=alias)
         sha = [HostAliasSerialize(h, request) for h in ha]
-        return JsonResponse({'status': status, 'aliases': sha})
+        ans = {'result': result, 'aliases': sha}
+        return JsonResponse(ans)
     elif request.method == "POST":
         if HostAlias.objects.filter(hostid=hostid, alias=alias):
-            status = 'already exists'
+            result = 'already exists'
         else:
             ha = HostAlias(hostid=hostid, alias=alias)
             ha.save()
-            status = 'created'
+            result = 'created'
     elif request.method == "DELETE":
         ha = get_object_or_404(HostAlias, hostid=hostid, alias=alias)
         ha.delete()
-        status = 'deleted'
+        result = 'deleted'
 
     aliases = []
     for h in HostAlias.objects.filter(hostid=hostid):
         aliases.append(HostAliasSerialize(h, request))
-    return JsonResponse({'status': status, 'aliases': aliases})
+    ans = {'aliases': aliases, 'result': result}
+    return JsonResponse(ans)
 
 
 ###############################################################################
 @require_http_methods(["GET"])
 def HostList(request):
     hosts = get_list_or_404(Host)
-    ans = [HostShortSerialize(h, request) for h in hosts]
-    return JsonResponse(ans, safe=False)
+    ans = {'result': '%d hosts' % len(hosts), 'hosts': [HostShortSerialize(h, request) for h in hosts]}
+    return JsonResponse(ans)
 
 
 ###############################################################################

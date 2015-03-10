@@ -21,6 +21,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 import sys
+import json
 import time
 try:
     from StringIO import StringIO
@@ -3009,5 +3010,54 @@ class test_orderhostlist(TestCase):
     def test_list(self):
         out = orderHostList(self.hosts, 'ohlkey2')
         self.assertEquals(out, self.hosts)
+
+
+###############################################################################
+class test_restHost(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host = Host(hostname='hostrh')
+        self.host.save()
+        self.key = AllowedKey(key='rhkey', validtype=1)
+        self.key.save()
+        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='val')
+        self.kv.save()
+        getAkCache()
+
+    ###########################################################################
+    def tearDown(self):
+        self.kv.delete()
+        self.key.delete()
+        self.host.delete()
+
+    ###########################################################################
+    def test_list(self):
+        response = self.client.get('/api/v1/host/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], '1 hosts')
+        self.assertEquals(ans['hosts'][0]['hostname'], 'hostrh')
+
+    ###########################################################################
+    def test_details(self):
+        response = self.client.get('/api/v1/host/hostrh/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['host']['keyvalues']['rhkey'][0]['value'], 'val')
+
+    ###########################################################################
+    def test_missing_details(self):
+        response = self.client.get('/api/v1/host/badhost/')
+        self.assertEquals(response.status_code, 404)
+
+    ###########################################################################
+    def test_query(self):
+        response = self.client.get('/api/v1/query/rhkey=val/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], '1 matching hosts')
+        self.assertEquals(ans['hosts'][0]['hostname'], 'hostrh')
+
 
 # EOF
