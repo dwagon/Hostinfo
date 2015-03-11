@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'', include([
         url(r'host/%s/alias/%s/?$' % (hostspec, aliasspec), restviews.HostAliasRest, name='hostaliasrest'),
         url(r'host/%s/alias/?$' % hostspec, restviews.HostAliasRest, name='hostaliasrest'),
+        url(r'host/%s/key/%s/(?P<value>.*)/?$' % (hostspec, kvalspec), restviews.HostKeyRest, name='hostkeyrest'),
         url(r'host/%s/key/%s/?$' % (hostspec, kvalspec), restviews.HostKeyRest, name='hostkeyrest'),
         url(r'host/%s/?$' % hostspec, restviews.HostDetail, name='resthost'),
         url(r'host/$', restviews.HostList),

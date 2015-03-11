@@ -44,11 +44,59 @@ def getReferredHost(hostpk=None, hostname=None):
 
 
 ###############################################################################
+# /host/(hostname|pk)/key/(keyname|pk)[/value]
 @require_http_methods(["GET", "POST", "DELETE"])
 @csrf_exempt
-def HostAliasRest(request, pk=None, name=None, aliaspk=None, alias=None):
-    status = 'ok'
-    hostid = getReferredHost(pk, name)
+def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value=None):
+    result = 'ok'
+    hostid = getReferredHost(hostpk, hostname)
+
+    # Get the id of the AllowedKey
+    if keypk:
+        ko = get_object_or_404(KeyValue, pk=keypk)
+        keyid = ko.keyid
+    if key:
+        keyid = get_object_or_404(AllowedKey, key=key)
+
+    if request.method == "GET":
+        if not key:
+            kvs = get_list_or_404(KeyValue, hostid=hostid)
+        else:
+            if keypk:
+                kvs = get_list_or_404(KeyValue, hostid=hostid, pk=keypk)
+            else:
+                kvs = get_list_or_404(KeyValue, hostid=hostid, keyid=keyid)
+        sha = [KeyValueSerialize(k, request) for k in kvs]
+        return JsonResponse({'result': result, 'keyvalues': sha})
+    elif request.method == "POST":
+        if KeyValue.objects.filter(hostid=hostid, keyid=keyid, value=value):
+            result = 'duplicate'
+        elif KeyValue.objects.filter(hostid=hostid, keyid=keyid):
+            result = 'updated'
+            ha = KeyValue(hostid=hostid, keyid=keyid)
+            ha.value = value
+            ha.save()
+        else:
+            result = 'created'
+            ha = KeyValue(hostid=hostid, keyid=keyid, value=value)
+            ha.save()
+    elif request.method == "DELETE":
+        ha = get_object_or_404(KeyValue, hostid=hostid, keyid=keyid)
+        ha.delete()
+        result = 'deleted'
+
+    kvals = []
+    for h in KeyValue.objects.filter(hostid=hostid):
+        kvals.append(KeyValueSerialize(h, request))
+    return JsonResponse({'result': result, 'keyvalues': kvals})
+
+
+###############################################################################
+@require_http_methods(["GET", "POST", "DELETE"])
+@csrf_exempt
+def HostAliasRest(request, hostpk=None, hostname=None, aliaspk=None, alias=None):
+    result = 'ok'
+    hostid = getReferredHost(hostpk, hostname)
     if request.method == "GET":
         if not alias:
             ha = get_list_or_404(HostAlias, hostid=hostid)
