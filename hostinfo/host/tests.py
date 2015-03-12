@@ -3048,6 +3048,17 @@ class test_restHost(TestCase):
         self.assertEquals(ans['hosts'][0]['hostname'], 'hostrh')
 
     ###########################################################################
+    def test_host_byid(self):
+        """ Getting a host by its id """
+        response = self.client.get('/api/v1/host/hostrh/')
+        ans = json.loads(response.content)
+        hostid = ans['host']['id']
+        response = self.client.get('/api/v1/host/%d/' % hostid)
+        ans = json.loads(response.content)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(ans['host']['hostname'], 'hostrh')
+
+    ###########################################################################
     def test_hostdetails(self):
         response = self.client.get('/api/v1/host/hostrh/')
         self.assertEquals(response.status_code, 200)
@@ -3199,8 +3210,8 @@ class test_restHost(TestCase):
         self.assertEqual(ans['links'][0]['tag'], 'heur')
 
     ###########################################################################
-    def test_link_set(self):
-        """ Setting links of a host through the REST interface """
+    def test_link_update(self):
+        """ Updating of links of a host through the REST interface """
         import urllib
         link = urllib.quote('http://www.example.com')
         response = self.client.post('/api/v1/host/hostrh/link/heur/%s' % link)
@@ -3208,5 +3219,26 @@ class test_restHost(TestCase):
         ans = json.loads(response.content)
         self.assertEquals(ans['result'], 'updated')
         self.assertEqual(ans['links'][0]['url'], 'http://www.example.com')
+
+    ###########################################################################
+    def test_link_set(self):
+        """ Setting links of a host through the REST interface """
+        import urllib
+        link = urllib.quote('http://www.example.org')
+        response = self.client.post('/api/v1/host/hostrh/link/chain/%s' % link)
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'created')
+        self.assertEqual(ans['links'][0]['url'], 'http://www.example.org')
+
+    ###########################################################################
+    def test_link_delete(self):
+        """ Deleting links of a host through the REST interface """
+        response = self.client.delete('/api/v1/host/hostrh/link/heur/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'deleted')
+        los = Links.objects.filter(hostid=self.host)
+        self.assertEqual(len(los), 0)
 
 # EOF

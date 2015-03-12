@@ -51,6 +51,7 @@ def getReferredHost(hostpk=None, hostname=None):
 def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value=None):
     result = 'ok'
     hostid = getReferredHost(hostpk, hostname)
+    keyid = None
 
     # Get the id of the AllowedKey
     if keypk:
@@ -60,7 +61,7 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
         keyid = get_object_or_404(AllowedKey, key=key)
 
     if request.method == "GET":
-        if not key:
+        if not keyid:
             kvs = get_list_or_404(KeyValue, hostid=hostid)
         else:
             if keypk:
@@ -104,11 +105,15 @@ def HostLinkRest(request, hostpk=None, hostname=None, linkpk=None, tagname=None,
         url = urllib.unquote(url)
 
     # Get the id of the Link
-    lo = None
+    los = None
     if linkpk:
-        lo = get_object_or_404(Links, pk=linkpk)
+        los = Links.objects.filter(pk=linkpk)
     if tagname:
-        lo = get_object_or_404(Links, hostid=hostid, tag=tagname)
+        los = Links.objects.filter(hostid=hostid, tag=tagname)
+    if los:
+        lo = los[0]
+    else:
+        lo = None
 
     if request.method == "GET":
         if not lo:
@@ -222,7 +227,7 @@ def HostSerialize(obj, request):
 
     ans = {
         'id': obj.id,
-        'name': obj.hostname,
+        'hostname': obj.hostname,
         'origin': obj.origin,
         'createdate': obj.createdate,
         'modifieddate': obj.modifieddate,
