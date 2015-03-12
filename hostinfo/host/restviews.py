@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core.urlresolvers import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+import urllib
 
 
 ###############################################################################
@@ -89,6 +90,54 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
     for h in KeyValue.objects.filter(hostid=hostid):
         kvals.append(KeyValueSerialize(h, request))
     return JsonResponse({'result': result, 'keyvalues': kvals})
+
+
+###############################################################################
+# /host/(hostname|pk)/link/(tagname|linkpk)[/url]
+@require_http_methods(["GET", "POST", "DELETE"])
+@csrf_exempt
+def HostLinkRest(request, hostpk=None, hostname=None, linkpk=None, tagname=None, url=None):
+    result = 'ok'
+    hostid = getReferredHost(hostpk, hostname)
+
+    if url:
+        url = urllib.unquote(url)
+
+    # Get the id of the Link
+    lo = None
+    if linkpk:
+        lo = get_object_or_404(Links, pk=linkpk)
+    if tagname:
+        lo = get_object_or_404(Links, hostid=hostid, tag=tagname)
+
+    if request.method == "GET":
+        if not lo:
+            links = get_list_or_404(Links, hostid=hostid)
+        else:
+            links = [lo]
+        sha = [LinkSerialize(l, request) for l in links]
+        return JsonResponse({'result': result, 'links': sha})
+    elif request.method == "POST":
+        if lo and lo.url == url:
+            result = 'duplicate'
+        elif lo and lo.url != url:
+            result = 'updated'
+            lo.url = url
+            lo.save()
+        else:
+            result = 'created'
+            lo = Links(hostid=hostid, tag=tagname, url=url)
+            lo.save()
+    elif request.method == "DELETE":
+        if not lo:
+            raise Http404("Link does not exist")
+        lo.delete()
+        result = 'deleted'
+
+    links = []
+    for h in Links.objects.filter(hostid=hostid):
+        links.append(LinkSerialize(h, request))
+    return JsonResponse({'result': result, 'links': links})
 
 
 ###############################################################################
@@ -215,7 +264,7 @@ def LinkSerialize(obj, request):
         'id': obj.id,
         'host': HostShortSerialize(obj.hostid, request),
         'url': obj.url,
-        'tag': obj.url,
+        'tag': obj.tag,
         'modifieddate': obj.modifieddate
     }
     return ans

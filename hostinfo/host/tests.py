@@ -3026,10 +3026,13 @@ class test_restHost(TestCase):
         self.alias1.save()
         self.alias2 = HostAlias(hostid=self.host, alias='rhalias2')
         self.alias2.save()
+        self.link = Links(hostid=self.host, url='http://localhost', tag='heur')
+        self.link.save()
         getAkCache()
 
     ###########################################################################
     def tearDown(self):
+        self.link.delete()
         self.alias1.delete()
         self.alias2.delete()
         self.kv.delete()
@@ -3116,7 +3119,7 @@ class test_restHost(TestCase):
         self.assertEqual(len(aliases), 1)
 
     ###########################################################################
-    def test_delete_alais(self):
+    def test_delete_alias(self):
         response = self.client.delete('/api/v1/host/hostrh/alias/rhalias2/')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content)
@@ -3175,5 +3178,35 @@ class test_restHost(TestCase):
         self.assertEqual(kvs[0].value, 'noob')
         tmpkey.delete()
 
+    ###########################################################################
+    def test_link_list(self):
+        """ Listing links of a host through the REST interface """
+        response = self.client.get('/api/v1/host/hostrh/link/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEqual(ans['links'][0]['url'], 'http://localhost')
+        self.assertEqual(ans['links'][0]['tag'], 'heur')
+
+    ###########################################################################
+    def test_link_get(self):
+        """ Getting links of a host through the REST interface """
+        response = self.client.get('/api/v1/host/hostrh/link/heur/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEqual(ans['links'][0]['url'], 'http://localhost')
+        self.assertEqual(ans['links'][0]['tag'], 'heur')
+
+    ###########################################################################
+    def test_link_set(self):
+        """ Setting links of a host through the REST interface """
+        import urllib
+        link = urllib.quote('http://www.example.com')
+        response = self.client.post('/api/v1/host/hostrh/link/heur/%s' % link)
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'updated')
+        self.assertEqual(ans['links'][0]['url'], 'http://www.example.com')
 
 # EOF

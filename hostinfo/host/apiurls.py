@@ -5,6 +5,7 @@ import restviews
 hostspec = r'((?P<hostpk>[0-9]+?)|(?P<hostname>\S+?))'
 aliasspec = r'((?P<aliaspk>[0-9]+?)|(?P<alias>\S*?))'
 kvalspec = r'((?P<keypk>[0-9]+?)|(?P<key>\S*?))'
+linkspec = r'((?P<linkpk>[0-9]+?)|(?P<tagname>\S*?))'
 
 # /host/(hostname|pk)/key/(keyname|pk)[/value]
 
@@ -13,7 +14,8 @@ urlpatterns = [
         url(r'host/%s/alias/%s/?$' % (hostspec, aliasspec), restviews.HostAliasRest, name='hostaliasrest'),
         url(r'host/%s/alias/?$' % hostspec, restviews.HostAliasRest, name='hostaliasrest'),
         url(r'host/%s/key/%s/(?P<value>.*)/?$' % (hostspec, kvalspec), restviews.HostKeyRest, name='hostkeyrest'),
-        url(r'host/%s/key/%s/?$' % (hostspec, kvalspec), restviews.HostKeyRest, name='hostkeyrest'),
+        url(r'host/%s/link/%s/(?P<url>.*)/?$' % (hostspec, linkspec), restviews.HostLinkRest, name='hostlinkrest'),
+        url(r'host/%s/link/%s/?$' % (hostspec, linkspec), restviews.HostLinkRest, name='hostlinkrest'),
         url(r'host/%s/?$' % hostspec, restviews.HostDetail, name='resthost'),
         url(r'host/$', restviews.HostList),
         url(r'key/%s' % hostspec, restviews.KeyDetail, name='restkey'),
