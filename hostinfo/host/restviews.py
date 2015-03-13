@@ -191,12 +191,13 @@ def HostList(request):
 
 ###############################################################################
 @require_http_methods(["GET"])
-def KeyDetail(request, pk=None, name=None):
-    if pk:
-        keyid = get_object_or_404(AllowedKey, id=pk)
-    elif name:
-        keyid = get_object_or_404(AllowedKey, key=name)
-    return JsonResponse(AllowedKeySerialize(keyid, request))
+def KeyDetail(request, akeypk=None, akey=None):
+    if akeypk:
+        keyid = get_object_or_404(AllowedKey, id=akeypk)
+    elif akey:
+        keyid = get_object_or_404(AllowedKey, key=akey)
+    ans = {'result': 'ok', 'key': AllowedKeySerialize(keyid, request)}
+    return JsonResponse(ans)
 
 
 ###############################################################################
@@ -242,7 +243,7 @@ def HostSerialize(obj, request):
 def AllowedKeySerialize(obj, request):
     ans = {
         'id': obj.id,
-        'url': request.build_absolute_uri(reverse('restkey', args=(obj.id,))),
+        'url': request.build_absolute_uri(reverse('restakey', args=(obj.id,))),
         'key': obj.key,
         'validtype': obj.get_validtype_display(),
         'desc': obj.desc,

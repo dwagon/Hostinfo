@@ -3018,7 +3018,7 @@ class test_restHost(TestCase):
         self.client = Client()
         self.host = Host(hostname='hostrh')
         self.host.save()
-        self.key = AllowedKey(key='rhkey', validtype=1)
+        self.key = AllowedKey(key='rhkey', validtype=1, desc='testkey')
         self.key.save()
         self.kv = KeyValue(hostid=self.host, keyid=self.key, value='val')
         self.kv.save()
@@ -3240,5 +3240,28 @@ class test_restHost(TestCase):
         self.assertEquals(ans['result'], 'deleted')
         los = Links.objects.filter(hostid=self.host)
         self.assertEqual(len(los), 0)
+
+    ###########################################################################
+    def test_key_detail(self):
+        """ Details of AllowedKeys through the REST interface """
+        response = self.client.get('/api/v1/key/rhkey')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key']['key'], 'rhkey')
+        self.assertEquals(ans['key']['desc'], 'testkey')
+
+    ###########################################################################
+    def test_key_by_id(self):
+        """ Details of AllowedKeys using key id through the REST interface """
+        response = self.client.get('/api/v1/key/rhkey')
+        self.assertEquals(response.status_code, 200)
+        a = json.loads(response.content)
+        keyid = a['key']['id']
+        response = self.client.get('/api/v1/key/%d' % keyid)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key']['key'], 'rhkey')
+        self.assertEquals(ans['key']['desc'], 'testkey')
 
 # EOF
