@@ -1,4 +1,4 @@
-from .models import Host, AllowedKey, KeyValue, HostAlias, Links
+from .models import Host, AllowedKey, KeyValue, HostAlias, Links, RestrictedValue
 from .models import parseQualifiers, getMatches, getHost, HostinfoException
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
@@ -252,6 +252,12 @@ def AllowedKeySerialize(obj, request):
         'restricted': obj.restrictedFlag,
         'audit': obj.auditFlag
     }
+    if obj.restrictedFlag:
+        rvals = RestrictedValue.objects.filter(keyid=obj.id)
+        ans['permitted_values'] = []
+        for rv in rvals:
+            ans['permitted_values'].append(RestrictedValueSerialize(rv, request))
+
     return ans
 
 
@@ -262,6 +268,18 @@ def HostShortSerialize(obj, request):
         'hostname': obj.hostname,
         'url': request.build_absolute_uri(reverse('resthost', args=(obj.id,))),
     }
+
+
+###############################################################################
+def RestrictedValueSerialize(obj, request):
+    ans = {
+        'id': obj.id,
+        'keyid': obj.keyid.id,
+        'value': obj.value,
+        'createdate': obj.createdate,
+        'modifieddate': obj.modifieddate
+    }
+    return ans
 
 
 ###############################################################################

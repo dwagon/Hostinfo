@@ -3264,4 +3264,22 @@ class test_restHost(TestCase):
         self.assertEquals(ans['key']['key'], 'rhkey')
         self.assertEquals(ans['key']['desc'], 'testkey')
 
+    ###########################################################################
+    def test_key_restricted(self):
+        """ Details of RestrictedKey through the REST interface """
+        rvals = ['yes', 'no', 'maybe']
+        rk = AllowedKey(key='restr', validtype=1, restrictedFlag=True)
+        rk.save()
+        avs = {}
+        for i in rvals:
+            avs[i] = RestrictedValue(keyid=rk, value=i)
+            avs[i].save()
+        response = self.client.get('/api/v1/key/restr')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertIn(ans['key']['permitted_values'][0]['value'], rvals)
+        for i in avs:
+            avs[i].delete()
+        rk.delete()
+
 # EOF
