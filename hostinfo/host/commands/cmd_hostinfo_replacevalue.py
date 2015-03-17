@@ -21,7 +21,7 @@
 
 import re
 import sys
-from host.models import checkKey
+from host.models import getAK
 from host.models import HostinfoCommand, HostinfoException, KeyValue
 
 
@@ -54,7 +54,7 @@ class Command(HostinfoCommand):
             raise HostinfoException("Must be in key=value format, not %s" % namespace.keyvalue[0])
         key = m.group('key').lower()
         value = m.group('value').lower()
-        keyid = checkKey(key)
+        keyid = getAK(key)
         if not namespace.hosts and not namespace.all:
             raise HostinfoException("Must specify a list of hosts or the --all flag")
 
@@ -68,4 +68,4 @@ class Command(HostinfoCommand):
                     sys.stderr.write("Would replace %s=%s with %s on %s\n" % (kv.keyid, kv.value, namespace.newvalue[0], kv.hostid))
         return None, 0
 
-#EOF
+# EOF

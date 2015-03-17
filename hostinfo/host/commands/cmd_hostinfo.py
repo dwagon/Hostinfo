@@ -19,8 +19,8 @@ import sys
 import time
 
 from host.models import AllowedKey, KeyValue, parseQualifiers
-from host.models import getMatches, getAkCache, Host, getHost
-from host.models import getAliases, RestrictedValue, checkKey
+from host.models import getMatches, getAK, Host, getHost
+from host.models import getAliases, RestrictedValue
 from host.models import HostinfoCommand, HostinfoException
 
 
@@ -93,7 +93,6 @@ class Command(HostinfoCommand):
         global _akcache, _hostcache
         self.namespace = namespace
         self.printout = namespace.printout
-        _akcache = getAkCache()
         _hostcache = self.getHostCache()
         if namespace.host:
             host = getHost(namespace.host[0])
@@ -141,7 +140,7 @@ class Command(HostinfoCommand):
         outstr = ""
         values = {}
         hostids = set()   # hostids that match the criteria
-        checkKey(self.namespace.valuereport[0])
+        getAK(self.namespace.valuereport[0])
         total = len(matches)
         if total == 0:
             return ""
@@ -177,8 +176,8 @@ class Command(HostinfoCommand):
         """
         revcache = {}
         outstr = ""
-        for kn, kv in _akcache.items():
-            revcache[kv.id] = kn
+        for aks in AllowedKey.objects.all():
+            revcache[aks.id] = aks.key
 
         for host in matches:
             output = []
@@ -248,14 +247,15 @@ class Command(HostinfoCommand):
         outstr += "<hostinfo>\n"
         outstr += '  <query date="%s">%s</query>\n' % (time.ctime(), escape(" ".join(sys.argv)))
         for key in columns:
+            k = getAK(key)
             outstr += "  <key>\n"
             outstr += "    <name>%s</name>\n" % escape(key)
-            outstr += "    <type>%s</type>\n" % _akcache[key].get_validtype_display()
-            outstr += "    <readonlyFlag>%s</readonlyFlag>\n" % _akcache[key].readonlyFlag
-            outstr += "    <auditFlag>%s</auditFlag>\n" % _akcache[key].auditFlag
-            outstr += "    <docpage>%s</docpage>\n" % _akcache[key].docpage
-            outstr += "    <desc>%s</desc>\n" % _akcache[key].desc
-            if _akcache[key].restrictedFlag:
+            outstr += "    <type>%s</type>\n" % k.get_validtype_display()
+            outstr += "    <readonlyFlag>%s</readonlyFlag>\n" % k.readonlyFlag
+            outstr += "    <auditFlag>%s</auditFlag>\n" % k.auditFlag
+            outstr += "    <docpage>%s</docpage>\n" % k.docpage
+            outstr += "    <desc>%s</desc>\n" % k.desc
+            if k.restrictedFlag:
                 outstr += "    <restricted>\n"
                 rvlist = RestrictedValue.objects.filter(keyid__key=key)
                 for rv in rvlist:
@@ -332,10 +332,9 @@ class Command(HostinfoCommand):
         # Load all the information that we have been requested into a cache
         cache = {}
         for p in columns:
+            getAK(p)
             cache[p] = {}
-            if p not in _akcache:
-                raise HostinfoException("No key called %s" % p)
-            allv = KeyValue.objects.filter(keyid=_akcache[p].id).values()
+            allv = KeyValue.objects.filter(keyid=getAK(p).id).values()
             for val in allv:
                 hostid = val['hostid_id']
                 if matches and hostid not in matches:
@@ -381,4 +380,4 @@ class Command(HostinfoCommand):
             outstr = '%s%s' % (outstr[:-1], '\n')
         return outstr
 
-#EOF
+# EOF

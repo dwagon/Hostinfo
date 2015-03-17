@@ -34,7 +34,7 @@ Now create the virtual environment ::
 
     virtualenv /opt/hostinfo
     source /opt/hostinfo/bin/activate
-    pip install -r requirements.txt
+    cd /opt/hostinfo/Hostinfo && pip install -r requirements.txt
     pip install gunicorn
 
 Edit the settings file (``/opt/hostinfo/Hostinfo/hostinfo/hostinfo/settings.py`` - yes that is a lot of hostinfos)
