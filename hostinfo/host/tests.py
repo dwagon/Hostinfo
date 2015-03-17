@@ -3282,4 +3282,20 @@ class test_restHost(TestCase):
             avs[i].delete()
         rk.delete()
 
+    ###########################################################################
+    def test_keyval_details(self):
+        """ Show the details of a single keyvalue"""
+        response = self.client.get('/api/v1/host/hostrh/')
+        self.assertEquals(response.status_code, 200)
+        a = json.loads(response.content)
+        keyid = a['host']['keyvalues']['rhkey'][0]['id']
+        response = self.client.get('/api/v1/kval/%s/' % keyid)
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content)
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['keyvalue']['value'], 'val')
+        self.assertEquals(ans['keyvalue']['id'], keyid)
+        self.assertEquals(ans['keyvalue']['host']['hostname'], 'hostrh')
+
+
 # EOF

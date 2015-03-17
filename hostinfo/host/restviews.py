@@ -204,7 +204,8 @@ def KeyDetail(request, akeypk=None, akey=None):
 @require_http_methods(["GET"])
 def KValDetail(request, pk=None):
     keyid = get_object_or_404(KeyValue, id=pk)
-    return JsonResponse(KeyValueSerialize(keyid, request))
+    ans = {'result': 'ok', 'keyvalue': KeyValueSerialize(keyid, request)}
+    return JsonResponse(ans)
 
 
 ###############################################################################

@@ -8,8 +8,6 @@ kvalspec = r'((?P<keypk>[0-9]+?)|(?P<key>\S*?))'
 akeyspec = r'((?P<akeypk>[0-9]+?)|(?P<akey>\S*?))'
 linkspec = r'((?P<linkpk>[0-9]+?)|(?P<tagname>\S*?))'
 
-# /host/(hostname|pk)/key/(keyname|pk)[/value]
-
 urlpatterns = [
     url(r'', include([
         url(r'host/%s/alias/%s/?$' % (hostspec, aliasspec), restviews.HostAliasRest, name='hostaliasrest'),
@@ -26,3 +24,5 @@ urlpatterns = [
         ]
     ))
 ]
+
+# EOF
