@@ -3043,7 +3043,7 @@ class test_restHost(TestCase):
     def test_hostlist(self):
         response = self.client.get('/api/v1/host/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], '1 hosts')
         self.assertEquals(ans['hosts'][0]['hostname'], 'hostrh')
 
@@ -3051,10 +3051,10 @@ class test_restHost(TestCase):
     def test_host_byid(self):
         """ Getting a host by its id """
         response = self.client.get('/api/v1/host/hostrh/')
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         hostid = ans['host']['id']
         response = self.client.get('/api/v1/host/%d/' % hostid)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(response.status_code, 200)
         self.assertEquals(ans['host']['hostname'], 'hostrh')
 
@@ -3062,7 +3062,7 @@ class test_restHost(TestCase):
     def test_hostdetails(self):
         response = self.client.get('/api/v1/host/hostrh/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(ans['host']['keyvalues']['rhkey'][0]['value'], 'val')
 
@@ -3070,7 +3070,7 @@ class test_restHost(TestCase):
     def test_alias_details(self):
         response = self.client.get('/api/v1/host/rhalias/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(ans['host']['keyvalues']['rhkey'][0]['value'], 'val')
 
@@ -3083,7 +3083,7 @@ class test_restHost(TestCase):
     def test_query(self):
         response = self.client.get('/api/v1/query/rhkey=val/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], '1 matching hosts')
         self.assertEquals(ans['hosts'][0]['hostname'], 'hostrh')
 
@@ -3091,14 +3091,14 @@ class test_restHost(TestCase):
     def test_bad_query(self):
         response = self.client.get('/api/v1/query/badkey=val/')
         self.assertEquals(response.status_code, 406)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertIn('badkey', ans['error'])
 
     ###########################################################################
     def test_list_alias(self):
         response = self.client.get('/api/v1/host/hostrh/alias/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         al = [a['alias'] for a in ans['aliases']]
         self.assertEquals(sorted(al), ['rhalias', 'rhalias2'])
@@ -3107,7 +3107,7 @@ class test_restHost(TestCase):
     def test_get_alias(self):
         response = self.client.get('/api/v1/host/hostrh/alias/rhalias/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(ans['aliases'][0]['alias'], 'rhalias')
 
@@ -3115,7 +3115,7 @@ class test_restHost(TestCase):
     def test_set_alias(self):
         response = self.client.post('/api/v1/host/hostrh/alias/rhalias3/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'created')
         aliases = HostAlias.objects.filter(hostid=self.host, alias='rhalias3')
         self.assertEqual(len(aliases), 1)
@@ -3124,7 +3124,7 @@ class test_restHost(TestCase):
     def test_set_duplicate_alias(self):
         response = self.client.post('/api/v1/host/hostrh/alias/rhalias2/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'duplicate')
         aliases = HostAlias.objects.filter(hostid=self.host, alias='rhalias2')
         self.assertEqual(len(aliases), 1)
@@ -3133,7 +3133,7 @@ class test_restHost(TestCase):
     def test_delete_alias(self):
         response = self.client.delete('/api/v1/host/hostrh/alias/rhalias2/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'deleted')
         aliases = HostAlias.objects.filter(hostid=self.host, alias='rhalias2')
         self.assertEqual(len(aliases), 0)
@@ -3143,7 +3143,7 @@ class test_restHost(TestCase):
         """ Test the listing of keys through the REST interface """
         response = self.client.get('/api/v1/host/hostrh/key/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEqual(ans['keyvalues'][0]['value'], 'val')
         self.assertEqual(ans['keyvalues'][0]['key'], 'rhkey')
@@ -3153,7 +3153,7 @@ class test_restHost(TestCase):
         """ Test the getting of keys through the REST interface """
         response = self.client.get('/api/v1/host/hostrh/key/rhkey/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEqual(ans['keyvalues'][0]['value'], 'val')
         self.assertEqual(ans['keyvalues'][0]['key'], 'rhkey')
@@ -3163,7 +3163,7 @@ class test_restHost(TestCase):
         """ Test the setting of keys through the REST interface """
         response = self.client.post('/api/v1/host/hostrh/key/rhkey/baz')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'updated')
         self.assertEqual(ans['keyvalues'][0]['value'], 'baz')
         self.assertEqual(ans['keyvalues'][0]['key'], 'rhkey')
@@ -3172,7 +3172,7 @@ class test_restHost(TestCase):
     def test_delete_keyval(self):
         response = self.client.delete('/api/v1/host/hostrh/key/rhkey/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'deleted')
         kvs = KeyValue.objects.filter(hostid=self.host, keyid=self.kv)
         self.assertEqual(len(kvs), 0)
@@ -3183,7 +3183,7 @@ class test_restHost(TestCase):
         tmpkey.save()
         response = self.client.post('/api/v1/host/hostrh/key/tmprhkey/noob')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'created')
         kvs = KeyValue.objects.filter(hostid=self.host, keyid=tmpkey)
         self.assertEqual(kvs[0].value, 'noob')
@@ -3194,7 +3194,7 @@ class test_restHost(TestCase):
         """ Listing links of a host through the REST interface """
         response = self.client.get('/api/v1/host/hostrh/link/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEqual(ans['links'][0]['url'], 'http://localhost')
         self.assertEqual(ans['links'][0]['tag'], 'heur')
@@ -3204,7 +3204,7 @@ class test_restHost(TestCase):
         """ Getting links of a host through the REST interface """
         response = self.client.get('/api/v1/host/hostrh/link/heur/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEqual(ans['links'][0]['url'], 'http://localhost')
         self.assertEqual(ans['links'][0]['tag'], 'heur')
@@ -3212,22 +3212,20 @@ class test_restHost(TestCase):
     ###########################################################################
     def test_link_update(self):
         """ Updating of links of a host through the REST interface """
-        import urllib
-        link = urllib.quote('http://www.example.com')
+        link = 'http://www.example.com'
         response = self.client.post('/api/v1/host/hostrh/link/heur/%s' % link)
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'updated')
         self.assertEqual(ans['links'][0]['url'], 'http://www.example.com')
 
     ###########################################################################
     def test_link_set(self):
         """ Setting links of a host through the REST interface """
-        import urllib
-        link = urllib.quote('http://www.example.org')
+        link = 'http://www.example.org'
         response = self.client.post('/api/v1/host/hostrh/link/chain/%s' % link)
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'created')
         self.assertEqual(ans['links'][0]['url'], 'http://www.example.org')
 
@@ -3236,7 +3234,7 @@ class test_restHost(TestCase):
         """ Deleting links of a host through the REST interface """
         response = self.client.delete('/api/v1/host/hostrh/link/heur/')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'deleted')
         los = Links.objects.filter(hostid=self.host)
         self.assertEqual(len(los), 0)
@@ -3246,7 +3244,7 @@ class test_restHost(TestCase):
         """ Details of AllowedKeys through the REST interface """
         response = self.client.get('/api/v1/key/rhkey')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(ans['key']['key'], 'rhkey')
         self.assertEquals(ans['key']['desc'], 'testkey')
@@ -3256,10 +3254,10 @@ class test_restHost(TestCase):
         """ Details of AllowedKeys using key id through the REST interface """
         response = self.client.get('/api/v1/key/rhkey')
         self.assertEquals(response.status_code, 200)
-        a = json.loads(response.content)
+        a = json.loads(response.content.decode())
         keyid = a['key']['id']
         response = self.client.get('/api/v1/key/%d' % keyid)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(ans['key']['key'], 'rhkey')
         self.assertEquals(ans['key']['desc'], 'testkey')
@@ -3276,7 +3274,7 @@ class test_restHost(TestCase):
             avs[i].save()
         response = self.client.get('/api/v1/key/restr')
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertIn(ans['key']['permitted_values'][0]['value'], rvals)
         for i in avs:
             avs[i].delete()
@@ -3287,11 +3285,11 @@ class test_restHost(TestCase):
         """ Show the details of a single keyvalue"""
         response = self.client.get('/api/v1/host/hostrh/')
         self.assertEquals(response.status_code, 200)
-        a = json.loads(response.content)
+        a = json.loads(response.content.decode())
         keyid = a['host']['keyvalues']['rhkey'][0]['id']
         response = self.client.get('/api/v1/kval/%s/' % keyid)
         self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content)
+        ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(ans['keyvalue']['value'], 'val')
         self.assertEquals(ans['keyvalue']['id'], keyid)

@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core.urlresolvers import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
-import urllib
 
 
 ###############################################################################
@@ -100,9 +99,6 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
 def HostLinkRest(request, hostpk=None, hostname=None, linkpk=None, tagname=None, url=None):
     result = 'ok'
     hostid = getReferredHost(hostpk, hostname)
-
-    if url:
-        url = urllib.unquote(url)
 
     # Get the id of the Link
     los = None
