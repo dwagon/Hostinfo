@@ -7,6 +7,7 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^hostinfo/', include('host.urls')),
+    url(r'^api(/v1)?/', include('host.apiurls')),
     url(r'^report/', include('report.urls')),
     url(r'^hostinfo-admin/', include(admin.site.urls)),
 )
