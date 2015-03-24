@@ -3068,7 +3068,6 @@ class test_restHost(TestCase):
         self.alias2.save()
         self.link = Links(hostid=self.host, url='http://localhost', tag='heur')
         self.link.save()
-        getAkCache()
 
     ###########################################################################
     def tearDown(self):
