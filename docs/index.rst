@@ -6,11 +6,12 @@ Hostinfo Overview
 
 Hostinfo is a host catalog or configuration management database (CMDB) allowing storage of details about hosts and other managed elements in format that is easy to access by both humans and scripts.
 
-There are three main interfaces to hostinfo:
+There are four main interfaces to hostinfo:
 
     * :doc:`wikilinks` (read-only)
     * Shell command line - see below (read-write)
     * Web (read-write)
+    * :doc:`restful` (read-write)
 
 Starting Out
 ============
