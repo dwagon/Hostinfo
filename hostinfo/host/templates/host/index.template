@@ -43,18 +43,18 @@ function delItem(num) {
 }
 </script>
 
-<ul id="reportlist">
-<li> <a href="/report/">Reports</a>
-<li> <a href="/hostinfo/host">All elements</a> Return a list of all {{ numhosts }} elements known
+<ul id="reportlist" class="list-group>
+<li class="list-group-item"> <a href="{% url 'reportIndex' %}">Reports</a>
+<li class="list-group-item"> <a href="{% url 'hostlist' %}">All elements</a> Return a list of all {{ numhosts }} elements known
 </ul>
 <hr>
 {% if user.is_authenticated %}
 Edits:
 <ul id="Edits">
-<li> <a href="/hostinfo/hostmerge/">Merge Two Hosts</a>
-<li> <a href="/hostinfo/hostrename/">Rename a host</a>
-<li> <a href="/hostinfo/hostedit/">Edit a host</a>
-<li> <a href="/hostinfo/hostcreate/">Create a new host</a>
+<li> <a href="{% url 'hostMergeChoose' %}">Merge Two Hosts</a>
+<li> <a href="{% url 'hostRenameChoose' %}">Rename a host</a>
+<li> <a href="{% url 'hostEditChoose' %}">Edit a host</a>
+<li> <a href="{% url 'hostCreateChoose' %}">Create a new host</a>
 {% if import_avail %}
 <li> <a href="/hostinfo/import/">Import a spreadsheet</a>
 {% endif %}
@@ -63,7 +63,7 @@ Edits:
 {% endif %}
 
 Criteria Search:
-<form action="/hostinfo/handlePost/" method="POST">
+<form action="{% url 'formhandler' %}" method="POST">
 {% csrf_token %}
 <ul id="formlist">
 <li> <select id=key name=key0>
@@ -84,16 +84,16 @@ Criteria Search:
 <input id="plusbtn" type="button" onclick="addItem();" value="+">
 <input id="negbtn" type="button" onclick="delItem(0);" value="-">
 </ul>
-<input type="submit" value="search">
+<input type="submit" value="search" class="btn btn-primary">
 </form>
 </div>
 
 <hr>
 
 KeyList:
-<ul id="keylist">
+<ul class="list-group">
 {% for keytype in keys %}
-    <li> Show all values of <a class="keyname" href="/hostinfo/keylist/{{ keytype }}">{{keytype}}</a> - <span class="keydesc">{{keytype.desc}}</span>
+    <li class="list-group-item"> Show all values of <a class="keyname" href="{% url 'keylist' keytype %}">{{keytype}}</a> - <span class="keydesc">{{keytype.desc}}</span>
 {% endfor %}
 </ul>
 {% endblock %}

@@ -1,3 +1,6 @@
+Getting Started
+===============
+
 Once you have hostinfo installed and running then what do you do with it?
 
 You should have a think about the things that you want to be able
@@ -18,8 +21,7 @@ As most location information is inherently single valued (a server
 can't be in multiple locations at the same time) create the location
 keys as single valued.
 
-For example:
-
+For example::
     hostinfo_addkey rack single What rack the server is in
 
 One of the important things to remember when creating keys and
@@ -33,12 +35,12 @@ be less effort to get it right the first time.
 
 You can also use restricted value keys to make sure that people
 stick to the standard.  So if you have come up with a list of
-hardware types that you want to stick to:
+hardware types that you want to stick to::
 
     hostinfo_addkey --restricted hardware single What sort of hardware is it
 
 then for every hardware type that you know about:
-
+    
     hostinfo_addrestrictedvalue hardware=sun_v240
 
 Restricted value keys are about stopping inconsistencies through
@@ -50,20 +52,22 @@ Once you have a basic set of keys created - you can always create
 more as you need them - it is time to start adding hosts and data
 about those hosts. For hosts that have multiple names, I recommend
 that you use the 'uname -n' output without any domain information,
-and use aliases to add the other names.
+and use aliases to add the other names. ::
 
     hostinfo_addhost hostA
     hostinfo_addalias hostA webserv01
 
-Then add details that you know about that host
+Then add details that you know about that host::
 
     hostinfo_addvalue hardware=sun_v240 hostA
 
 Most of the details that come out of uname (for unix servers) should
 probably have keys associated with them. This also makes it easy
-to automate the population of hostinfo. Suggested keys:
+to automate the population of hostinfo. 
+
+Suggested keys:
 *  os - operating system (uname -s)
 *  osrev - revision of operating system (uname -r)
-*  arch - architecture of machines (uname -m) - useful if you have
-	  OS's that run on different architectures (e.g. solaris
-	  on sun4u/i86pc; linux on pretty much everything)
+*  arch - architecture of machines (uname -m) - useful if you have OS's that run on different architectures (e.g. solaris on sun4u/i86pc; linux on pretty much everything)
+
+See :doc:`ExampleKeys` for some hints about what sort of keys to create

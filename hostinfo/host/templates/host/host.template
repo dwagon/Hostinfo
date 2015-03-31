@@ -2,7 +2,9 @@
 {% block title %} Host {{ host.hostname }} details {% endblock %}
 {% block content %}
 <table>
+    <tr><td>
     {% include "host/showall.template" %}
+    </td></tr>
 </table>
 {% endblock %}
 {# EOF #}

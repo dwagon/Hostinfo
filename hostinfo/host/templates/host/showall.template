@@ -3,31 +3,52 @@
 
 {% load hostinfo_extras %}
 {% load local_escape %}
-<tr classid="showall_host"><th colspan=2><a class="hostname" href="/hostinfo/host/{{ host }}">{{ host }}</a></th>
-    <td>
-    {% if user.is_authenticated %}
-	[<a href="/hostinfo/hostedit/{{host}}">Edit {{host}}</a>]
-    {% endif %}
-    </td></tr>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <a class="hostname" href="/hostinfo/host/{{ host }}">{{ host }}</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'hostEdit' host %}" &nbsp; <span class="glyphicon glyphicon-edit"></span></a>
+            {% endif %}
+        </div>
+    </div>
     {% for key,vallist,safeval in kvlist %}
-	<tr><td>{{ hostlink|getnextelem|safe }}</td>
-	    <td class="showall_key" align='right' valign='top'><a class="keyname" href="/hostinfo/keylist/{{key}}">{{key}}</a> = </td>
-	    <td class="showall_value" align='left'>
-	    	{% for val in vallist %}
-		    <a class="valuelink" href="/hostinfo/hostlist/{{key}}.eq.{{val.value|local_escape}}">{{val.value}}</a> 
-		    {% if origin or dates %}
-			{% if origin %}
-			    (Origin: {{val.origin}})
-			{% endif %}
-			{% if dates %}
-			    (Modified: {{val.modifieddate}}, Created: {{val.createdate}})
-			{% endif %}
-			<br>
-		    {% endif %}
+        <div class="row">
+            <div class="col-md-1"> 
+                &nbsp;
+            </div>
 
-		{% endfor %}
-	    </td>
-	</tr>
+            <div class="col-md-1"> 
+                <a class="keyname" href="/hostinfo/keylist/{{key}}">{{key}}</a>
+            </div> 
+
+            <div class="col-md-9">
+                {% for val in vallist %}
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <a class="valuelink" href="/hostinfo/hostlist/{{key}}.eq.{{val.value|local_escape}}">{{val.value}}</a>
+                        </div>
+                        {% if origin or dates %}
+                            {% if origin %}
+                                <div class="col-sm-2">
+                                    Origin: {{val.origin}}
+                                </div>
+                            {% endif %}
+                            {% if dates %}
+                                <div class="col-sm-2">
+                                    Modified: {{val.modifieddate}} Created: {{val.createdate}}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div> 
+
+            <div class="col-md-1">
+                {{ hostlink|getnextelem|safe }}
+            </div>
+        </div> 
     {% endfor %}
+</div>
 
 {# EOF #}

@@ -16,7 +16,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import re
+import sys
 from host.models import addKeytoHost
 from host.models import RestrictedValueException
 from host.models import ReadonlyValueException, HostinfoException
@@ -43,6 +45,8 @@ class Command(HostinfoCommand):
             raise HostinfoException("Must be specified in key=value format")
         key = m.group('key').lower()
         value = m.group('value').lower()
+        if not namespace.origin:
+            namespace.origin = os.path.basename(sys.argv[0])
         for host in namespace.host:
             host = host.lower().strip()
             try:
@@ -58,10 +62,10 @@ class Command(HostinfoCommand):
                 raise ReadonlyValueException(
                     "Cannot add %s=%s to a readonly key" % (key, value),
                     retval=3)
-            except HostinfoException, err:
+            except HostinfoException as err:
                 raise
-            except TypeError, err:  # pragma: nocover
+            except TypeError as err:  # pragma: nocover
                 raise HostinfoException("Couldn't add value %s to %s - %s" % (value, host, err))
         return None, 0
 
-#EOF
+# EOF

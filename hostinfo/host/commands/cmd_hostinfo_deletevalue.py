@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-from host.models import checkKey, HostinfoException, KeyValue
+from host.models import HostinfoException, KeyValue, getAK
 from host.models import HostinfoCommand, getHost, ReadonlyValueException
 
 
@@ -46,7 +46,7 @@ class Command(HostinfoCommand):
         else:
             key = namespace.keyvalue.lower()
             value = ''
-        keyid = checkKey(key)
+        keyid = getAK(key)
         for host in namespace.host:
             hostid = getHost(host)
             if not hostid:

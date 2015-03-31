@@ -2,7 +2,7 @@
 {% if errorbig %} <h2 style="color:red"> {{errorbig}} </h2> {% endif %}
 {% if errorsmall %} <span style="color:red"> {{errorsmall}} </span> {% endif %}
 
-<form action="/hostinfo/hostedit/{{host}}/" method="POST">
+<form action="{% url 'hostEdit' host %}" method="POST">
 {% csrf_token %}
 <input type=hidden name=_hostediting value="{{host}}">
 <table>
@@ -42,7 +42,7 @@
 </select> </td>
 <td><input type=text name=_newvalue.new value=''></td></tr>
 </table>
-<input type="submit" value="Change">
+<input type="submit" value="Change" class="btn btn-primary">
 <input type="reset">
 </form>
 {# EOF #}

@@ -19,7 +19,7 @@ import sys
 import time
 
 from host.models import AllowedKey, KeyValue, parseQualifiers
-from host.models import getMatches, getAkCache, Host
+from host.models import getMatches, getAK, Host, getHost
 from host.models import getAliases, RestrictedValue
 from host.models import HostinfoCommand, HostinfoException
 
@@ -66,6 +66,8 @@ class Command(HostinfoCommand):
         parser.add_argument(
             '--valuereport', help="Print out frequencies of values", nargs=1)
         parser.add_argument(
+            '--host', help="For this specific host", nargs=1)
+        parser.add_argument(
             '--csv', help="Print data in CSV format", action='store_true')
         parser.add_argument(
             '--xml', help="Print data in XML format", action='store_true')
@@ -91,13 +93,19 @@ class Command(HostinfoCommand):
         global _akcache, _hostcache
         self.namespace = namespace
         self.printout = namespace.printout
-        _akcache = getAkCache()
         _hostcache = self.getHostCache()
-        try:
-            qualifiers = parseQualifiers(namespace.criteria)
-        except TypeError, err:  # pragma: no cover
-            raise HostinfoException(err)
-        matches = getMatches(qualifiers)
+        if namespace.host:
+            host = getHost(namespace.host[0])
+            if host:
+                matches = [host.id]
+            else:
+                matches = []
+        else:
+            try:
+                qualifiers = parseQualifiers(namespace.criteria)
+            except TypeError as err:  # pragma: no cover
+                raise HostinfoException(err)
+            matches = getMatches(qualifiers)
         output = self.Display(matches)
         if matches:
             retval = 0
@@ -132,6 +140,7 @@ class Command(HostinfoCommand):
         outstr = ""
         values = {}
         hostids = set()   # hostids that match the criteria
+        getAK(self.namespace.valuereport[0])
         total = len(matches)
         if total == 0:
             return ""
@@ -167,8 +176,8 @@ class Command(HostinfoCommand):
         """
         revcache = {}
         outstr = ""
-        for kn, kv in _akcache.items():
-            revcache[kv.id] = kn
+        for aks in AllowedKey.objects.all():
+            revcache[aks.id] = aks.key
 
         for host in matches:
             output = []
@@ -238,14 +247,15 @@ class Command(HostinfoCommand):
         outstr += "<hostinfo>\n"
         outstr += '  <query date="%s">%s</query>\n' % (time.ctime(), escape(" ".join(sys.argv)))
         for key in columns:
+            k = getAK(key)
             outstr += "  <key>\n"
             outstr += "    <name>%s</name>\n" % escape(key)
-            outstr += "    <type>%s</type>\n" % _akcache[key].get_validtype_display()
-            outstr += "    <readonlyFlag>%s</readonlyFlag>\n" % _akcache[key].readonlyFlag
-            outstr += "    <auditFlag>%s</auditFlag>\n" % _akcache[key].auditFlag
-            outstr += "    <docpage>%s</docpage>\n" % _akcache[key].docpage
-            outstr += "    <desc>%s</desc>\n" % _akcache[key].desc
-            if _akcache[key].restrictedFlag:
+            outstr += "    <type>%s</type>\n" % k.get_validtype_display()
+            outstr += "    <readonlyFlag>%s</readonlyFlag>\n" % k.readonlyFlag
+            outstr += "    <auditFlag>%s</auditFlag>\n" % k.auditFlag
+            outstr += "    <docpage>%s</docpage>\n" % k.docpage
+            outstr += "    <desc>%s</desc>\n" % k.desc
+            if k.restrictedFlag:
                 outstr += "    <restricted>\n"
                 rvlist = RestrictedValue.objects.filter(keyid__key=key)
                 for rv in rvlist:
@@ -322,10 +332,9 @@ class Command(HostinfoCommand):
         # Load all the information that we have been requested into a cache
         cache = {}
         for p in columns:
+            getAK(p)
             cache[p] = {}
-            if p not in _akcache:
-                raise HostinfoException("No key called %s" % p)
-            allv = KeyValue.objects.filter(keyid=_akcache[p].id).values()
+            allv = KeyValue.objects.filter(keyid=getAK(p).id).values()
             for val in allv:
                 hostid = val['hostid_id']
                 if matches and hostid not in matches:
@@ -371,4 +380,4 @@ class Command(HostinfoCommand):
             outstr = '%s%s' % (outstr[:-1], '\n')
         return outstr
 
-#EOF
+# EOF

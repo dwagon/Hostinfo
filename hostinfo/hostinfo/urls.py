@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.contrib.auth.views import login, logout
 
 from django.contrib import admin
 admin.autodiscover()
@@ -6,14 +7,15 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^hostinfo/', include('host.urls')),
+    url(r'^api(/v1)?/', include('host.apiurls')),
     url(r'^report/', include('report.urls')),
     url(r'^hostinfo-admin/', include(admin.site.urls)),
 )
 
 urlpatterns += patterns(
     '',
-    (r'^accounts/login/', 'django.contrib.auth.views.login'),
-    (r'^accounts/logout/', 'django.contrib.auth.views.logout', {'next_page': '/hostinfo/'}),
+    url(r'^accounts/login/', login, {'template_name': 'registration/login.html'}, name='login'),
+    url(r'^accounts/logout/', logout, {'next_page': '/hostinfo/'}, name='logoff'),
 )
 
-#EOF
+# EOF

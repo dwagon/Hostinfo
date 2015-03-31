@@ -8,10 +8,10 @@
     	{% include "host/hostmerging.template" %}
     {% else %}
 	Merge two hosts into one - all attributes from the source host are copied across to the destination host, except where these would clash with values already present.
-	<form action="/hostinfo/hostmerge/" method="POST">
+	<form action="{% url 'hostMergeChoose' %}" method="POST">
         {% csrf_token %}
 	    {{form.as_p}}
-	    <input type="submit" value="Merge">
+	    <input type="submit" value="Merge" class="btn btn-primary">
 	</form>
     {% endif %}
 {% endif %}
