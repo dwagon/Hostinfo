@@ -127,7 +127,7 @@ class Host(models.Model):
         super(Host, self).delete()
 
     ############################################################################
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return "%s" % self.hostname
 
     ############################################################################
@@ -155,7 +155,7 @@ class HostAlias(models.Model):
     history = HistoricalRecords()
 
     ############################################################################
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return "%s -> %s" % (self.alias, self.hostid.hostname)
 
     ############################################################################
@@ -182,7 +182,7 @@ class AllowedKey(models.Model):
     history = HistoricalRecords()
 
     ############################################################################
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return "%s" % self.key
 
     ############################################################################
@@ -248,7 +248,7 @@ class KeyValue(models.Model):
         super(KeyValue, self).delete()
 
     ############################################################################
-    def __str__(self):
+    def __str__(self):      # pragma: no cover
         return "%s=%s" % (self.keyid.key, self.value)
 
     ############################################################################
@@ -292,7 +292,7 @@ class RestrictedValue(models.Model):
     history = HistoricalRecords()
 
     ############################################################################
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return "%s %s" % (self.keyid.key, self.value)
 
     ############################################################################
