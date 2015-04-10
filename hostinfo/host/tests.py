@@ -37,15 +37,7 @@ from .models import getHost, checkHost, getAK
 from .models import addKeytoHost, run_from_cmdline
 
 from .views import getHostMergeKeyData, hostviewrepr
-# from .views import mergeKey, doHostMerging
-# from .views import doHostMergeChoose, doHostMerge, doHostRenameChoose, doHostRename
-# from .views import doHostCreateChoose, doHostCreate, doHostEditChoose, doHostEdit
-# from .views import handlePost, doHostEditChanges, getLinks, getWebLinks, getWikiLinks
-# from .views import getHostDetails, doHostSummary, doHost, doHostDataFormat, doHostlist
-# from .views import doHostcmp, orderHostList, doHostwikiTable, doHostwiki, doCsvreport
 from .views import orderHostList
-# from .views import getHostList, csvDump, index
-# from .views import doRestrValList, doKeylist
 
 
 ###############################################################################
@@ -2521,10 +2513,10 @@ class test_url_rvlist(TestCase):
 
     ###########################################################################
     def test_rvlist_wiki(self):
-        response = self.client.get('/hostinfo/rvlist/rvlkey/wiki')
+        response = self.client.get('/mediawiki/rvlist/rvlkey/')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['restrval.wiki'])
+        self.assertEquals([t.name for t in response.templates], ['mediawiki/restrval.wiki'])
         self.assertEquals(response.context['key'], 'rvlkey')
         self.assertEquals(len(response.context['rvlist']), 3)
         self.assertTrue(self.rv1 in response.context['rvlist'])
@@ -2534,7 +2526,6 @@ class test_url_rvlist(TestCase):
 
 ###############################################################################
 class test_url_host_summary(TestCase):
-    # (r'^host_summary/(?P<hostname>.*)/(?P<format>\S+)$', 'doHostSummary'),
     # (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
     ###########################################################################
     def setUp(self):
@@ -2578,10 +2569,10 @@ class test_url_host_summary(TestCase):
 
     ###########################################################################
     def test_rvlist_wiki(self):
-        response = self.client.get('/hostinfo/host_summary/hosths/wiki')
+        response = self.client.get('/mediawiki/host_summary/hosths')
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
-        self.assertEquals([t.name for t in response.templates], ['hostpage.wiki'])
+        self.assertEquals([t.name for t in response.templates], ['mediawiki/hostpage.wiki'])
         self.assertEquals(response.context['host'], 'hosths')
         self.assertEquals(response.context['hostlink'], ['[http://code.google.com/p/hostinfo hslink]'])
         self.assertEquals(response.context['kvlist'], [('hskey', [self.kv1, self.kv2])])
@@ -2910,14 +2901,14 @@ class test_url_hostwikitable(TestCase):
 
     ###########################################################################
     def test_wikitable(self):
-        response = self.client.get('/hostinfo/hostwikitable/hwtkey.ne.val')
+        response = self.client.get('/mediawiki/hosttable/hwtkey.ne.val')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response["Content-Type"], "text/html; charset=utf-8")
         self.assertEquals(response.content, b"{| border=1\n|-\n!Hostname\n|-\n| [[Host:hosthwt1|hosthwt1]]\n|}\n")
 
     ###########################################################################
     def test_wikitable_print(self):
-        response = self.client.get('/hostinfo/hostwikitable/hwtkey.def/print=hwtkey/order=hwtkey')
+        response = self.client.get('/mediawiki/hosttable/hwtkey.def/print=hwtkey/order=hwtkey')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response["Content-Type"], "text/html; charset=utf-8")
         self.assertEquals(response.content, b"{| border=1\n|-\n!Hostname\n!Hwtkey\n|-\n| [[Host:hosthwt2|hosthwt2]]\n| val\n|}\n")

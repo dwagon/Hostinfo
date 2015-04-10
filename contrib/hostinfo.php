@@ -77,7 +77,7 @@ function crit_format($crit)
  */
 function render_hostinfo ( $input , $argv, &$parser )
 {
-    $urlbase = "http://localhost:8000";
+    $urlbase = "http://hostinfo";
 
     if ( ! isset($argv['type']))
         return "ERROR: <hostinfo> tag is missing 'type' attribute.";
@@ -99,7 +99,7 @@ function render_hostinfo ( $input , $argv, &$parser )
 		    $criteria.="/".crit_format($nline);
 		}
 	    }
-	$url="/hostinfo/hostwikitable".$criteria;
+	$url="/mediawiki/hostable".$criteria;
 	if ($printable!="") {
 	    $printable=substr($printable,1);	# Trim first comma
 	    $url.="/print=".$printable;
@@ -114,7 +114,7 @@ function render_hostinfo ( $input , $argv, &$parser )
 	    $key=$argv['key'];
 	else
 	    $key=trim($input);
-	$url="/hostinfo/rvlist/".$key."/wiki";
+	$url="/mediawiki/rvlist/".$key;
     	}
     # List of hosts
     elseif ($argv['type']=="hostlist") {
@@ -124,7 +124,7 @@ function render_hostinfo ( $input , $argv, &$parser )
 	    if ($nline)
 		$criteria.="/".crit_format($nline);
 	    }
-	$url="/hostinfo/hostwiki".$criteria;
+	$url="/mediawiki/hostlist".$criteria;
     	}
     # Host page
     elseif ($argv['type']=="hostpage") {
@@ -132,14 +132,14 @@ function render_hostinfo ( $input , $argv, &$parser )
 	    $hostname=$argv['name'];
 	else
 	    $hostname=trim($input);
-	$url="/hostinfo/host_summary/".$hostname."/wiki";
+	$url="/mediawiki/host_summary/".$hostname;
     	}
     elseif ($argv['type']=="showall") {
     	if ( isset($argv['name']))
 	    $hostname=$argv['name'];
 	else
 	    $hostname=trim($input);
-	$url="/hostinfo/host/".$hostname."/wiki";
+	$url="/mediawiki/host/".$hostname;
 	}
     # Unrealised future expansion
     else

@@ -393,15 +393,7 @@ def getWebLinks(hostid=None, hostname=None):
 
 
 ################################################################################
-def getWikiLinks(hostid=None, hostname=None):
-    wikilinks = []
-    for url, tag in getLinks(hostid, hostname):
-        wikilinks.append('[%s %s]' % (url, tag))
-    return wikilinks
-
-
-################################################################################
-def getHostDetails(request, hostname, format):
+def getHostDetails(request, hostname, linker):
     starttime = time.time()
     host = getHost(hostname)
     if not host:
@@ -416,31 +408,22 @@ def getHostDetails(request, hostname, format):
         'user': request.user,
         'aliases': getAliases(hostname)
         }
-    if format == 'web':
-        d['hostlink'] = getWebLinks(hostid=host.id)
-    elif format == 'wiki':
-        d['hostlink'] = getWikiLinks(hostid=host.id)
+    d['hostlink'] = linker(hostid=host.id)
     return d
 
 
 ################################################################################
-def doHostSummary(request, hostname, format='web'):
+def doHostSummary(request, hostname):
     """ Display a single host """
-    d = getHostDetails(request, hostname, format)
-    if format == 'web':
-        return render(request, 'host/hostpage.template', d)
-    elif format == 'wiki':
-        return render(request, 'hostpage.wiki', d)
+    d = getHostDetails(request, hostname, getWebLinks)
+    return render(request, 'host/hostpage.template', d)
 
 
 ################################################################################
-def doHost(request, hostname, format='web'):
+def doHost(request, hostname):
     """ Display a single host """
-    d = getHostDetails(request, hostname, format)
-    if format == 'web':
-        return render(request, 'host/host.template', d)
-    elif format == 'wiki':
-        return render(request, 'host.wiki', d)
+    d = getHostDetails(request, hostname, getWebLinks)
+    return render(request, 'host/host.template', d)
 
 
 ################################################################################
@@ -524,62 +507,6 @@ def orderHostList(hostlist, order):
 
 
 ################################################################################
-def doHostwikiTable(request, criturl, options=None):
-    """ Generate a table in wiki format - we can't (well, I can't)
-    template this as the contents of the formatting are specified
-    in the url
-
-    options=/print=a,b,c/order=d
-    """
-    criteria = criteriaFromWeb(criturl)
-    printers = []
-    order = None
-    if options:
-        optlist = options[1:].split('/')
-        for opt in optlist:
-            if opt.startswith('print='):
-                printers = opt.replace('print=', '').split(',')
-            if opt.startswith('order='):
-                order = opt.replace('order=', '')
-
-    output = "{| border=1\n"
-    output += "|-\n"
-
-    hl = getHostList(criteria)
-    if order:
-        hl = orderHostList(hl, order)
-    else:
-        hl.sort()     # Sort by hostname
-    output += "!Hostname\n"
-    for p in printers:
-        output += "!%s\n" % p.title()
-    for host in hl:
-        output += "|-\n"
-    output += "| [[Host:%s|%s]]\n" % (host.hostname, host.hostname)
-    for p in printers:
-        kv = KeyValue.objects.filter(keyid__key=p, hostid=host.id)
-        if len(kv) == 0:
-            val = ""
-        elif len(kv) == 1:
-            val = kv[0].value
-        else:
-            val = ",".join([key.value for key in kv])
-        output += "| %s\n" % val
-    output += "|}\n"
-    return HttpResponse(output)
-
-
-################################################################################
-def doHostwiki(request, criturl):
-    """ Display a list of matching hosts with their details"""
-    criteria = criteriaFromWeb(criturl)
-    try:
-        return render(request, 'hostlist.wiki', doHostDataFormat(request, criteria))
-    except HostinfoException as err:
-        return render(request, 'hostlist.wiki', {'error': err})
-
-
-################################################################################
 def doCsvreport(request, criturl=''):
     criteria = criteriaFromWeb(criturl)
     hl = getHostList(criteria)
@@ -658,15 +585,13 @@ def index(request):
 
 
 ################################################################################
-def doRestrValList(request, key, mode=None):
+def doRestrValList(request, key):
     """ Return the list of restricted values for the key"""
     rvlist = RestrictedValue.objects.filter(keyid__key=key)
     d = {
         'key': key,
         'rvlist': rvlist
     }
-    if mode == 'wiki':
-        return render(request, 'restrval.wiki', d)
     return render(request, 'host/restrval.template', d)
 
 
