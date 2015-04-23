@@ -45,7 +45,7 @@ def displaySummary(request, hostname):
 ################################################################################
 def displayHost(request, hostname):
     """ Display a single host """
-    d = getHostDetails(request, hostname)
+    d = getHostDetails(request, hostname, getWikiLinks)
     return render(request, 'mediawiki/host.wiki', d)
 
 

@@ -1,0 +1,25 @@
+{% extends "confluence/base.html" %}
+{% load hostinfo_extras %}
+{% block content %}
+<div class="container">
+    <table class="table table-striped">
+    <tr>
+        <td colspan="3"> {{ host }} </td>
+    </tr>
+    {% for key,vallist,safeval in kvlist %}
+        <tr>
+            <td> &nbsp; </td>
+            <td> {{key}} </td> 
+            <td>
+                <table>
+                    {% for val in vallist %}
+                        <tr>
+                            <td> {{val.value}} </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </td> 
+        </tr> 
+    {% endfor %}
+</table>
+{% endblock %}

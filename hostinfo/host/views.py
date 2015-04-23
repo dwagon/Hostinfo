@@ -596,13 +596,7 @@ def doRestrValList(request, key):
 
 
 ################################################################################
-def doKeylist(request, key):
-    """ Return all values for the specified key
-    Need to count the number of different hosts, not different values to work out
-    percentages otherwise you get wierd values for list keys.
-    Also do other key funkiness
-    """
-    starttime = time.time()
+def calcKeylistVals(key):
     kvlist = KeyValue.objects.filter(keyid__key=key).values_list('hostid', 'value')
 
     # Calculate the number of times each value occurs
@@ -623,19 +617,30 @@ def doKeylist(request, key):
     tmpvalues.sort()
     total = Host.objects.count()
     numundef = total-len(hostids)
-    elapsed = time.time()-starttime
     d = {
         'key': key,
         'keylist': tmpvalues,
         'numkeys': len(tmpvalues),
-        'elapsed': "%0.4f" % elapsed,
         'numdef': len(hostids),
         'pctdef': 100.0*len(hostids)/total,
         'numundef': numundef,
         'pctundef': 100.0*numundef/total,
         'total': total,
-        'user': request.user,
     }
+    return d
+
+
+################################################################################
+def doKeylist(request, key):
+    """ Return all values for the specified key
+    Need to count the number of different hosts, not different values to work out
+    percentages otherwise you get wierd values for list keys.
+    Also do other key funkiness
+    """
+    starttime = time.time()
+    d = calcKeylistVals(key)
+    d['elapsed'] = "%0.4f" % (time.time() - starttime)
+    d['user'] = request.user
     return render(request, 'host/keylist.template', d)
 
 # EOF

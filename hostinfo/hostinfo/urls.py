@@ -7,8 +7,9 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^hostinfo/', include('host.urls')),
-    url(r'^mediawiki/', include('host.mediawikiurls')),
-    url(r'^api(/v1)?/', include('host.apiurls')),
+    url(r'^mediawiki/', include('host.mediawiki_urls')),
+    url(r'^confluence/', include('host.confluence_urls')),
+    url(r'^api(/v1)?/', include('host.api_urls')),
     url(r'^report/', include('report.urls')),
     url(r'^hostinfo-admin/', include(admin.site.urls)),
 )

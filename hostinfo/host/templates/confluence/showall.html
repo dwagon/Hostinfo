@@ -1,0 +1,32 @@
+{# Displays the full details of a host #}
+{# Must have host - being a hostname; and kvlist, being [('keyA':[val, val]), ('keyB':[val, val])] and a hostlink being a list of links, possibly empty #}
+
+{% load hostinfo_extras %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12"> {{ host }} </div>
+    </div>
+    {% for key,vallist,safeval in kvlist %}
+        <div class="row">
+            <div class="col-md-1"> 
+                &nbsp;
+            </div>
+
+            <div class="col-md-1"> {{key}} </div> 
+
+            <div class="col-md-9">
+                {% for val in vallist %}
+                    <div class="row">
+                        <div class="col-sm-8"> {{val.value}} </div>
+                    </div>
+                {% endfor %}
+            </div> 
+
+            <div class="col-md-1">
+                {{ hostlink|getnextelem|safe }}
+            </div>
+        </div> 
+    {% endfor %}
+</div>
+
+{# EOF #}

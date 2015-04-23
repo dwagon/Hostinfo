@@ -1,0 +1,39 @@
+{% extends "confluence/base.html" %}
+{% block content %}
+{% load local_escape %}
+<div class="container">
+<table class="table table-striped">
+<tr>
+    <td colspan="2">
+        {{ key }} &nbsp; ({{ numkeys }} different values)
+    </td>
+</tr>
+<tr>
+    <td>
+        {{key.title}} set
+    </td>
+    <td>
+        ({{ numdef }} instance{{numdef|pluralize}} - {{pctdef|floatformat:1}}%)
+    </td>
+</tr>
+<tr>
+    <td>
+        No {{key}} set
+    </td>
+    <td>
+        ({{ numundef }} instance{{numdef|pluralize}} - {{pctundef|floatformat:1}}%)
+    </td>
+</tr>
+{% for kv in keylist %}
+<tr>
+    <td>
+        {{ kv.0 }}
+    </td>
+    <td>
+        ({{ kv.1 }} instance{{kv.1|pluralize}} {{kv.2|floatformat:1}}%)
+    </td>
+{% endfor %}
+</tr>
+</div>
+{% endblock %}
+<!-- EOF -->

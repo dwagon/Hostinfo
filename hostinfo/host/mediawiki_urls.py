@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns, url
-from .mediawikiviews import (
+from .mediawiki_views import (
     hosttable, hostlist, displayHost, displaySummary, doRestrValList
     )
 
 urlpatterns = patterns(
-    'host.mediawikiviews',
+    'host.mediawiki_views',
     url(r'^hosttable/(?P<criturl>.*?)(?P<options>/(?:order=|print=).*)?$', hosttable),
     url(r'^hostlist/(?P<criturl>.*)/$', hostlist),
     url(r'^host/(?P<hostname>\S+)$', displayHost),

@@ -1,0 +1,25 @@
+{% extends "confluence/base.html" %}
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+{% if error %}
+<h2 style="color:red"> {{error}} </h2> 
+{% endif %}
+
+<table class="table table-striped">
+{% for host,kvlist,hostlink in hostlist %}
+    <tr>
+    <td>{{ host }}</td>
+    <td align="left">
+    {% if hostlink %}
+        {% for link in hostlink %}
+            {{link|safe}}
+        {% endfor %}
+    {%endif%}
+    </td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}
+{# EOF #}
