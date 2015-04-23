@@ -17,29 +17,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
-from .models import KeyValue
-from .models import RestrictedValue, HostinfoException
+from .models import HostinfoException
 
-from .views import getHostDetails, criteriaFromWeb, getHostList
-from .views import orderHostList, doHostDataFormat, getLinks, calcKeylistVals
+from .views import getHostDetails, criteriaFromWeb
+from .views import doHostDataFormat, calcKeylistVals
 
 
 ################################################################################
 def getConfLinks(hostid=None, hostname=None):
-    conflinks = []
-    for url, tag in getLinks(hostid, hostname):
-        conflinks.append('[%s %s]' % (url, tag))
-    return conflinks
-
-
-################################################################################
-def displaySummary(request, hostname):
-    """ Display a single host """
-    d = getHostDetails(request, hostname, getConfLinks)
-    return render(request, 'confluence/hostpage.html', d)
+    return []
 
 
 ################################################################################
@@ -56,7 +44,7 @@ def doHostList(request, criturl):
     d = doHostDataFormat(request, criteria)
     try:
         return render(request, 'confluence/hostlist.html', d)
-    except HostinfoException as err:
+    except HostinfoException as err:    # pragma: no cover
         return render(request, 'confluence/hostlist.html', {'error': err})
 
 
@@ -67,31 +55,12 @@ def doKeylist(request, key):
 
 
 ################################################################################
-def doRestrValList(request, key):
-    """ Return the list of restricted values for the key"""
-    rvlist = RestrictedValue.objects.filter(keyid__key=key)
-    d = {
-        'key': key,
-        'rvlist': rvlist
-    }
-    return render(request, 'confluence/restrval.html', d)
-
-
-################################################################################
 def doHostcmp(request, criturl='', options=''):
     """ Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)
-    if request.method == 'POST' and 'options' in request.POST:
-        options = 'opts='
-        if 'dates' in request.POST.getlist('options'):
-            options += 'dates,'
-        if 'origin' in request.POST.getlist('options'):
-            options += 'origin,'
-        return HttpResponseRedirect('/confluence/hostcmp/%s/%s' % (criturl, options[:-1]))
     try:
         return render(request, 'confluence/multihost.html', doHostDataFormat(request, criteria, options))
-    except HostinfoException as err:
+    except HostinfoException as err:    # pragma: no cover
         return render(request, 'confluence/multihost.html', {'error': err})
-
 
 # EOF
