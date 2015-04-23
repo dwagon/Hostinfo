@@ -3383,4 +3383,16 @@ class test_confluence(TestCase):
             sorted(['confluence/base.html', 'confluence/showall.html', 'confluence/multihost.html'])
             )
 
+
+###############################################################################
+class test_version(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_get_version(self):
+        response = self.client.get('/_version')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertTrue(len(ans['version']) > 1)
+
 # EOF
