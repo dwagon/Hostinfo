@@ -2,6 +2,9 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import login, logout
 
 from django.contrib import admin
+
+from .views import version
+
 admin.autodiscover()
 
 urlpatterns = patterns(
@@ -9,6 +12,7 @@ urlpatterns = patterns(
     url(r'^hostinfo/', include('host.urls')),
     url(r'^mediawiki/', include('host.mediawiki_urls')),
     url(r'^confluence/', include('host.confluence_urls')),
+    url(r'^_version', version),
     url(r'^api(/v1)?/', include('host.api_urls')),
     url(r'^report/', include('report.urls')),
     url(r'^hostinfo-admin/', include(admin.site.urls)),
