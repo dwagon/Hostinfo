@@ -3327,7 +3327,7 @@ class test_restHost(TestCase):
 
 
 ###############################################################################
-class test_confluence(TestCase):
+class test_bare(TestCase):
     def setUp(self):
         self.client = Client()
         self.host = Host(hostname='hostcn')
@@ -3345,42 +3345,42 @@ class test_confluence(TestCase):
 
     ###########################################################################
     def test_hostlist(self):
-        """ Show in Confluence the hosts that match a criteria """
-        response = self.client.get('/confluence/hostlist/cnkey.defined/')
+        """ Show in bare the hosts that match a criteria """
+        response = self.client.get('/bare/hostlist/cnkey.defined/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(
             [t.name for t in response.templates],
-            ['confluence/hostlist.html', 'confluence/base.html']
+            ['bare/hostlist.html', 'bare/base.html']
             )
 
     ###########################################################################
     def test_host(self):
         """ Show a specific host"""
-        response = self.client.get('/confluence/host/hostcn')
+        response = self.client.get('/bare/host/hostcn')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(
             [t.name for t in response.templates],
-            ['confluence/host.html', 'confluence/base.html']
+            ['bare/host.html', 'bare/base.html']
             )
 
     ###########################################################################
     def test_keylist(self):
-        """ Show in Confluence details about a key"""
-        response = self.client.get('/confluence/keylist/cnkey/')
+        """ Show in bare details about a key"""
+        response = self.client.get('/bare/keylist/cnkey/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(
             [t.name for t in response.templates],
-            ['confluence/keylist.html', 'confluence/base.html']
+            ['bare/keylist.html', 'bare/base.html']
             )
 
     ###########################################################################
     def test_hostcmp(self):
-        """ Show in Confluence details about all hosts that match a criteria """
-        response = self.client.get('/confluence/hostcmp/cnkey.defin/')
+        """ Show in bare details about all hosts that match a criteria """
+        response = self.client.get('/bare/hostcmp/cnkey.defin/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(
             sorted([str(t.name) for t in response.templates]),
-            sorted(['confluence/base.html', 'confluence/showall.html', 'confluence/multihost.html'])
+            sorted(['bare/base.html', 'bare/showall.html', 'bare/multihost.html'])
             )
 
 

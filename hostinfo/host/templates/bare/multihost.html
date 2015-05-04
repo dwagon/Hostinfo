@@ -1,11 +1,11 @@
-{% extends "confluence/base.html" %}
+{% extends "bare/base.html" %}
 {% load local_escape %}
 {% block content %}
 {% if error %}<h2 style="color:red"> {{error}} </h2>{% endif %}
 <table class="table table-condensed">
 {% for host,kvlist,hostlink in hostlist %}
     <tr><td>
-    {% include "confluence/showall.html" %}
+    {% include "bare/showall.html" %}
     </td></tr>
 {% endfor %}
 </table>

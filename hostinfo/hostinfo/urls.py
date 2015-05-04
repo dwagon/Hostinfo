@@ -11,7 +11,7 @@ urlpatterns = patterns(
     '',
     url(r'^hostinfo/', include('host.urls')),
     url(r'^mediawiki/', include('host.mediawiki_urls')),
-    url(r'^confluence/', include('host.confluence_urls')),
+    url(r'^bare/', include('host.bare_urls')),
     url(r'^_version', version),
     url(r'^api(/v1)?/', include('host.api_urls')),
     url(r'^report/', include('report.urls')),
