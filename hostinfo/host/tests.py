@@ -36,8 +36,9 @@ from .models import parseQualifiers, getMatches
 from .models import getHost, checkHost, getAK
 from .models import addKeytoHost, run_from_cmdline
 
-from .views import getHostMergeKeyData, hostviewrepr
+from .views import hostviewrepr
 from .views import orderHostList
+from .edits import getHostMergeKeyData
 
 
 ###############################################################################

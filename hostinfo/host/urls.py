@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns, url
-from .views import (
-    index, doHostlist, doHostMerge, doHostMergeChoose, doHost, doKeylist,
-    doHostRenameChoose, doHostEditChoose, doHostCreateChoose, doHostEdit,
-    handlePost, doHostCreate, doHostRename
+from .views import index, doHostlist, doHost, doKeylist, handlePost
+from .edits import (
+    doHostMerge, doHostMergeChoose, doHostRenameChoose, doHostEditChoose,
+    doHostCreateChoose, doHostEdit, doHostCreate, doHostRename
     )
+
 
 urlpatterns = patterns(
     'host.views',
