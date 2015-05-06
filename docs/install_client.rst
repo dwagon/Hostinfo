@@ -1,10 +1,12 @@
 Installation of a Client
 ========================
 
-If you already have a hostinfo installed and you need to create another client follow these instructions:
+If you already have a hostinfo installed and you need to create another client follow these instructions ::
 
     apt-get install postgresql 
+    apt-get install postgresql-server-dev-all
     apt-get install python-virtualenv
+    apt-get install python-dev
 
 Make the hostinfo user and installation directory ::
 
@@ -12,12 +14,7 @@ Make the hostinfo user and installation directory ::
     useradd hostinfo -d /opt/hostinfo
     chown hostinfo:hostinfo /opt/hostinfo
 
-Get the code - either from the tarball or from git ::
-
-    cd /opt/hostinfo
-    tar xzvf hostinfo-*.tar.gz
-
-or::
+Get the code from git ::
 
     cd /opt/hostinfo
     git clone https://github.com/dwagon/Hostinfo.git

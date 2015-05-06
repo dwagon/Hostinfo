@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 
-from .restviews import HostAliasRest, HostKeyRest, HostLinkRest, HostDetail
-from .restviews import HostQuery, HostList, KeyDetail, KValDetail
+from .rest_views import HostAliasRest, HostKeyRest, HostLinkRest, HostDetail
+from .rest_views import HostQuery, HostList, KeyDetail, KValDetail
 
 hostspec = r'((?P<hostpk>[0-9]+?)|(?P<hostname>\S+?))'
 aliasspec = r'((?P<aliaspk>[0-9]+?)|(?P<alias>\S*?))'

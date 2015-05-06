@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns, url
-from .views import (
-    index, doHostlist, doHostMerge, doHostMergeChoose, doHost, doKeylist,
-    doHostRenameChoose, doHostEditChoose, doHostCreateChoose, doHostEdit,
-    handlePost, doHostCreate, doHostRename
+from .views import index, doHostlist, doHost, doKeylist, handlePost
+from .edits import (
+    doHostMerge, doHostMergeChoose, doHostRenameChoose, doHostEditChoose,
+    doHostCreateChoose, doHostEdit, doHostCreate, doHostRename
     )
+
 
 urlpatterns = patterns(
     'host.views',
@@ -45,18 +46,13 @@ urlpatterns = patterns(
     url(r'^hostlist/$', doHostlist, name='hostlist'),
     (r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?$', 'doHostcmp'),
     (r'^hostcmp/$', 'doHostcmp'),
-    (r'^hostwikitable/(?P<criturl>.*?)(?P<options>/(?:order=|print=).*)?$', 'doHostwikiTable'),
-    (r'^hostwiki/(?P<criturl>.*)/$', 'doHostwiki'),
     url(r'^host/(?P<hostname>\S+)/$', doHost, name='host'),
     url(r'^host/$', doHostlist),
-    (r'^host/(?P<hostname>\S+)/wiki$', 'doHost', {'format': 'wiki'}),
-    (r'^host_summary/(?P<hostname>.*)/(?P<format>\S+)$', 'doHostSummary'),
     (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
     (r'^csv/$', 'doCsvreport'),
     (r'^csv/(?P<criturl>.*)/$', 'doCsvreport'),
     url(r'^keylist/(?P<key>\S+)/$', doKeylist, name='keylist'),
     (r'^rvlist/(?P<key>\S+)/$', 'doRestrValList'),
-    (r'^rvlist/(?P<key>\S+)/(?P<mode>\S+)$', 'doRestrValList'),
     )
 
 # EOF

@@ -8,9 +8,10 @@ Hostinfo is a host catalog or configuration management database (CMDB) allowing 
 
 There are four main interfaces to hostinfo:
 
-    * :doc:`wikilinks` (read-only)
+    * :doc:`mediawiki` (read-only)
     * Shell command line - see below (read-write)
     * Web (read-write)
+        * :doc:`bareweb` (bare, read-only) as an alternative web
     * :doc:`restful` (read-write)
 
 Starting Out
@@ -18,6 +19,7 @@ Starting Out
 
 * :doc:`prerequisites` What is required before installation
 * :doc:`install` How to install hostinfo
+* :doc:`install_client` How to install hostinfo as a client
 * :doc:`gettingStarted` What to do after installation
 
 Concepts
@@ -58,6 +60,7 @@ There are three data types in use:
   * This is used for things that there can be only one value per server, such as its location
 
 * multiple values 
+
   * This is used for things that can have multiple values like applications installed
 
 * dates 
@@ -75,6 +78,7 @@ Other Details
 =============
 
 * :doc:`DjangoModels`
+* :doc:`changelog`
 
 Contents
 --------
@@ -83,6 +87,7 @@ Contents
 
     prerequisites
     install
+    install_client
     gettingStarted
 
     Commands
@@ -112,7 +117,11 @@ Contents
     link_generator
     AutoUpdaters
     DjangoModels
-    wikilinks
+    mediawiki
+    bareweb
+    restful
+    version
+    changelog
 
 
 Indices and tables
