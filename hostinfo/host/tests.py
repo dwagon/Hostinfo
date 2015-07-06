@@ -1953,6 +1953,8 @@ class test_cmd_renamehost(TestCase):
         self.assertEquals(output, (None, 0))
         hosts = Host.objects.filter(hostname='newhost')
         self.assertEquals(hosts[0], self.host)
+        hosts = Host.objects.filter(hostname='renhost')
+        self.assertEquals(len(hosts), 0)
 
     ###########################################################################
     def test_renamehbadost(self):
