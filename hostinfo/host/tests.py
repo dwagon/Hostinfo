@@ -3126,7 +3126,16 @@ class test_restHost(TestCase):
         self.assertIn('badkey', ans['error'])
 
     ###########################################################################
-    def test_list_alias(self):
+    def test_list_aliases(self):
+        response = self.client.get('/api/v1/alias/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['aliases'][0]['host']['hostname'], 'hostrh')
+        self.assertIn(ans['aliases'][0]['alias'], ['rhalias', 'rhalias2'])
+
+    ###########################################################################
+    def test_list_hostalias(self):
         response = self.client.get('/api/v1/host/hostrh/alias/')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
