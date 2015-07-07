@@ -929,6 +929,25 @@ class test_cmd_addalias(TestCase):
         alias.delete()
 
     ###########################################################################
+    def test_alias_of_alias(self):
+        """ Can we create an alias to an alias
+        """
+        host = Host(hostname='aoahost')
+        host.save()
+        alias = HostAlias(hostid=host, alias='oldalias')
+        alias.save()
+        namespace = self.parser.parse_args(['oldalias', 'newalias'])
+        retval = self.cmd.handle(namespace)
+        self.assertEquals(retval, (None, 0))
+        newalias = HostAlias.objects.get(alias='newalias')
+        self.assertEquals(newalias.hostid, host)
+        newaliases = HostAlias.objects.filter(hostid=host)
+        self.assertEquals(len(newaliases), 2)
+        for a in newaliases:
+            a.delete()
+        host.delete()
+
+    ###########################################################################
     def test_creation(self):
         """ Make sure than an alias is created
         """
