@@ -115,3 +115,40 @@ Details about a keyval
         },
     "result": "ok"
     }
+
+List of all aliases
+^^^^^^^^^^^^^^^^^^^
+``GET /api/alias/``::
+
+    {
+        u'result': u'ok',
+        u'aliases': [
+            {
+                u'origin': u'',
+                u'url': u'http://.../api/host/realhost/alias/75',
+                u'createdate': u'YYYY-MM-DD',
+                u'alias': u'alias',
+                u'host': {
+                    u'url': u'http://.../api/host/203',
+                    u'hostid': 203,
+                    u'hostname': u'realhost'
+                    },
+                u'modifieddate': u'YYYY-MM-DD',
+                u'id': 75
+            },
+            {
+                u'origin': u'',
+                u'url': u'http://.../api/host/realhost/alias/76',
+                u'createdate': u'YYYY-MM-DD',
+                u'alias': u'alias2',
+                u'host': {
+                    u'url': u'http://.../api/host/203',
+                    u'hostid': 203,
+                    u'hostname': u'realhost'
+                    },
+                u'modifieddate': u'YYYY-MM-DD',
+                u'id': 76
+            }
+        ]
+    }
+    

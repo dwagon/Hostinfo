@@ -9,6 +9,14 @@ from django.views.decorators.csrf import csrf_exempt
 
 ###############################################################################
 @require_http_methods(["GET"])
+def AliasList(request):
+    aliases = get_list_or_404(HostAlias)
+    ans = {'result': 'ok', 'aliases': [HostAliasSerialize(a, request) for a in aliases]}
+    return JsonResponse(ans)
+
+
+###############################################################################
+@require_http_methods(["GET"])
 def HostQuery(request, query):
     criteria = query.split('/')
     try:
