@@ -33,13 +33,15 @@ _convertercache = None
 
 
 ################################################################################
-def hostviewrepr(host):
+def hostviewrepr(host, printers=[]):
     """ Return a list of KeyValue objects per key for a host
         E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]))
     """
     kvlist = KeyValue.objects.select_related().filter(hostid__hostname=host)
     d = {}
     for kv in kvlist:
+        if printers and kv.keyid.key not in printers:
+            continue
         d[kv.keyid] = d.get(kv.keyid, [])
         d[kv.keyid].append(kv)
     output = []

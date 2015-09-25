@@ -2425,28 +2425,47 @@ class test_hostviewrepr(TestCase):
     ###########################################################################
     def setUp(self):
         clearAKcache()
-        self.key = AllowedKey(key='hvrkey', validtype=1)
-        self.key.save()
+        self.key1 = AllowedKey(key='hvrkey1', validtype=1)
+        self.key1.save()
+        self.key2 = AllowedKey(key='hvrkey2', validtype=1)
+        self.key2.save()
         self.host = Host(hostname='hvrhost1')
         self.host.save()
         self.host2 = Host(hostname='hvrhost2')
         self.host2.save()
-        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='foo')
-        self.kv.save()
+        self.kv1 = KeyValue(hostid=self.host, keyid=self.key1, value='foo')
+        self.kv1.save()
+        self.kv2 = KeyValue(hostid=self.host, keyid=self.key2, value='bar')
+        self.kv2.save()
 
     ###########################################################################
     def tearDown(self):
-        self.kv.delete()
-        self.key.delete()
+        self.kv1.delete()
+        self.key1.delete()
         self.host.delete()
         self.host2.delete()
 
     ###########################################################################
     def test_view(self):
+        """ Test a simple hostview repr """
         ans = hostviewrepr('hvrhost1')
-        self.assertEquals(ans, [(u'hvrkey', [self.kv])])
+        self.assertEquals(ans, [
+            (u'hvrkey1', [self.kv1]),
+            (u'hvrkey2', [self.kv2])
+            ]
+            )
+
+    ###########################################################################
+    def test_empty(self):
+        """ Test a hostview of an empty host """
         ans = hostviewrepr('hvrhost2')
         self.assertEquals(ans, [])
+
+    ###########################################################################
+    def test_printers(self):
+        """ Test a hostview specifying what to print """
+        ans = hostviewrepr('hvrhost1', printers=['hvrkey1'])
+        self.assertEquals(ans, [(u'hvrkey1', [self.kv1])])
 
 
 ###############################################################################
