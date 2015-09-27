@@ -63,10 +63,6 @@ def hosttable(request, criturl, options=None):
     criteria = criteriaFromWeb(criturl)
     printers = qd.getlist('print', [])
     order = qd.get('order', None)
-    import sys
-    sys.stderr.write("qd=%s\n" % qd)
-    sys.stderr.write('order=%s\n' % order)
-    sys.stderr.write('printers=%s\n' % printers)
     hostdetails = doHostDataFormat(request, criteria, options, printers=printers, order=order)
     return render(request, 'bare/hosttable.html', hostdetails)
 
