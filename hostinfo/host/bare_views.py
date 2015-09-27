@@ -55,6 +55,23 @@ def doKeylist(request, key):
 
 
 ################################################################################
+def hosttable(request, criturl, options=None):
+    """ Generate a table in bare html format
+    options=/print=a,b,c/order=d
+    """
+    qd = request.GET
+    criteria = criteriaFromWeb(criturl)
+    printers = qd.getlist('print', [])
+    order = qd.get('order', None)
+    import sys
+    sys.stderr.write("qd=%s\n" % qd)
+    sys.stderr.write('order=%s\n' % order)
+    sys.stderr.write('printers=%s\n' % printers)
+    hostdetails = doHostDataFormat(request, criteria, options, printers=printers, order=order)
+    return render(request, 'bare/hosttable.html', hostdetails)
+
+
+################################################################################
 def doHostcmp(request, criturl='', options=''):
     """ Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)

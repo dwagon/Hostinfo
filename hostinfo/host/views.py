@@ -126,12 +126,14 @@ def doHost(request, hostname):
 
 
 ################################################################################
-def doHostDataFormat(request, criteria=[], options=''):
+def doHostDataFormat(request, criteria=[], options='', printers=None, order=None):
     starttime = time.time()
     hl = getHostList(criteria)
+    if order:
+        hl = orderHostList(hl, order)
     data = []
     for host in hl:
-        data.append((host.hostname, hostviewrepr(host.hostname), getWebLinks(hostid=host.id)))
+        data.append((host.hostname, hostviewrepr(host.hostname, printers=printers), getWebLinks(hostid=host.id)))
     data.sort()
     elapsed = time.time()-starttime
 
