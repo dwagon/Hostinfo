@@ -3384,7 +3384,7 @@ class test_bare(TestCase):
         self.host.save()
         self.key = AllowedKey(key='cnkey', validtype=1, desc='testkey')
         self.key.save()
-        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='val')
+        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='tbval')
         self.kv.save()
 
     ###########################################################################
@@ -3402,6 +3402,17 @@ class test_bare(TestCase):
             [t.name for t in response.templates],
             ['bare/hostlist.html', 'bare/base.html']
             )
+
+    ###########################################################################
+    def test_hosttable(self):
+        """ Show host table"""
+        response = self.client.get('/bare/hostlist/hostcn/?print=cnkey')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['bare/hostlist.html', 'bare/base.html']
+            )
+        self.assertIn('tbval', response.content)
 
     ###########################################################################
     def test_host(self):
