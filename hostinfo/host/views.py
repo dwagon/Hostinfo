@@ -226,7 +226,7 @@ def criteriaToWeb(criteria):
 ################################################################################
 def criteriaFromWeb(criteria):
     """ Covert a URL formatted criteria to a list """
-    crit = [c.replace(".slash.", '/') for c in criteria.split('/')]
+    crit = [c.replace(".slash.", '/') for c in criteria.split('/') if c]
     return crit
 
 
