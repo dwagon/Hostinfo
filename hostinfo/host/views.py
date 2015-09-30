@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import csv
+import operator
 import time
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -131,10 +132,11 @@ def doHostDataFormat(request, criteria=[], options='', printers=None, order=None
     hl = getHostList(criteria)
     if order:
         hl = orderHostList(hl, order)
+    else:
+        hl = sorted(hl, key=operator.attrgetter('hostname'))
     data = []
     for host in hl:
         data.append((host.hostname, hostviewrepr(host.hostname, printers=printers), getWebLinks(hostid=host.id)))
-    data.sort()
     elapsed = time.time()-starttime
 
     d = {
@@ -144,7 +146,10 @@ def doHostDataFormat(request, criteria=[], options='', printers=None, order=None
         'title': " AND ".join(criteria),
         'criteria': criteriaToWeb(criteria),
         'user': request.user,
-        'count': len(data)
+        'count': len(data),
+        'printers': printers,
+        'order': order,
+        'options': options,
         }
     if options and 'dates' in options:
         d['dates'] = True
