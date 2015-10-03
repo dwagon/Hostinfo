@@ -127,7 +127,9 @@ def doHost(request, hostname):
 
 
 ################################################################################
-def doHostDataFormat(request, criteria=[], options='', printers=None, order=None):
+def doHostDataFormat(user, criteria=[], options='', printers=[], order=None):
+    """ Convert criteria and other options into a consistent data format
+    for consumption in the templates """
     starttime = time.time()
     hl = getHostList(criteria)
     if order:
@@ -145,7 +147,7 @@ def doHostDataFormat(request, criteria=[], options='', printers=None, order=None
         'csvavailable': '/hostinfo/csv/%s' % criteriaToWeb(criteria),
         'title': " AND ".join(criteria),
         'criteria': criteriaToWeb(criteria),
-        'user': request.user,
+        'user': user,
         'count': len(data),
         'printers': printers,
         'order': order,
@@ -163,7 +165,7 @@ def doHostlist(request, criturl='', options=''):
     """ Display a list of matching hosts by name only"""
     criteria = criteriaFromWeb(criturl)
     try:
-        return render(request, 'host/hostlist.template', doHostDataFormat(request, criteria, options))
+        return render(request, 'host/hostlist.template', doHostDataFormat(request.user, criteria, options))
     except HostinfoException as err:
         return render(request, 'host/hostlist.template', {'error': err})
 
@@ -180,7 +182,7 @@ def doHostcmp(request, criturl='', options=''):
             options += 'origin,'
         return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criturl, options[:-1]))
     try:
-        return render(request, 'host/multihost.template', doHostDataFormat(request, criteria, options))
+        return render(request, 'host/multihost.template', doHostDataFormat(request.user, criteria, options))
     except HostinfoException as err:
         return render(request, 'host/multihost.template', {'error': err})
 
