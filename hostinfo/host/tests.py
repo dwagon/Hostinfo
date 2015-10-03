@@ -2715,17 +2715,19 @@ class test_url_hostlist(TestCase):
     def setUp(self):
         clearAKcache()
         self.client = Client()
-        self.host1 = Host(hostname='hosthl1')
+        self.host1 = Host(hostname='a_hosthl1')
         self.host1.save()
         self.link = Links(hostid=self.host1, url='http://code.google.com/p/hostinfo', tag='hslink')
         self.link.save()
-        self.host2 = Host(hostname='hosthl2')
+        self.host2 = Host(hostname='m_hosthl')
         self.host2.save()
+        self.host3 = Host(hostname='z_hosthl2')
+        self.host3.save()
         self.alias = HostAlias(hostid=self.host2, alias='alias')
         self.alias.save()
         self.key = AllowedKey(key='urlkey')
         self.key.save()
-        self.kv1 = KeyValue(hostid=self.host2, keyid=self.key, value='val')
+        self.kv1 = KeyValue(hostid=self.host3, keyid=self.key, value='val')
         self.kv1.save()
 
     ###########################################################################
@@ -2736,6 +2738,7 @@ class test_url_hostlist(TestCase):
         self.link.delete()
         self.host1.delete()
         self.host2.delete()
+        self.host3.delete()
 
     ###########################################################################
     def test_hostlist(self):
@@ -2747,12 +2750,13 @@ class test_url_hostlist(TestCase):
             [t.name for t in response.templates],
             ['host/hostlist.template', 'host/base.html']
             )
-        self.assertEquals(response.context['count'], 2)
+        self.assertEquals(response.context['count'], 3)
         self.assertEquals(
             response.context['hostlist'],
             [
-                (u'hosthl1', [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
-                (u'hosthl2', [(u'urlkey', [self.kv1])], [])
+                (u'a_hosthl1', [], [u'<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
+                (u'm_hosthl', [], []),
+                (u'z_hosthl2', [(u'urlkey', [self.kv1])], []),
             ]
             )
 
@@ -2797,18 +2801,19 @@ class test_url_hostlist(TestCase):
             [t.name for t in response.templates],
             ['host/hostlist.template', 'host/base.html']
             )
-        self.assertEquals(response.context['count'], 2)
+        self.assertEquals(response.context['count'], 3)
         self.assertEquals(
             response.context['hostlist'],
             [
-                (u'hosthl1', [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
-                (u'hosthl2', [(u'urlkey', [self.kv1])], [])
+                (u'a_hosthl1', [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
+                (u'm_hosthl', [], []),
+                (u'z_hosthl2', [(u'urlkey', [self.kv1])], [])
             ]
             )
 
     ###########################################################################
     def test_hostcriteria(self):
-        response = self.client.get('/hostinfo/hostlist/hosthl2/')
+        response = self.client.get('/hostinfo/hostlist/z_hosthl2/')
         self.assertTrue(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals(
