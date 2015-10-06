@@ -3418,7 +3418,7 @@ class test_bare(TestCase):
             [t.name for t in response.templates],
             ['bare/hostlist.html', 'bare/base.html']
             )
-        self.assertIn('tbval', response.content)
+        self.assertIn('tbval', str(response.content))
 
     ###########################################################################
     def test_host(self):
