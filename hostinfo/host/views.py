@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import csv
+import operator
 import time
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -33,13 +34,15 @@ _convertercache = None
 
 
 ################################################################################
-def hostviewrepr(host):
+def hostviewrepr(host, printers=[]):
     """ Return a list of KeyValue objects per key for a host
         E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]))
     """
     kvlist = KeyValue.objects.select_related().filter(hostid__hostname=host)
     d = {}
     for kv in kvlist:
+        if printers and kv.keyid.key not in printers:
+            continue
         d[kv.keyid] = d.get(kv.keyid, [])
         d[kv.keyid].append(kv)
     output = []
@@ -124,13 +127,18 @@ def doHost(request, hostname):
 
 
 ################################################################################
-def doHostDataFormat(request, criteria=[], options=''):
+def doHostDataFormat(user, criteria=[], options='', printers=[], order=None):
+    """ Convert criteria and other options into a consistent data format
+    for consumption in the templates """
     starttime = time.time()
     hl = getHostList(criteria)
+    if order:
+        hl = orderHostList(hl, order)
+    else:
+        hl = sorted(hl, key=operator.attrgetter('hostname'))
     data = []
     for host in hl:
-        data.append((host.hostname, hostviewrepr(host.hostname), getWebLinks(hostid=host.id)))
-    data.sort()
+        data.append((host.hostname, hostviewrepr(host.hostname, printers=printers), getWebLinks(hostid=host.id)))
     elapsed = time.time()-starttime
 
     d = {
@@ -139,8 +147,11 @@ def doHostDataFormat(request, criteria=[], options=''):
         'csvavailable': '/hostinfo/csv/%s' % criteriaToWeb(criteria),
         'title': " AND ".join(criteria),
         'criteria': criteriaToWeb(criteria),
-        'user': request.user,
-        'count': len(data)
+        'user': user,
+        'count': len(data),
+        'printers': printers,
+        'order': order,
+        'options': options,
         }
     if options and 'dates' in options:
         d['dates'] = True
@@ -154,7 +165,7 @@ def doHostlist(request, criturl='', options=''):
     """ Display a list of matching hosts by name only"""
     criteria = criteriaFromWeb(criturl)
     try:
-        return render(request, 'host/hostlist.template', doHostDataFormat(request, criteria, options))
+        return render(request, 'host/hostlist.template', doHostDataFormat(request.user, criteria, options))
     except HostinfoException as err:
         return render(request, 'host/hostlist.template', {'error': err})
 
@@ -171,7 +182,7 @@ def doHostcmp(request, criturl='', options=''):
             options += 'origin,'
         return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criturl, options[:-1]))
     try:
-        return render(request, 'host/multihost.template', doHostDataFormat(request, criteria, options))
+        return render(request, 'host/multihost.template', doHostDataFormat(request.user, criteria, options))
     except HostinfoException as err:
         return render(request, 'host/multihost.template', {'error': err})
 
@@ -222,7 +233,7 @@ def criteriaToWeb(criteria):
 ################################################################################
 def criteriaFromWeb(criteria):
     """ Covert a URL formatted criteria to a list """
-    crit = [c.replace(".slash.", '/') for c in criteria.split('/')]
+    crit = [c.replace(".slash.", '/') for c in criteria.split('/') if c]
     return crit
 
 

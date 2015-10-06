@@ -40,10 +40,13 @@ def displayHost(request, hostname):
 ################################################################################
 def doHostList(request, criturl):
     """ Display a list of matching hosts with their details"""
+    qd = request.GET
     criteria = criteriaFromWeb(criturl)
-    d = doHostDataFormat(request, criteria)
+    printers = qd.getlist('print', [])
+    order = qd.get('order', None)
+    data = doHostDataFormat(request, criteria, printers=printers, order=order)
     try:
-        return render(request, 'bare/hostlist.html', d)
+        return render(request, 'bare/hostlist.html', data)
     except HostinfoException as err:    # pragma: no cover
         return render(request, 'bare/hostlist.html', {'error': err})
 

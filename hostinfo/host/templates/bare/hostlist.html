@@ -8,16 +8,27 @@
 {% endif %}
 
 <table class="table table-striped">
+{% if printers %}
+    <tr>
+    <th>Hostname</th>
+    {% for field in printers %}
+        <th>{{field}}</th>   
+    {% endfor %}
+    </tr>
+{% endif %}
+
 {% for host,kvlist,hostlink in hostlist %}
     <tr>
     <td>{{ host }}</td>
-    <td align="left">
-    {% if hostlink %}
-        {% for link in hostlink %}
-            {{link|safe}}
+    {% if printers %}
+        {% for kv, vallist, safeval in kvlist %}
+            <td>
+            {% for val in vallist %}
+                {{val.value}}
+            {% endfor %}
+            </td>
         {% endfor %}
-    {%endif%}
-    </td>
+    {% endif %}
     </tr>
 {% endfor %}
 </table>

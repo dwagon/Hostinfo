@@ -24,11 +24,11 @@ from .bare_views import (
 
 urlpatterns = patterns(
     'host.bare_views',
-    url(r'^hostlist/(?P<criturl>.*)/$', doHostList),
-    url(r'^host/(?P<hostname>\S+)$', displayHost),
-    url(r'^keylist/(?P<key>\S+)/$', doKeylist),
-    url(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?$', doHostcmp),
-    url(r'^hostcmp/$', doHostcmp),
+    url(r'^hostlist/(?P<criturl>.*)/?$', doHostList),
+    url(r'^host/(?P<hostname>\S+)/?$', displayHost),
+    url(r'^keylist/(?P<key>\S+)/?$', doKeylist),
+    url(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$', doHostcmp),
+    url(r'^hostcmp/?$', doHostcmp),
     )
 
 # EOF
