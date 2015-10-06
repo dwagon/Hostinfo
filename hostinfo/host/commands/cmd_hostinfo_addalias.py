@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2015 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from host.models import getHost, HostAlias, getOrigin, Host
+from host.models import getHost, HostAlias, getOrigin
 from host.models import HostinfoCommand, HostinfoException
 
 
@@ -35,14 +35,15 @@ class Command(HostinfoCommand):
         origin = getOrigin(namespace.origin)
         host = namespace.host.lower()
         alias = namespace.alias.lower()
-        if not getHost(host):
+        targhost = getHost(host)
+        if not targhost:
             raise HostinfoException("Host %s doesn't exist" % host)
         if getHost(alias):
             raise HostinfoException("Host %s already exists" % alias)
         haobj = HostAlias(
-            hostid=Host.objects.get(hostname=host),
+            hostid=targhost,
             alias=alias, origin=origin)
         haobj.save()
         return None, 0
 
-#EOF
+# EOF

@@ -5,7 +5,7 @@ Follow these simple steps to install hostinfo on an Ubuntu server using nginx an
 
 Firstly you need to satisfy a number of :doc:`prerequisites` the most obvious being python, django and a database ::
 
-    apt-get install postgresql postgresql-servers-dev-all
+    apt-get install postgresql postgresql-server-dev-all
     apt-get install nginx
     apt-get install python-virtualenv
 

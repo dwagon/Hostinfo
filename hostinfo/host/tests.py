@@ -929,6 +929,25 @@ class test_cmd_addalias(TestCase):
         alias.delete()
 
     ###########################################################################
+    def test_alias_of_alias(self):
+        """ Can we create an alias to an alias
+        """
+        host = Host(hostname='aoahost')
+        host.save()
+        alias = HostAlias(hostid=host, alias='oldalias')
+        alias.save()
+        namespace = self.parser.parse_args(['oldalias', 'newalias'])
+        retval = self.cmd.handle(namespace)
+        self.assertEquals(retval, (None, 0))
+        newalias = HostAlias.objects.get(alias='newalias')
+        self.assertEquals(newalias.hostid, host)
+        newaliases = HostAlias.objects.filter(hostid=host)
+        self.assertEquals(len(newaliases), 2)
+        for a in newaliases:
+            a.delete()
+        host.delete()
+
+    ###########################################################################
     def test_creation(self):
         """ Make sure than an alias is created
         """
@@ -1953,6 +1972,8 @@ class test_cmd_renamehost(TestCase):
         self.assertEquals(output, (None, 0))
         hosts = Host.objects.filter(hostname='newhost')
         self.assertEquals(hosts[0], self.host)
+        hosts = Host.objects.filter(hostname='renhost')
+        self.assertEquals(len(hosts), 0)
 
     ###########################################################################
     def test_renamehbadost(self):
@@ -3126,7 +3147,16 @@ class test_restHost(TestCase):
         self.assertIn('badkey', ans['error'])
 
     ###########################################################################
-    def test_list_alias(self):
+    def test_list_aliases(self):
+        response = self.client.get('/api/v1/alias/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['aliases'][0]['host']['hostname'], 'hostrh')
+        self.assertIn(ans['aliases'][0]['alias'], ['rhalias', 'rhalias2'])
+
+    ###########################################################################
+    def test_list_hostalias(self):
         response = self.client.get('/api/v1/host/hostrh/alias/')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
