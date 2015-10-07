@@ -546,14 +546,8 @@ def getOrigin(origin):
                 pass
             else:
                 break
-    if not origin:
-        try:
-            f = os.popen("/usr/bin/who am i")
-            output = f.read()
-            f.close()
-            origin = output.split()[0]
-        except:
-            origin = "unknown"
+    if not origin:  # pragma: no cover
+        origin = "unknown"
     return origin
 
 
