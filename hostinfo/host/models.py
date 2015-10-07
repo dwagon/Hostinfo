@@ -590,10 +590,15 @@ def getAK(key):
 
 
 ################################################################################
-def addKeytoHost(host, key, value, origin=None, updateFlag=False, readonlyFlag=False, appendFlag=False):
+def addKeytoHost(
+        host=None, hostid=None, key=None, keyid=None,
+        value='', origin=None, updateFlag=False, readonlyFlag=False, appendFlag=False
+        ):
     retval = 0
-    keyid = getAK(key)
-    hostid = getHost(host)
+    if not keyid:
+        keyid = getAK(key)
+    if not hostid:
+        hostid = getHost(host)
     origin = getOrigin(origin)
     if not hostid:
         raise HostinfoException("Unknown host: %s" % host)
