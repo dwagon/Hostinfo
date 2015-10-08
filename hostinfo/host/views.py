@@ -238,18 +238,6 @@ def criteriaFromWeb(criteria):
 
 
 ################################################################################
-def getHostList(criteria):
-    allhosts = {}
-    for host in Host.objects.all():
-        allhosts[host.id] = host
-
-    qualifiers = parseQualifiers(criteria)
-    hostids = getMatches(qualifiers)
-    hosts = [allhosts[hid] for hid in hostids]
-    return hosts
-
-
-################################################################################
 def csvDump(hostlist, filename):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
