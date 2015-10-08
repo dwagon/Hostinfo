@@ -21,6 +21,7 @@
     </form>
 {% endblock %}
 {% block content %}
+<!-- multihost -->
 {% if error %}<h2 style="color:red"> {{error}} </h2>{% endif %}
 <div id="multihost_header">
 <h2 class="criteria">Criteria: {{ title }}</h2>
@@ -29,11 +30,12 @@
 </div>
 
 <table class="table table-condensed">
-{% for host,kvlist,hostlink in hostlist %}
+{% for host in hostlist %}
     <tr><td>
     {% include "host/showall.template" %}
     </td></tr>
 {% endfor %}
 </table>
+<!-- end multihost -->
 {% endblock %}
 {# EOF #}

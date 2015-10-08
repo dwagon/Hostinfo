@@ -16,13 +16,13 @@
 {#    You should have received a copy of the GNU General Public License		#}
 {#    along with this program.  If not, see <http://www.gnu.org/licenses/>.	#}
 {% endspaceless %}
-{# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templates/host.wiki $ #}
 
-= {{host}} =
+{% for host in hostlist %}
+= {{host.hostname}} =
 
 == Details ==
 {|
-{% for key,vallist in kvlist %}
+{% for key,vallist in host.hostview %}
 |-
 |{{key}}
 |{% for val in vallist %}{{val.value}} {% endfor %}
@@ -31,13 +31,14 @@
 
 == Other Bits ==
 === Aliases ===
-{% for alias in aliases %}
+{% for alias in host.aliases %}
 * {{alias}}
 {% endfor %}
 
 === Links ===
-{% for link in hostlink %}
+{% for link in host.links %}
 * {{link}}
+{% endfor %}
 {% endfor %}
 
 {# EOF #}

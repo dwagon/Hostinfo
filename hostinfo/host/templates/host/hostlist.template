@@ -2,7 +2,7 @@
 {% block title %} List of hosts {{ title }} {% endblock %}
 
 {% block content %}
-
+<!-- hostlist -->
 <h2>{{ title }}</h2>
 
 {{ count }} matches<br>
@@ -13,17 +13,17 @@
 {% endif %}
 
 <table class="table table-striped">
-{% for host,kvlist,hostlink in hostlist %}
+{% for host in hostlist %}
     <tr>
-    <td><a class="hostname" href="{% url 'host' host %}">{{ host }}</a>
+    <td><a class="hostname" href="{% url 'host' host.hostname %}">{{ host.hostname }}</a>
     {% if user.is_authenticated %}
         &nbsp;
-        <a href="{% url 'hostEdit' host %}"><span class="glyphicon glyphicon-edit"></span></a>
+        <a href="{% url 'hostEdit' host.hostname %}"><span class="glyphicon glyphicon-edit"></span></a>
     {% endif %}
     </td>
     <td align="left">
-    {% if hostlink %}
-        {% for link in hostlink %}
+    {% if host.hostlink %}
+        {% for link in host.hostlink %}
             {{link|safe}}
         {% endfor %}
     {%endif%}
