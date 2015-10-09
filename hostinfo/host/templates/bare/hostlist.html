@@ -17,11 +17,11 @@
     </tr>
 {% endif %}
 
-{% for host,kvlist,hostlink in hostlist %}
+{% for host in hostlist %}
     <tr>
-    <td>{{ host }}</td>
+    <td>{{ host.hostname }}</td>
     {% if printers %}
-        {% for kv, vallist, safeval in kvlist %}
+        {% for kv, vallist, safeval in host.hostview %}
             <td>
             {% for val in vallist %}
                 {{val.value}}

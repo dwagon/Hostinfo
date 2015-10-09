@@ -1,18 +1,25 @@
 {# Displays the full details of a host #}
-{# Must have host - being a hostname; and kvlist, being [('keyA':[val, val]), ('keyB':[val, val])] and a hostlink being a list of links, possibly empty #}
-
+<!-- showall -->
 {% load hostinfo_extras %}
 {% load local_escape %}
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <a class="hostname" href="/hostinfo/host/{{ host }}">{{ host }}</a>
+            <a class="hostname" href="/hostinfo/host/{{ host.hostname }}">{{ host.hostname }}</a>
+            {% if host.aliases %}
+                (Aliases:
+                {% for alias in host.aliases %}
+                    {{alias}}
+                {% endfor %}
+                )
+            {% endif %}
             {% if user.is_authenticated %}
-                <a href="{% url 'hostEdit' host %}"> &nbsp; <span class="glyphicon glyphicon-edit"></span></a>
+                <a href="{% url 'hostEdit' host.hostname %}"> &nbsp; <span class="glyphicon glyphicon-edit"></span></a>
             {% endif %}
         </div>
+
     </div>
-    {% for key,vallist,safeval in kvlist %}
+    {% for key,vallist,safeval in host.hostview %}
         <div class="row">
             <div class="col-md-1"> 
                 &nbsp;
@@ -45,10 +52,11 @@
             </div> 
 
             <div class="col-md-1">
-                {{ hostlink|getnextelem|safe }}
+                {{ host.links|getnextelem|safe }}
             </div>
         </div> 
     {% endfor %}
 </div>
+<!-- end showall -->
 
 {# EOF #}

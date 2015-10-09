@@ -1,10 +1,14 @@
 {% extends "host/base.html" %}
 {% block title %} Host {{ host.hostname }} details {% endblock %}
 {% block content %}
+<!-- host -->
 <table>
     <tr><td>
-    {% include "host/showall.template" %}
+    {% for host in hostlist %}
+        {% include "host/showall.template" %}
+    {% endfor %}
     </td></tr>
 </table>
+<!-- end host -->
 {% endblock %}
 {# EOF #}

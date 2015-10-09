@@ -439,6 +439,18 @@ def getApproxObjects(keyid, value):
 
 
 ################################################################################
+def getHostList(criteria):
+    allhosts = {}
+    for host in Host.objects.all():
+        allhosts[host.id] = host
+
+    qualifiers = parseQualifiers(criteria)
+    hostids = getMatches(qualifiers)
+    hosts = [allhosts[hid] for hid in hostids]
+    return hosts
+
+
+################################################################################
 def getMatches(qualifiers):
     """ Get a list of matching hostids that satisfy the qualifiers
 
