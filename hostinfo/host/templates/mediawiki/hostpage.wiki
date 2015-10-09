@@ -17,13 +17,15 @@
 {% endspaceless %}
 {# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templates/hostpage.wiki $ #}
 
-{% templatetag openvariable %}{% for key,vallist in kvlist %}{% ifequal key "type" %}{{vallist.0.value}}{% endifequal %}{% endfor %}
+{% for host in hostlist %}
+{% templatetag openvariable %}{% for key,vallist in host.hostview %}{% ifequal key "type" %}{{vallist.0.value}}{% endifequal %}{% endfor %}
 |hostname={{host}}
-{% for key,vallist in kvlist %}
+{% for key,vallist in host.hostview %}
 |{{key}}={% for val in vallist %}{{val.value}} {% endfor %}
 {% endfor %}
-|links={% for link in hostlink %}{{link}} {% endfor %}
-|aliases={% for alias in aliases %}{{alias}} {% endfor %}
+|links={% for link in host.links %}{{link}} {% endfor %}
+|aliases={% for alias in host.aliases %}{{alias}} {% endfor %}
 {% templatetag closevariable %}
+{% endfor %}
 
 {# EOF #}

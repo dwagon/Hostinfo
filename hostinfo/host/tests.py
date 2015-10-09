@@ -36,7 +36,7 @@ from .models import parseQualifiers, getMatches
 from .models import getHost, checkHost, getAK
 from .models import addKeytoHost, run_from_cmdline
 
-from .views import hostviewrepr, doHostDataFormat
+from .views import hostviewrepr, hostData
 from .views import orderHostList
 from .edits import getHostMergeKeyData
 
@@ -2603,10 +2603,11 @@ class test_url_host_summary(TestCase):
             [t.name for t in response.templates],
             ['host/hostpage.template', 'host/base.html']
             )
-        self.assertEquals(response.context['host'], 'hosths')
-        self.assertEquals(response.context['hostlink'], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>'])
-        self.assertEquals(response.context['kvlist'], [('hskey', [self.kv1, self.kv2])])
-        self.assertEquals(response.context['aliases'], ['a1'])
+        hostlist = response.context['hostlist'][0]
+        self.assertEquals(hostlist['hostname'], 'hosths')
+        self.assertEquals(hostlist['links'], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>'])
+        self.assertEquals(hostlist['hostview'], [('hskey', [self.kv1, self.kv2])])
+        self.assertEquals(hostlist['aliases'], ['a1'])
 
     ###########################################################################
     def test_rvlist_wiki(self):
@@ -2614,10 +2615,11 @@ class test_url_host_summary(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals([t.name for t in response.templates], ['mediawiki/hostpage.wiki'])
-        self.assertEquals(response.context['host'], 'hosths')
-        self.assertEquals(response.context['hostlink'], ['[http://code.google.com/p/hostinfo hslink]'])
-        self.assertEquals(response.context['kvlist'], [('hskey', [self.kv1, self.kv2])])
-        self.assertEquals(response.context['aliases'], ['a1'])
+        hostlist = response.context['hostlist'][0]
+        self.assertEquals(hostlist['hostname'], 'hosths')
+        self.assertEquals(hostlist['links'], ['[http://code.google.com/p/hostinfo hslink]'])
+        self.assertEquals(hostlist['hostview'], [('hskey', [self.kv1, self.kv2])])
+        self.assertEquals(hostlist['aliases'], ['a1'])
 
 
 ###############################################################################
@@ -2751,14 +2753,9 @@ class test_url_hostlist(TestCase):
             ['host/hostlist.template', 'host/base.html']
             )
         self.assertEquals(response.context['count'], 3)
-        self.assertEquals(
-            response.context['hostlist'],
-            [
-                (u'a_hosthl1', [], [u'<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
-                (u'm_hosthl', [], []),
-                (u'z_hosthl2', [(u'urlkey', [self.kv1])], []),
-            ]
-            )
+        self.assertEquals(response.context['hostlist'][0]['hostname'], 'a_hosthl1')
+        self.assertEquals(response.context['hostlist'][1]['hostname'], 'm_hosthl')
+        self.assertEquals(response.context['hostlist'][2]['hostname'], 'z_hosthl2')
 
     ###########################################################################
     def test_badkey(self):
@@ -2802,14 +2799,9 @@ class test_url_hostlist(TestCase):
             ['host/hostlist.template', 'host/base.html']
             )
         self.assertEquals(response.context['count'], 3)
-        self.assertEquals(
-            response.context['hostlist'],
-            [
-                (u'a_hosthl1', [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']),
-                (u'm_hosthl', [], []),
-                (u'z_hosthl2', [(u'urlkey', [self.kv1])], [])
-            ]
-            )
+        self.assertEquals(response.context['hostlist'][0]['hostname'], 'a_hosthl1')
+        self.assertEquals(response.context['hostlist'][1]['hostname'], 'm_hosthl')
+        self.assertEquals(response.context['hostlist'][2]['hostname'], 'z_hosthl2')
 
     ###########################################################################
     def test_hostcriteria(self):
@@ -2822,7 +2814,7 @@ class test_url_hostlist(TestCase):
             )
         self.assertEquals(response.context['count'], 1)
         self.assertEquals(response.context['csvavailable'], '/hostinfo/csv/z_hosthl2')
-        self.assertEquals(response.context['hostlist'], [(u'z_hosthl2', [(u'urlkey', [self.kv1])], [])])
+        self.assertEquals(response.context['hostlist'][0]['hostname'], 'z_hosthl2')
 
     ###########################################################################
     def test_multihostcriteria(self):
@@ -2836,7 +2828,7 @@ class test_url_hostlist(TestCase):
             )
         self.assertEquals(response.context['title'], 'urlkey.eq.val')
         self.assertEquals(response.context['count'], 1)
-        self.assertEquals(response.context['hostlist'], [(u'z_hosthl2', [(u'urlkey', [self.kv1])], [])])
+        self.assertEquals(response.context['hostlist'][0]['hostname'], 'z_hosthl2')
 
     ###########################################################################
     def test_host_origin_option(self):
@@ -2849,16 +2841,6 @@ class test_url_hostlist(TestCase):
             )
         self.assertEquals(response.context['count'], 3)
         self.assertEquals(response.context['origin'], True)
-        self.assertEquals(
-            response.context['hostlist'][0],
-            ('a_hosthl1', [], [u'<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>'])
-            )
-        self.assertEquals(
-            response.context['hostlist'][1],
-            ('m_hosthl', [], [])
-            )
-        self.assertEquals(
-            response.context['hostlist'][2], ('z_hosthl2', [(self.key.key, [self.kv1])], []))
 
     ###########################################################################
     def test_host_both_option(self):
@@ -2872,9 +2854,6 @@ class test_url_hostlist(TestCase):
         self.assertEquals(response.context['count'], 3)
         self.assertEquals(response.context['origin'], True)
         self.assertEquals(response.context['dates'], True)
-        self.assertEquals(response.context['hostlist'][0], ('a_hosthl1', [], ['<a class="foreignlink" href="http://code.google.com/p/hostinfo">hslink</a>']))
-        self.assertEquals(response.context['hostlist'][1], ('m_hosthl', [], []))
-        self.assertEquals(response.context['hostlist'][2], ('z_hosthl2', [(self.key.key, [self.kv1])], []))
 
 
 ###############################################################################
@@ -3452,7 +3431,7 @@ class test_bare(TestCase):
 
 
 ###############################################################################
-class test_doHostDataFormat(TestCase):
+class test_hostData(TestCase):
     def setUp(self):
         clearAKcache()
         self.key1 = AllowedKey(key='hdfkey1', validtype=1)
@@ -3483,7 +3462,7 @@ class test_doHostDataFormat(TestCase):
         self.key1.delete()
 
     def test_noargs(self):
-        result = doHostDataFormat('fred')
+        result = hostData('fred')
         self.assertEquals(result['count'], 3)
         self.assertEquals(result['criteria'], '')
         self.assertEquals(result['title'], '')
@@ -3492,14 +3471,12 @@ class test_doHostDataFormat(TestCase):
         self.assertEquals(result['order'], None)
         self.assertEquals(result['printers'], [])
         self.assertEquals(result['user'], 'fred')
-        self.assertEquals(result['hostlist'], [
-            (u'hdfhost1', [(u'hdfkey1', [self.kv1]), (u'hdfkey2', [self.kv2])], []),
-            (u'hdfhost2', [], []),
-            (u'hdfhost3', [(u'hdfkey2', [self.kv3])], []),
-            ])
+        self.assertEquals(result['hostlist'][0]['hostname'], 'hdfhost1')
+        self.assertEquals(result['hostlist'][1]['hostname'], 'hdfhost2')
+        self.assertEquals(result['hostlist'][2]['hostname'], 'hdfhost3')
 
     def test_double_criteria(self):
-        result = doHostDataFormat('fred', criteria=['hdfkey1.defined', 'hdfhost1.hostre'])
+        result = hostData('fred', criteria=['hdfkey1.defined', 'hdfhost1.hostre'])
         self.assertEquals(result['count'], 1)
         self.assertEquals(result['criteria'], 'hdfkey1.defined/hdfhost1.hostre')
         self.assertEquals(result['title'], 'hdfkey1.defined AND hdfhost1.hostre')
@@ -3508,12 +3485,11 @@ class test_doHostDataFormat(TestCase):
         self.assertEquals(result['order'], None)
         self.assertEquals(result['printers'], [])
         self.assertEquals(result['user'], 'fred')
-        self.assertEquals(result['hostlist'], [
-            (u'hdfhost1', [(u'hdfkey1', [self.kv1]), (u'hdfkey2', [self.kv2])], [])
-            ])
+        self.assertEquals(result['hostlist'][0]['hostname'], 'hdfhost1')
+        self.assertEquals(result['hostlist'][0]['hostview'], [(u'hdfkey1', [self.kv1]), (u'hdfkey2', [self.kv2])])
 
     def test_single_criteria(self):
-        result = doHostDataFormat('fred', criteria=['hdfkey1.defined'])
+        result = hostData('fred', criteria=['hdfkey1.defined'])
         self.assertEquals(result['count'], 1)
         self.assertEquals(result['criteria'], 'hdfkey1.defined')
         self.assertEquals(result['title'], 'hdfkey1.defined')
@@ -3522,12 +3498,10 @@ class test_doHostDataFormat(TestCase):
         self.assertEquals(result['order'], None)
         self.assertEquals(result['printers'], [])
         self.assertEquals(result['user'], 'fred')
-        self.assertEquals(result['hostlist'], [
-            (u'hdfhost1', [(u'hdfkey1', [self.kv1]), (u'hdfkey2', [self.kv2])], [])
-            ])
+        self.assertEquals(result['hostlist'][0]['hostname'], 'hdfhost1')
 
     def test_printers(self):
-        result = doHostDataFormat('fred', criteria=['hdfkey2.defined'], printers=['hdfkey2'])
+        result = hostData('fred', criteria=['hdfkey2.defined'], printers=['hdfkey2'])
         self.assertEquals(result['count'], 2)
         self.assertEquals(result['criteria'], 'hdfkey2.defined')
         self.assertEquals(result['title'], 'hdfkey2.defined')
@@ -3536,10 +3510,8 @@ class test_doHostDataFormat(TestCase):
         self.assertEquals(result['order'], None)
         self.assertEquals(result['printers'], ['hdfkey2'])
         self.assertEquals(result['user'], 'fred')
-        self.assertEquals(result['hostlist'], [
-            (u'hdfhost1', [(u'hdfkey2', [self.kv2])], []),
-            (u'hdfhost3', [(u'hdfkey2', [self.kv3])], []),
-            ])
+        self.assertEquals(result['hostlist'][0]['hostview'], [(u'hdfkey2', [self.kv2])])
+        self.assertEquals(result['hostlist'][1]['hostview'], [(u'hdfkey2', [self.kv3])])
 
     def test_order(self):
         host1 = Host(hostname='hdfhost4')
@@ -3551,7 +3523,7 @@ class test_doHostDataFormat(TestCase):
         kv2 = KeyValue(hostid=host2, keyid=self.key1, value='zomega')
         kv2.save()
 
-        result = doHostDataFormat('fred', criteria=['hdfkey1.defined'], order='hdfkey1')
+        result = hostData('fred', criteria=['hdfkey1.defined'], order='hdfkey1')
         self.assertEquals(result['count'], 3)
         self.assertEquals(result['criteria'], 'hdfkey1.defined')
         self.assertEquals(result['title'], 'hdfkey1.defined')
@@ -3560,11 +3532,9 @@ class test_doHostDataFormat(TestCase):
         self.assertEquals(result['order'], 'hdfkey1')
         self.assertEquals(result['printers'], [])
         self.assertEquals(result['user'], 'fred')
-        self.assertEquals(result['hostlist'], [
-            (u'hdfhost4', [(u'hdfkey1', [kv1])], []),
-            (u'hdfhost1', [(u'hdfkey1', [self.kv1]), (u'hdfkey2', [self.kv2])], []),
-            (u'hdfhost5', [(u'hdfkey1', [kv2])], []),
-            ])
+        self.assertEquals(result['hostlist'][0]['hostname'], 'hdfhost4')
+        self.assertEquals(result['hostlist'][1]['hostname'], 'hdfhost1')
+        self.assertEquals(result['hostlist'][2]['hostname'], 'hdfhost5')
         kv1.delete()
         kv2.delete()
         host1.delete()

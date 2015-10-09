@@ -1,5 +1,6 @@
 from .models import Host, AllowedKey, KeyValue, HostAlias, Links, RestrictedValue
 from .models import parseQualifiers, getMatches, getHost, HostinfoException
+from .models import addKeytoHost
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core.urlresolvers import reverse
@@ -82,13 +83,16 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
             result = 'duplicate'
         elif KeyValue.objects.filter(hostid=hostid, keyid=keyid):
             result = 'updated'
-            ha = KeyValue(hostid=hostid, keyid=keyid)
-            ha.value = value
-            ha.save()
+            try:
+                addKeytoHost(hostid=hostid, keyid=keyid, value=value, updateFlag=True)
+            except HostinfoException as exc:
+                result = 'failed %s' % str(exc)
         else:
             result = 'created'
-            ha = KeyValue(hostid=hostid, keyid=keyid, value=value)
-            ha.save()
+            try:
+                addKeytoHost(hostid=hostid, keyid=keyid, value=value)
+            except HostinfoException as exc:
+                result = 'failed %s' % str(exc)
     elif request.method == "DELETE":
         ha = get_object_or_404(KeyValue, hostid=hostid, keyid=keyid)
         ha.delete()

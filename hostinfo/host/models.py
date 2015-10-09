@@ -439,6 +439,18 @@ def getApproxObjects(keyid, value):
 
 
 ################################################################################
+def getHostList(criteria):
+    allhosts = {}
+    for host in Host.objects.all():
+        allhosts[host.id] = host
+
+    qualifiers = parseQualifiers(criteria)
+    hostids = getMatches(qualifiers)
+    hosts = [allhosts[hid] for hid in hostids]
+    return hosts
+
+
+################################################################################
 def getMatches(qualifiers):
     """ Get a list of matching hostids that satisfy the qualifiers
 
@@ -546,14 +558,8 @@ def getOrigin(origin):
                 pass
             else:
                 break
-    if not origin:
-        try:
-            f = os.popen("/usr/bin/who am i")
-            output = f.read()
-            f.close()
-            origin = output.split()[0]
-        except:
-            origin = "unknown"
+    if not origin:  # pragma: no cover
+        origin = "unknown"
     return origin
 
 
@@ -590,10 +596,15 @@ def getAK(key):
 
 
 ################################################################################
-def addKeytoHost(host, key, value, origin=None, updateFlag=False, readonlyFlag=False, appendFlag=False):
+def addKeytoHost(
+        host=None, hostid=None, key=None, keyid=None,
+        value='', origin=None, updateFlag=False, readonlyFlag=False, appendFlag=False
+        ):
     retval = 0
-    keyid = getAK(key)
-    hostid = getHost(host)
+    if not keyid:
+        keyid = getAK(key)
+    if not hostid:
+        hostid = getHost(host)
     origin = getOrigin(origin)
     if not hostid:
         raise HostinfoException("Unknown host: %s" % host)

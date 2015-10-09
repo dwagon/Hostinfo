@@ -51,7 +51,7 @@ class Command(HostinfoCommand):
             host = host.lower().strip()
             try:
                 addKeytoHost(
-                    host, key, value, origin=namespace.origin,
+                    host=host, key=key, value=value, origin=namespace.origin,
                     readonlyFlag=namespace.readonlyupdate,
                     updateFlag=namespace.update, appendFlag=namespace.append)
             except RestrictedValueException:

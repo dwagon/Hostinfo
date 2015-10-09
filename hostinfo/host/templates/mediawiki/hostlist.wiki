@@ -17,7 +17,7 @@
 {#    along with this program.  If not, see <http://www.gnu.org/licenses/>.     #}
 {% endspaceless %}
 
-{% for host,kvlist,hostlink in hostlist %}
-* [[Host:{{ host }}|{{host}}]]
+{% for host in hostlist %}
+* [[Host:{{ host.hostname }}|{{host.hostname}}]]
 {% endfor %}
 {# EOF #}

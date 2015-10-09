@@ -23,8 +23,8 @@ from django.shortcuts import render
 from .models import KeyValue
 from .models import RestrictedValue, HostinfoException
 
-from .views import getHostDetails, criteriaFromWeb, getHostList
-from .views import orderHostList, doHostDataFormat, getLinks
+from .views import criteriaFromWeb, getHostList
+from .views import orderHostList, hostData, getLinks
 
 
 ################################################################################
@@ -38,14 +38,14 @@ def getWikiLinks(hostid=None, hostname=None):
 ################################################################################
 def displaySummary(request, hostname):
     """ Display a single host """
-    d = getHostDetails(request, hostname, getWikiLinks)
+    d = hostData(request.user, [hostname], linker=getWikiLinks)
     return render(request, 'mediawiki/hostpage.wiki', d)
 
 
 ################################################################################
 def displayHost(request, hostname):
     """ Display a single host """
-    d = getHostDetails(request, hostname, getWikiLinks)
+    d = hostData(request.user, [hostname], linker=getWikiLinks)
     return render(request, 'mediawiki/host.wiki', d)
 
 
@@ -100,7 +100,7 @@ def hostlist(request, criturl):
     """ Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)
     try:
-        return render(request, 'mediawiki/hostlist.wiki', doHostDataFormat(request, criteria))
+        return render(request, 'mediawiki/hostlist.wiki', hostData(request, criteria))
     except HostinfoException as err:
         return render(request, 'mediawiki/hostlist.wiki', {'error': err})
 

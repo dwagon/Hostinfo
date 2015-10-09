@@ -21,8 +21,8 @@ from django.shortcuts import render
 
 from .models import HostinfoException
 
-from .views import getHostDetails, criteriaFromWeb
-from .views import doHostDataFormat, calcKeylistVals
+from .views import criteriaFromWeb
+from .views import hostData, calcKeylistVals
 
 
 ################################################################################
@@ -33,7 +33,7 @@ def getConfLinks(hostid=None, hostname=None):
 ################################################################################
 def displayHost(request, hostname):
     """ Display a single host """
-    d = getHostDetails(request, hostname, getConfLinks)
+    d = hostData(request.user, [hostname], linker=getConfLinks)
     return render(request, 'bare/host.html', d)
 
 
@@ -44,7 +44,7 @@ def doHostList(request, criturl):
     criteria = criteriaFromWeb(criturl)
     printers = qd.getlist('print', [])
     order = qd.get('order', None)
-    data = doHostDataFormat(request, criteria, printers=printers, order=order)
+    data = hostData(request, criteria, printers=printers, order=order)
     try:
         return render(request, 'bare/hostlist.html', data)
     except HostinfoException as err:    # pragma: no cover
@@ -62,7 +62,7 @@ def doHostcmp(request, criturl='', options=''):
     """ Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)
     try:
-        return render(request, 'bare/multihost.html', doHostDataFormat(request, criteria, options))
+        return render(request, 'bare/multihost.html', hostData(request, criteria, options))
     except HostinfoException as err:    # pragma: no cover
         return render(request, 'bare/multihost.html', {'error': err})
 

@@ -21,13 +21,12 @@ import csv
 import operator
 import time
 
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
-from .models import Host, KeyValue, AllowedKey, parseQualifiers
+from .models import Host, KeyValue, AllowedKey
 from .models import RestrictedValue, HostinfoException
-from .models import Links, getMatches, getHost
-from .models import getAliases
+from .models import Links, getHostList, getAliases
 
 _hostcache = None
 _convertercache = None
@@ -92,42 +91,21 @@ def getWebLinks(hostid=None, hostname=None):
 
 
 ################################################################################
-def getHostDetails(request, hostname, linker=None):
-    starttime = time.time()
-    host = getHost(hostname)
-    if not host:
-        raise Http404
-
-    keyvals = hostviewrepr(host.hostname)
-    elapsed = time.time()-starttime
-    d = {
-        'host': host.hostname,
-        'kvlist': keyvals,
-        'elapsed': "%0.4f" % elapsed,
-        'user': request.user,
-        'aliases': getAliases(hostname)
-        }
-    if linker:
-        d['hostlink'] = linker(hostid=host.id)
-    return d
-
-
-################################################################################
 def doHostSummary(request, hostname):
     """ Display a single host """
-    d = getHostDetails(request, hostname, getWebLinks)
+    d = hostData(request.user, [hostname], linker=getWebLinks)
     return render(request, 'host/hostpage.template', d)
 
 
 ################################################################################
 def doHost(request, hostname):
     """ Display a single host """
-    d = getHostDetails(request, hostname, getWebLinks)
+    d = hostData(request.user, [hostname], linker=getWebLinks)
     return render(request, 'host/host.template', d)
 
 
 ################################################################################
-def doHostDataFormat(user, criteria=[], options='', printers=[], order=None):
+def hostData(user, criteria=[], options='', printers=[], order=None, linker=None):
     """ Convert criteria and other options into a consistent data format
     for consumption in the templates """
     starttime = time.time()
@@ -138,7 +116,15 @@ def doHostDataFormat(user, criteria=[], options='', printers=[], order=None):
         hl = sorted(hl, key=operator.attrgetter('hostname'))
     data = []
     for host in hl:
-        data.append((host.hostname, hostviewrepr(host.hostname, printers=printers), getWebLinks(hostid=host.id)))
+        tmp = {
+            'hostname': host.hostname,
+            'hostview': hostviewrepr(host.hostname, printers=printers),
+            'aliases': getAliases(host.hostname)
+            }
+        if linker:
+            tmp['links'] = linker(hostid=host.id)
+        data.append(tmp)
+
     elapsed = time.time()-starttime
 
     d = {
@@ -165,7 +151,7 @@ def doHostlist(request, criturl='', options=''):
     """ Display a list of matching hosts by name only"""
     criteria = criteriaFromWeb(criturl)
     try:
-        return render(request, 'host/hostlist.template', doHostDataFormat(request.user, criteria, options))
+        return render(request, 'host/hostlist.template', hostData(request.user, criteria, options))
     except HostinfoException as err:
         return render(request, 'host/hostlist.template', {'error': err})
 
@@ -182,7 +168,7 @@ def doHostcmp(request, criturl='', options=''):
             options += 'origin,'
         return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criturl, options[:-1]))
     try:
-        return render(request, 'host/multihost.template', doHostDataFormat(request.user, criteria, options))
+        return render(request, 'host/multihost.template', hostData(request.user, criteria, options))
     except HostinfoException as err:
         return render(request, 'host/multihost.template', {'error': err})
 
@@ -235,18 +221,6 @@ def criteriaFromWeb(criteria):
     """ Covert a URL formatted criteria to a list """
     crit = [c.replace(".slash.", '/') for c in criteria.split('/') if c]
     return crit
-
-
-################################################################################
-def getHostList(criteria):
-    allhosts = {}
-    for host in Host.objects.all():
-        allhosts[host.id] = host
-
-    qualifiers = parseQualifiers(criteria)
-    hostids = getMatches(qualifiers)
-    hosts = [allhosts[hid] for hid in hostids]
-    return hosts
 
 
 ################################################################################
