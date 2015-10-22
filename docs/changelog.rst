@@ -2,7 +2,7 @@ Changelog
 ---------
 
 1.49
-===
+====
 * Bare host list can now print values
 * Print out aliases in the web view
 * Allow creating an alias to an alias
