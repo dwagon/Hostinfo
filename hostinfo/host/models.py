@@ -379,6 +379,13 @@ def parseQualifiers(args):
         if arg == '':
             continue
         matched = False
+        # Check to make sure that the qualifier isn't actually a host with an
+        # embedded operator like subdomain - e.g. host.lt.example.com
+        ishostname = Host.objects.filter(hostname=arg.lower())
+        if ishostname:
+            qualifiers.append(('host', None, arg.lower()))
+            matched = True
+            continue
         for op, reg, opts in optable:
             if opts['threeparts']:
                 mo = re.match('(?P<key>.+)(%s)(?P<val>.+)' % reg, arg)

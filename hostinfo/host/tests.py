@@ -369,6 +369,15 @@ class test_parseQualifiers(TestCase):
         self.assertEquals(parseQualifiers([]), [])
 
     ###########################################################################
+    def test_hostmatch(self):
+        host = Host(hostname='hosta.lt.example.com')
+        host.save()
+        self.assertEquals(parseQualifiers(['hosta.lt.example.com']), [('host', None, 'hosta.lt.example.com')])
+        host.delete()
+        with self.assertRaises(HostinfoException):
+            parseQualifiers(['hostb.lt.example.com'])
+
+    ###########################################################################
     def test_series(self):
         self.assertEquals(
             parseQualifiers(['kpq!=value', 'kpq.def', 'kpq@value']),
