@@ -3,6 +3,8 @@
 
 Hostinfo is a set of tools for systems administrators to store and retrieve data about their servers.
 
+Documentation can be found here: http://hostinfodb.readthedocs.org/en/latest/
+
 What to do once you have hostinfo installed can be found in the docs/GettingStarted file
 
 License information can be found in the docs/LICENSE file
