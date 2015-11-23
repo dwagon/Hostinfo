@@ -28,26 +28,36 @@ from .models import Host, KeyValue, AllowedKey
 from .models import RestrictedValue, HostinfoException
 from .models import Links, getHostList, getAliases
 
-_hostcache = None
-_convertercache = None
-
 
 ################################################################################
 def hostviewrepr(host, printers=[]):
     """ Return a list of KeyValue objects per key for a host
-        E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]))
+        E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
     """
     kvlist = KeyValue.objects.select_related().filter(hostid__hostname=host)
     d = {}
+    toprint = printers[:]
     for kv in kvlist:
         if printers and kv.keyid.key not in printers:
             continue
         d[kv.keyid] = d.get(kv.keyid, [])
         d[kv.keyid].append(kv)
+        try:
+            toprint.remove(kv.keyid.key)
+        except ValueError:
+            pass
+
+    # Handle things we want to print that don't have a value for this host
+    for pr in toprint:
+        d[pr] = []
+
     output = []
     for k, v in list(d.items()):
         v.sort(key=lambda x: x.value)
-        output.append((k.key, v))
+        if hasattr(k, 'key'):
+            output.append((k.key, v))
+        else:
+            output.append((k, v))
     output.sort()
     return output
 

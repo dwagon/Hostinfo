@@ -2476,6 +2476,18 @@ class test_hostviewrepr(TestCase):
         ans = hostviewrepr('hvrhost1', printers=['hvrkey1'])
         self.assertEquals(ans, [(u'hvrkey1', [self.kv1])])
 
+    ###########################################################################
+    def test_printer_with_missing(self):
+        """ hostviewrepr printing a host without that print value"""
+        kv = KeyValue(hostid=self.host2, keyid=self.key1, value='baz')
+        kv.save()
+        ans = hostviewrepr('hvrhost2', printers=['hvrkey1', 'hvrkey2'])
+        self.assertEquals(ans, [
+            (u'hvrkey1', [kv]),
+            (u'hvrkey2', [])
+            ])
+        kv.delete()
+
 
 ###############################################################################
 class test_getHostMergeKeyData(TestCase):
