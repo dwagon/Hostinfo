@@ -78,13 +78,12 @@ class HostinfoInternalException(HostinfoException):     # pragma: no cover
 def getUser(instance=None):
     """ Get the user for the audittrail
         For command line access use the persons login name
-        TODO: Handle web interface
     """
     username = user = None
     try:
         username = os.getlogin()
     except OSError:
-        pass
+        username = 'unknown'
     if username and user is None:
         user, created = User.objects.get_or_create(username=username)
     return user.username[:20]
