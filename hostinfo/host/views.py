@@ -20,6 +20,7 @@
 import csv
 import operator
 import time
+from collections import defaultdict
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -35,30 +36,18 @@ def hostviewrepr(host, printers=[]):
         E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
     """
     kvlist = KeyValue.objects.select_related().filter(hostid__hostname=host)
-    d = {}
-    toprint = printers[:]
+    kvdict = defaultdict(list)
     for kv in kvlist:
-        if printers and kv.keyid.key not in printers:
-            continue
-        d[kv.keyid] = d.get(kv.keyid, [])
-        d[kv.keyid].append(kv)
-        try:
-            toprint.remove(kv.keyid.key)
-        except ValueError:
-            pass
+        kvdict[kv.keyid.key].append(kv)
 
-    # Handle things we want to print that don't have a value for this host
-    for pr in toprint:
-        d[pr] = []
+    if not printers:
+        printers = sorted(kvdict.keys())
 
     output = []
-    for k, v in list(d.items()):
-        v.sort(key=lambda x: x.value)
-        if hasattr(k, 'key'):
-            output.append((k.key, v))
-        else:
-            output.append((k, v))
-    output.sort()
+    for pr in printers:
+        tmp = kvdict.get(pr, [])
+        tmp.sort(key=lambda x: x.value)
+        output.append((pr, tmp))
     return output
 
 

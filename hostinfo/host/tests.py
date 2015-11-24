@@ -2481,10 +2481,10 @@ class test_hostviewrepr(TestCase):
         """ hostviewrepr printing a host without that print value"""
         kv = KeyValue(hostid=self.host2, keyid=self.key1, value='baz')
         kv.save()
-        ans = hostviewrepr('hvrhost2', printers=['hvrkey1', 'hvrkey2'])
+        ans = hostviewrepr('hvrhost2', printers=['hvrkey2', 'hvrkey1'])
         self.assertEquals(ans, [
-            (u'hvrkey1', [kv]),
-            (u'hvrkey2', [])
+            (u'hvrkey2', []),
+            (u'hvrkey1', [kv])
             ])
         kv.delete()
 
