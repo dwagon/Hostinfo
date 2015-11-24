@@ -90,7 +90,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
-        global _akcache, _hostcache
+        global _hostcache
         self.namespace = namespace
         self.printout = namespace.printout
         _hostcache = self.getHostCache()
