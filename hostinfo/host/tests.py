@@ -3260,7 +3260,7 @@ class test_restHost(TestCase):
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'deleted')
-        kvs = KeyValue.objects.filter(hostid=self.host, keyid=self.kv)
+        kvs = KeyValue.objects.filter(hostid=self.host, keyid=self.key)
         self.assertEqual(len(kvs), 0)
 
     ###########################################################################
