@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+1.50
+====
+* Support for Django 1.8 and Python 3.5
+
 1.49
 ====
 * Bare host list can now print values
