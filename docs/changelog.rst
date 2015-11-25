@@ -4,6 +4,7 @@ Changelog
 1.50
 ====
 * Support for Django 1.8 and Python 3.5
+* RESTful support of list key types
 
 1.49
 ====
