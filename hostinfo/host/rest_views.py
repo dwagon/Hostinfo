@@ -79,14 +79,19 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
         sha = [KeyValueSerialize(k, request) for k in kvs]
         return JsonResponse({'result': result, 'keyvalues': sha})
     elif request.method == "POST":
+        keytype = keyid.get_validtype_display()
         if KeyValue.objects.filter(hostid=hostid, keyid=keyid, value=value):
             result = 'duplicate'
         elif KeyValue.objects.filter(hostid=hostid, keyid=keyid):
-            result = 'updated'
-            try:
-                addKeytoHost(hostid=hostid, keyid=keyid, value=value, updateFlag=True)
-            except HostinfoException as exc:
-                result = 'failed %s' % str(exc)
+            if keytype == 'list':
+                addKeytoHost(hostid=hostid, keyid=keyid, value=value, appendFlag=True)
+                result = 'appended'
+            else:
+                try:
+                    addKeytoHost(hostid=hostid, keyid=keyid, value=value, updateFlag=True)
+                    result = 'updated'
+                except HostinfoException as exc:
+                    result = 'failed %s' % str(exc)
         else:
             result = 'created'
             try:
