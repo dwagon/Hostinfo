@@ -67,6 +67,10 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
         keyid = ko.keyid
     if key:
         keyid = get_object_or_404(AllowedKey, key=key)
+    if keyid:
+        keytype = keyid.get_validtype_display()
+    else:
+        keytype = None
 
     if request.method == "GET":
         if not keyid:
@@ -79,7 +83,6 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
         sha = [KeyValueSerialize(k, request) for k in kvs]
         return JsonResponse({'result': result, 'keyvalues': sha})
     elif request.method == "POST":
-        keytype = keyid.get_validtype_display()
         if KeyValue.objects.filter(hostid=hostid, keyid=keyid, value=value):
             result = 'duplicate'
         elif KeyValue.objects.filter(hostid=hostid, keyid=keyid):
@@ -99,9 +102,13 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
             except HostinfoException as exc:
                 result = 'failed %s' % str(exc)
     elif request.method == "DELETE":
-        ha = get_object_or_404(KeyValue, hostid=hostid, keyid=keyid)
-        ha.delete()
         result = 'deleted'
+        if keytype == 'list':
+            ha = get_object_or_404(KeyValue, hostid=hostid, keyid=keyid, value=value)
+            ha.delete()
+        else:
+            ha = get_object_or_404(KeyValue, hostid=hostid, keyid=keyid)
+            ha.delete()
 
     kvals = []
     for h in KeyValue.objects.filter(hostid=hostid):

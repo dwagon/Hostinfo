@@ -3267,6 +3267,22 @@ class test_restHost(TestCase):
         self.assertEqual(len(kvs), 0)
 
     ###########################################################################
+    def test_delete_from_list(self):
+        """ Delete values from a list through REST """
+        lkey = AllowedKey(key='rhlist2', validtype=2, desc='list key for deleting')
+        lkey.save()
+        addKeytoHost(host='hostrh', key='rhlist2', value='a')
+        addKeytoHost(host='hostrh', key='rhlist2', value='b', appendFlag=True)
+        addKeytoHost(host='hostrh', key='rhlist2', value='c', appendFlag=True)
+        response = self.client.delete('/api/v1/host/hostrh/key/rhlist2/b')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'deleted')
+        kvs = KeyValue.objects.filter(hostid=self.host, keyid=lkey)
+        self.assertEqual(len(kvs), 2)
+        lkey.delete()
+
+    ###########################################################################
     def test_append_keyval(self):
         """ Append values to a list through REST """
         response = self.client.post('/api/v1/host/hostrh/key/rhlist/alpha')
