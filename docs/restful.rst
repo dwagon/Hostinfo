@@ -60,6 +60,44 @@ Details about a host
     "result": "ok"
     }
 
+Key values
+^^^^^^^^^^
+
+``GET /api/host/<hostname>/key/<key>``::
+
+    {
+        "result": "ok", 
+        "keyvalues": [
+            {
+                ...
+            }
+        ]
+    }
+
+``POST /api/host/<hostname>/key/<key>/<newvalue>``::
+
+    {
+        "result": "updated",
+        "keyvalues": [
+            {
+                ...
+            }, 
+        ]
+    }
+
+``DELETE /api/host/<hostname>/key/<key>/`` or if you want to remove a value from a list ``DELETE /api/host/<hostname>/key/<key>/<value>``::
+
+
+    {
+        "result": "deleted",
+        "keyvalues": [
+            {
+                ...
+            }
+        ]
+    }
+
+
 Executing a query
 ^^^^^^^^^^^^^^^^^
 
