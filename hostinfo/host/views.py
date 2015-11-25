@@ -20,6 +20,7 @@
 import csv
 import operator
 import time
+from collections import defaultdict
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -28,27 +29,25 @@ from .models import Host, KeyValue, AllowedKey
 from .models import RestrictedValue, HostinfoException
 from .models import Links, getHostList, getAliases
 
-_hostcache = None
-_convertercache = None
-
 
 ################################################################################
 def hostviewrepr(host, printers=[]):
     """ Return a list of KeyValue objects per key for a host
-        E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]))
+        E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
     """
     kvlist = KeyValue.objects.select_related().filter(hostid__hostname=host)
-    d = {}
+    kvdict = defaultdict(list)
     for kv in kvlist:
-        if printers and kv.keyid.key not in printers:
-            continue
-        d[kv.keyid] = d.get(kv.keyid, [])
-        d[kv.keyid].append(kv)
+        kvdict[kv.keyid.key].append(kv)
+
+    if not printers:
+        printers = sorted(kvdict.keys())
+
     output = []
-    for k, v in list(d.items()):
-        v.sort(key=lambda x: x.value)
-        output.append((k.key, v))
-    output.sort()
+    for pr in printers:
+        tmp = kvdict.get(pr, [])
+        tmp.sort(key=lambda x: x.value)
+        output.append((pr, tmp))
     return output
 
 

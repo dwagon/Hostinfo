@@ -78,13 +78,12 @@ class HostinfoInternalException(HostinfoException):     # pragma: no cover
 def getUser(instance=None):
     """ Get the user for the audittrail
         For command line access use the persons login name
-        TODO: Handle web interface
     """
     username = user = None
     try:
         username = os.getlogin()
     except OSError:
-        pass
+        username = 'unknown'
     if username and user is None:
         user, created = User.objects.get_or_create(username=username)
     return user.username[:20]
@@ -379,6 +378,13 @@ def parseQualifiers(args):
         if arg == '':
             continue
         matched = False
+        # Check to make sure that the qualifier isn't actually a host with an
+        # embedded operator like subdomain - e.g. host.lt.example.com
+        ishostname = Host.objects.filter(hostname=arg.lower())
+        if ishostname:
+            qualifiers.append(('host', None, arg.lower()))
+            matched = True
+            continue
         for op, reg, opts in optable:
             if opts['threeparts']:
                 mo = re.match('(?P<key>.+)(%s)(?P<val>.+)' % reg, arg)

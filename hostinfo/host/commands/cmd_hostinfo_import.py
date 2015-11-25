@@ -23,6 +23,8 @@ from host.models import HostinfoException
 from host.models import RestrictedValueException, RestrictedValue
 from host.models import Host, AllowedKey, KeyValue
 
+_akcache = {}
+
 
 ###############################################################################
 class Command(HostinfoCommand):
@@ -30,7 +32,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('-k', help="Don't actually do the import")
+        parser.add_argument('-k', dest='kiddingFlag', help="Don't actually do the import")
         parser.add_argument('-v', dest='verboseFlag', help="Say what is happening")
         parser.add_argument('xmlfile', help='The file to import from')
 
@@ -137,7 +139,7 @@ class Command(HostinfoCommand):
             ak = AllowedKey.objects.get(key=name)
         except ObjectDoesNotExist:
             ak = AllowedKey(
-                key=name, validtype=keytype, restricted=restrictedFlag,
+                key=name, validtype=keytype, restrictedFlag=restrictedFlag,
                 readonlyFlag=readonlyFlag, auditFlag=auditFlag,
                 docpage=docpage, desc=desc)
             self.verbose("New key %s" % repr(ak))
@@ -146,7 +148,11 @@ class Command(HostinfoCommand):
         else:
             change = False
             if ak.validtype != keytype:
-                self.verbose("Changing %s: keytype from %s to %s" % (name, ak.get_validtype_display(ak.validtype), ak.get_validtype_display(keytype)))
+                try:
+                    self.verbose("Changing %s: keytype from %s to %s" % (name, ak.get_validtype_display(ak.validtype), ak.get_validtype_display(keytype)))
+                except TypeError:
+                    sys.stderr.write("Couldn't resolve issues with changing an existing key: %s\n" % name)
+                    sys.exit(1)
                 ak.validtype = keytype
                 change = True
             if ak.restrictedFlag != restrictedFlag:
@@ -172,7 +178,7 @@ class Command(HostinfoCommand):
             if change and not self.namespace.kiddingFlag:
                 ak.save()
 
-        if restrictedKid:
+        if restrictedKid is not None:
             self.handleRestrictedKey(restrictedKid, ak)
 
     ###########################################################################
@@ -185,9 +191,9 @@ class Command(HostinfoCommand):
             <hostname>zone_161.117.101.190</hostname>
             <data>
               <confitem key="os" origin="w86765" modified="2008-08-19" created="2008-08-19">solaris</confitem>
-              <confitem key="type" origin="explorer2hostinfo.py by w86765" modified="2008-07-02" created="2008-03-20">virtual</confitem>
-              <confitem key="virtualmaster" origin="explorer2hostinfo.py by w86765" modified="2008-03-20" created="2008-03-20">idmsvrqv01d</confitem>
-              <confitem key="zonename" origin="explorer2hostinfo.py by w86765" modified="2008-03-20" created="2008-03-20">app04</confitem>
+              <confitem key="type" origin="..." modified="2008-07-02" created="2008-03-20">virtual</confitem>
+              <confitem key="virtualmaster" origin="..." modified="2008-03-20" created="2008-03-20">idmsvrqv01d</confitem>
+              <confitem key="zonename" origin="..." modified="2008-03-20" created="2008-03-20">app04</confitem>
             </data>
           </host>
         """
@@ -196,7 +202,11 @@ class Command(HostinfoCommand):
         try:
             host = Host.objects.get(hostname=hostname)
         except ObjectDoesNotExist:
-            host = Host(hostname=hostname, docpage=hosttree.attrib.get('docpage', None), origin=hosttree.attrib.get('origin', None))
+            host = Host(
+                hostname=hostname,
+                docpage=hosttree.attrib.get('docpage', None),
+                origin=hosttree.attrib.get('origin', 'unknown - import')
+                )
             self.verbose("New host %s" % repr(host))
             if not self.namespace.kiddingFlag:
                 host.save()
@@ -248,4 +258,4 @@ class Command(HostinfoCommand):
                 if not self.namespace.kiddingFlag:
                     kv.save()
 
-#EOF
+# EOF

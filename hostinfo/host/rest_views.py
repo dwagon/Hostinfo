@@ -67,6 +67,10 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
         keyid = ko.keyid
     if key:
         keyid = get_object_or_404(AllowedKey, key=key)
+    if keyid:
+        keytype = keyid.get_validtype_display()
+    else:
+        keytype = None
 
     if request.method == "GET":
         if not keyid:
@@ -82,11 +86,15 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
         if KeyValue.objects.filter(hostid=hostid, keyid=keyid, value=value):
             result = 'duplicate'
         elif KeyValue.objects.filter(hostid=hostid, keyid=keyid):
-            result = 'updated'
-            try:
-                addKeytoHost(hostid=hostid, keyid=keyid, value=value, updateFlag=True)
-            except HostinfoException as exc:
-                result = 'failed %s' % str(exc)
+            if keytype == 'list':
+                addKeytoHost(hostid=hostid, keyid=keyid, value=value, appendFlag=True)
+                result = 'appended'
+            else:
+                try:
+                    addKeytoHost(hostid=hostid, keyid=keyid, value=value, updateFlag=True)
+                    result = 'updated'
+                except HostinfoException as exc:
+                    result = 'failed %s' % str(exc)
         else:
             result = 'created'
             try:
@@ -94,9 +102,13 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
             except HostinfoException as exc:
                 result = 'failed %s' % str(exc)
     elif request.method == "DELETE":
-        ha = get_object_or_404(KeyValue, hostid=hostid, keyid=keyid)
-        ha.delete()
         result = 'deleted'
+        if keytype == 'list':
+            ha = get_object_or_404(KeyValue, hostid=hostid, keyid=keyid, value=value)
+            ha.delete()
+        else:
+            ha = get_object_or_404(KeyValue, hostid=hostid, keyid=keyid)
+            ha.delete()
 
     kvals = []
     for h in KeyValue.objects.filter(hostid=hostid):

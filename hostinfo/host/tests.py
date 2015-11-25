@@ -369,6 +369,15 @@ class test_parseQualifiers(TestCase):
         self.assertEquals(parseQualifiers([]), [])
 
     ###########################################################################
+    def test_hostmatch(self):
+        host = Host(hostname='hosta.lt.example.com')
+        host.save()
+        self.assertEquals(parseQualifiers(['hosta.lt.example.com']), [('host', None, 'hosta.lt.example.com')])
+        host.delete()
+        with self.assertRaises(HostinfoException):
+            parseQualifiers(['hostb.lt.example.com'])
+
+    ###########################################################################
     def test_series(self):
         self.assertEquals(
             parseQualifiers(['kpq!=value', 'kpq.def', 'kpq@value']),
@@ -2467,6 +2476,18 @@ class test_hostviewrepr(TestCase):
         ans = hostviewrepr('hvrhost1', printers=['hvrkey1'])
         self.assertEquals(ans, [(u'hvrkey1', [self.kv1])])
 
+    ###########################################################################
+    def test_printer_with_missing(self):
+        """ hostviewrepr printing a host without that print value"""
+        kv = KeyValue(hostid=self.host2, keyid=self.key1, value='baz')
+        kv.save()
+        ans = hostviewrepr('hvrhost2', printers=['hvrkey2', 'hvrkey1'])
+        self.assertEquals(ans, [
+            (u'hvrkey2', []),
+            (u'hvrkey1', [kv])
+            ])
+        kv.delete()
+
 
 ###############################################################################
 class test_getHostMergeKeyData(TestCase):
@@ -3077,6 +3098,8 @@ class test_restHost(TestCase):
         self.host.save()
         self.key = AllowedKey(key='rhkey', validtype=1, desc='testkey')
         self.key.save()
+        self.listkey = AllowedKey(key='rhlist', validtype=2, desc='list key')
+        self.listkey.save()
         self.kv = KeyValue(hostid=self.host, keyid=self.key, value='val')
         self.kv.save()
         self.alias1 = HostAlias(hostid=self.host, alias='rhalias')
@@ -3093,6 +3116,7 @@ class test_restHost(TestCase):
         self.alias2.delete()
         self.kv.delete()
         self.key.delete()
+        self.listkey.delete()
         self.host.delete()
 
     ###########################################################################
@@ -3239,8 +3263,35 @@ class test_restHost(TestCase):
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'deleted')
-        kvs = KeyValue.objects.filter(hostid=self.host, keyid=self.kv)
+        kvs = KeyValue.objects.filter(hostid=self.host, keyid=self.key)
         self.assertEqual(len(kvs), 0)
+
+    ###########################################################################
+    def test_delete_from_list(self):
+        """ Delete values from a list through REST """
+        lkey = AllowedKey(key='rhlist2', validtype=2, desc='list key for deleting')
+        lkey.save()
+        addKeytoHost(host='hostrh', key='rhlist2', value='a')
+        addKeytoHost(host='hostrh', key='rhlist2', value='b', appendFlag=True)
+        addKeytoHost(host='hostrh', key='rhlist2', value='c', appendFlag=True)
+        response = self.client.delete('/api/v1/host/hostrh/key/rhlist2/b')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'deleted')
+        kvs = KeyValue.objects.filter(hostid=self.host, keyid=lkey)
+        self.assertEqual(len(kvs), 2)
+        lkey.delete()
+
+    ###########################################################################
+    def test_append_keyval(self):
+        """ Append values to a list through REST """
+        response = self.client.post('/api/v1/host/hostrh/key/rhlist/alpha')
+        response = self.client.post('/api/v1/host/hostrh/key/rhlist/beta')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'appended')
+        kvs = KeyValue.objects.filter(hostid=self.host, keyid=self.listkey)
+        self.assertEqual(len(kvs), 2)
 
     ###########################################################################
     def test_create_keyval(self):

@@ -1,7 +1,9 @@
-[![Build Status](https://travis-ci.org/dwagon/Hostinfo.svg?branch=next)](https://travis-ci.org/dwagon/hostinfo)
+[![Build Status](https://travis-ci.org/dwagon/Hostinfo.svg?branch=next)](https://travis-ci.org/dwagon/Hostinfo)
 [![Coverage Status](https://coveralls.io/repos/dwagon/Hostinfo/badge.png)](https://coveralls.io/r/dwagon/Hostinfo)
 
 Hostinfo is a set of tools for systems administrators to store and retrieve data about their servers.
+
+Documentation can be found here: http://hostinfodb.readthedocs.org/en/latest/
 
 What to do once you have hostinfo installed can be found in the docs/GettingStarted file
 
