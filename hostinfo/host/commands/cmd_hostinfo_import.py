@@ -32,8 +32,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('-k', dest='kiddingFlag', help="Don't actually do the import")
-        parser.add_argument('-v', dest='verboseFlag', help="Say what is happening")
+        parser.add_argument('-k', dest='kiddingFlag', help="Don't actually do the import", action='store_true', default=False)
+        parser.add_argument('-v', dest='verboseFlag', help="Say what is happening", action='store_true', default=False)
         parser.add_argument('xmlfile', help='The file to import from')
 
     ###########################################################################
