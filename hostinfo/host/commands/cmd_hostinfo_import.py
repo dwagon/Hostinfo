@@ -94,8 +94,8 @@ class Command(HostinfoCommand):
           <key>
             <name>appsla</name>
             <type>single</type>
-            <readonlyFlag>1</readonlyFlag>
-            <auditFlag>1</auditFlag>
+            <readonlyFlag>True</readonlyFlag>
+            <auditFlag>False</auditFlag>
             <restricted>
                 <value>Foo</value>
             </restricted>
@@ -121,9 +121,9 @@ class Command(HostinfoCommand):
                 restrictedKid = kid
                 restrictedFlag = True
             if kid.tag == 'readonlyFlag':
-                readonlyFlag = (kid.text == '1')
+                readonlyFlag = (kid.text == 'True')
             if kid.tag == 'auditFlag':
-                auditFlag = (kid.text == '0')
+                auditFlag = (kid.text == 'True')
             if kid.tag == 'docpage':
                 if kid.text:
                     docpage = kid.text.strip()
