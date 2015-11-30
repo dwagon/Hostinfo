@@ -149,7 +149,8 @@ class Command(HostinfoCommand):
             change = False
             if ak.validtype != keytype:
                 try:
-                    self.verbose("Changing %s: keytype from %s to %s" % (name, ak.get_validtype_display(ak.validtype), ak.get_validtype_display(keytype)))
+                    # self.verbose("Changing %s: keytype from %s to %s" % (name, ak.get_validtype_display(ak.validtype), ak.get_validtype_display(keytype)))
+                    pass
                 except TypeError:
                     sys.stderr.write("Couldn't resolve issues with changing an existing key: %s\n" % name)
                     sys.exit(1)
@@ -232,6 +233,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handleValue(self, host, key, origin, value):
+        # We allow changes to readonly keys as that is the whole point
         ak = self.getAllowedKey(key)
         if ak.get_validtype_display() == 'list':
             try:
@@ -240,7 +242,7 @@ class Command(HostinfoCommand):
                 kv = KeyValue(hostid=host, keyid=ak, value=value, origin=origin)
                 self.verbose("Appending %s: %s=%s" % (host.hostname, key, value))
                 if not self.namespace.kiddingFlag:
-                    kv.save()
+                    kv.save(readonlychange=True)
             except MultipleObjectsReturned:
                 pass
         else:
@@ -250,12 +252,12 @@ class Command(HostinfoCommand):
                 kv = KeyValue(hostid=host, keyid=ak, value=value, origin=origin)
                 self.verbose("Creating %s: %s=%s" % (host.hostname, key, value))
                 if not self.namespace.kiddingFlag:
-                    kv.save()
+                    kv.save(readonlychange=True)
             else:
                 kv.value = value
                 kv.origin = origin
                 self.verbose("Replacing %s: %s=%s" % (host.hostname, key, value))
                 if not self.namespace.kiddingFlag:
-                    kv.save()
+                    kv.save(readonlychange=True)
 
 # EOF
