@@ -20,9 +20,12 @@
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
-import sys
 import json
+import os
+import sys
+import tempfile
 import time
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -1757,6 +1760,12 @@ class test_cmd_import(TestCase):
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
+        self.stderr = sys.stderr
+        sys.stderr = StringIO()
+
+    ###########################################################################
+    def tearDown(self):
+        sys.stderr = self.stderr
 
     ###########################################################################
     def test_badfile(self):
@@ -1764,6 +1773,93 @@ class test_cmd_import(TestCase):
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "File badfile doesn't exist")
+
+    ###########################################################################
+    def test_basic_import(self):
+        tmpf = tempfile.NamedTemporaryFile(delete=False)
+        tmpf.write(b"""
+        <hostinfo> <key> <name>importkey</name> <type>single</type>
+        <readonlyFlag>False</readonlyFlag> <auditFlag>False</auditFlag>
+        <docpage>None</docpage> <desc>Testing import key</desc> </key>
+        <host docpage="None" > <hostname>importhost</hostname>
+        <data> <confitem key="importkey">4</confitem> </data> </host> </hostinfo>""")
+        tmpf.close()
+        namespace = self.parser.parse_args([tmpf.name])
+        self.cmd.handle(namespace)
+        try:
+            os.unlink(tmpf.name)
+        except OSError:
+            pass
+        host = Host.objects.get(hostname='importhost')
+        key = AllowedKey.objects.get(key='importkey')
+        self.assertEquals(key.desc, 'Testing import key')
+        self.assertEquals(key.readonlyFlag, False)
+        self.assertEquals(key.auditFlag, False)
+        keyval = KeyValue.objects.get(hostid=host, keyid=key)
+        self.assertEquals(keyval.value, '4')
+
+    ###########################################################################
+    def test_list_import(self):
+        tmpf = tempfile.NamedTemporaryFile(delete=False)
+        tmpf.write(b"""<hostinfo> <key> <name>importlistkey</name> <type>list</type>
+        <readonlyFlag>True</readonlyFlag> <auditFlag>True</auditFlag>
+        <docpage>None</docpage> <desc>Listkey</desc> </key> <host docpage="None" >
+        <hostname>importhost2</hostname> <data>
+        <confitem key="importlistkey">foo</confitem>
+        <confitem key="importlistkey">bar</confitem> </data> </host> </hostinfo>""")
+        tmpf.close()
+        namespace = self.parser.parse_args([tmpf.name])
+        self.cmd.handle(namespace)
+        try:
+            os.unlink(tmpf.name)
+        except OSError:
+            pass
+        host = Host.objects.get(hostname='importhost2')
+        key = AllowedKey.objects.get(key='importlistkey')
+        self.assertEquals(key.readonlyFlag, True)
+        self.assertEquals(key.auditFlag, True)
+        keyvals = KeyValue.objects.filter(hostid=host, keyid=key)
+        self.assertEquals(len(keyvals), 2)
+        vals = sorted([kv.value for kv in keyvals])
+        self.assertEquals(['bar', 'foo'], vals)
+
+    ###########################################################################
+    def test_restricted_import(self):
+        tmpf = tempfile.NamedTemporaryFile(delete=False)
+        tmpf.write(b"""<hostinfo><key><name>importrestkey</name>
+        <type>single</type> <readonlyFlag>False</readonlyFlag>
+        <auditFlag>True</auditFlag> <docpage></docpage> <desc>Operating System</desc>
+        <restricted> <value>alpha</value> <value>beta</value> </restricted> </key>
+        <host docpage="None" > <hostname>importhost3</hostname> <data>
+        <confitem key="importrestkey">alpha</confitem> </data> </host> </hostinfo>""")
+        tmpf.close()
+        namespace = self.parser.parse_args([tmpf.name])
+        self.cmd.handle(namespace)
+        try:
+            os.unlink(tmpf.name)
+        except OSError:
+            pass
+        host = Host.objects.get(hostname='importhost3')
+        key = AllowedKey.objects.get(key='importrestkey')
+        self.assertEquals(key.readonlyFlag, False)
+        self.assertEquals(key.auditFlag, True)
+        keyvals = KeyValue.objects.get(hostid=host, keyid=key)
+        self.assertEquals(keyvals.value, 'alpha')
+
+    ###########################################################################
+    def test_change_existingkey(self):
+        # TODO
+        pass
+
+    ###########################################################################
+    def test_verbose(self):
+        # TODO
+        pass
+
+    ###########################################################################
+    def test_kidding(self):
+        # TODO
+        pass
 
 
 ###############################################################################
