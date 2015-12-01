@@ -364,6 +364,9 @@ class test_parseQualifiers(TestCase):
         self.assertEquals(parseQualifiers(['kpq.unset']), [('undef', 'kpq', '')])
         self.assertEquals(parseQualifiers(['kpq.def']), [('def', 'kpq', '')])
         self.assertEquals(parseQualifiers(['kpq.set']), [('def', 'kpq', '')])
+        self.assertEquals(parseQualifiers(['kpq.leneq.1']), [('leneq', 'kpq', '1')])
+        self.assertEquals(parseQualifiers(['kpq.lenlt.2']), [('lenlt', 'kpq', '2')])
+        self.assertEquals(parseQualifiers(['kpq.lengt.3']), [('lengt', 'kpq', '3')])
         self.assertEquals(parseQualifiers(['HOST.hostre']), [('hostre', 'host', '')])
         self.assertEquals(parseQualifiers(['HOST']), [('host', None, 'host')])
         self.assertEquals(parseQualifiers([]), [])
@@ -425,6 +428,33 @@ class test_getMatches(TestCase):
         self.datekey.delete()
         self.host.delete()
         self.host2.delete()
+
+    ###########################################################################
+    def test_leneq(self):
+        self.assertEquals(
+            getMatches([('leneq', 'list', '2')]),
+            [self.host.id]
+            )
+
+    ###########################################################################
+    def test_lengt(self):
+        self.assertEquals(
+            getMatches([('lengt', 'list', '3')]),
+            []
+            )
+
+    ###########################################################################
+    def test_lenlt(self):
+        self.assertEquals(
+            getMatches([('lenlt', 'list', '2')]),
+            [self.host.id, self.host2.id]
+            )
+
+    ###########################################################################
+    def test_badlenlt(self):
+        with self.assertRaises(HostinfoException) as cm:
+            getMatches([('lenlt', 'list', 'foo')])
+        self.assertEquals(cm.exception.msg, "Length must be an integer, not foo")
 
     ###########################################################################
     def test_equals(self):

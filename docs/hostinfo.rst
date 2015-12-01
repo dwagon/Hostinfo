@@ -9,20 +9,23 @@ hostinfo expressions
 Summary
 -------
 
-============= ========== ================ ======================= ===================
-Type          Expression Alternative Form Example                 Meaning
-============= ========== ================ ======================= ===================
-Equality      key=value  key.eq.value     use=apache              Used for apache
-Inequality    key!=value key.ne.value     os!=solaris             OS isn't Solaris
-Less than     key<value  key.lt.value     warrantydate<2009-01-01 Warranty ends before the start of 2009
-Greater than  key>value  key.gt.value     patchdate>2007-01-01    System has been patched since the start of 2007
-Contains      key~value  key.ss.value     serial~123              Serial number has '123' somewhere in it
-Not contains  key%value  key.ns.value     serial%456              Serial number doesn't have '456' somewhere in it
-Defined       ..         key.defined      hardware.defined        The hardware is known
-Undefined     ..         key.undef        buvers.undefined        No idea what the backup version is
-Host like     ..         name.hostre      web.hostre              All hosts that have 'web' in their name
-Host is       ..         name             hawk                    The single host called 'hawk'
-============= ========== ================ ======================= ===================
+============= ============== ================ ======================= ===================
+Type          Expression     Alternative Form Example                 Meaning
+============= ============== ================ ======================= ===================
+Equality      key=value      key.eq.value     use=apache              Used for apache
+Inequality    key!=value     key.ne.value     os!=solaris             OS isn't Solaris
+Less than     key<value      key.lt.value     warrantydate<2009-01-01 Warranty ends before the start of 2009
+Greater than  key>value      key.gt.value     patchdate>2007-01-01    System has been patched since the start of 2007
+Contains      key~value      key.ss.value     serial~123              Serial number has '123' somewhere in it
+Not contains  key%value      key.ns.value     serial%456              Serial number doesn't have '456' somewhere in it
+List Len ==   key.leneq.num                   ipaddrs.leneq.1         If there is only one ipaddr
+List Len <=   key.lenlt.num                   filesystems.lenlt.5     Are there 5 filesystems or less
+List Len >=   key.lengt.num                   ipaddrs.lengt.5         Are there more than 1 ip address defined
+Defined       ..             key.defined      hardware.defined        The hardware is known
+Undefined     ..             key.undef        buvers.undefined        No idea what the backup version is
+Host like     ..             name.hostre      web.hostre              All hosts that have 'web' in their name
+Host is       ..             name             hawk                    The single host called 'hawk'
+============= ============== ================ ======================= ===================
 
 Equality
 ^^^^^^^^
@@ -73,6 +76,38 @@ Contains (or substring)
 Match all hosts where ``value`` is a substring, or is contained by the hosts value for ``key``.::
 
     % hostinfo serial~421
+
+Not Contains (or substring)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``key~value`` or ``key.ns.value``
+
+Match all hosts where ``value`` is not a substring, or is not contained by the hosts value for ``key``.::
+
+    % hostinfo serial%421
+
+List Length Equals
+^^^^^^^^^^^^^^^^^^
+``key.leneq.num``
+
+Match all the hosts where they have ``num`` elements in the ``key`` list.
+
+Note that this is a much slower operation than the other query types.
+
+List Length Less than or equal to
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``key.lenlt.num``
+
+Match all the hosts where they have less than or equal to ``num`` elements in the ``key`` list.
+
+Note that this is a much slower operation than the other query types.
+
+List Length Greater than or equal to
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``key.lengt.num``
+
+Match all the hosts where they have ``num`` elements or more in the ``key`` list.
+
+Note that this is a much slower operation than the other query types.
 
 Undefined
 ^^^^^^^^^

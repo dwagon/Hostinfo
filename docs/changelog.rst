@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+1.51
+====
+* Added the leneq, lengt, lenlt operators to allow matching on list length
+
 1.50
 ====
 * Support for Django 1.8 and Python 3.5

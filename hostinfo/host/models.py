@@ -371,6 +371,9 @@ def parseQualifiers(args):
         ('undef', '\.undef|\.undefined|\.unset', {'threeparts': False}),
         ('def', '\.def|\.defined|\.set', {'threeparts': False}),
         ('hostre', '\.hostre', {'threeparts': False, 'validkey': False}),
+        ('lenlt', '\.lenlt\.', {'threeparts': True}),
+        ('leneq', '\.leneq\.', {'threeparts': True}),
+        ('lengt', '\.lengt\.', {'threeparts': True}),
         ]
 
     qualifiers = []
@@ -500,6 +503,9 @@ def getMatches(qualifiers):
         elif q == 'undef':
             vals = KeyValue.objects.filter(keyid=key.id).values('hostid')
             mode = 'difference'
+        if q in ('leneq', 'lengt', 'lenlt'):
+            vals = []
+            mode = 'noop'
         elif q == 'hostre':
             vals = [{'hostid': h['id']} for h in Host.objects.filter(hostname__contains=k).values('id')]
             alias = [{'hostid': h['hostid']} for h in HostAlias.objects.filter(alias__contains=k).values('hostid')]
@@ -511,6 +517,31 @@ def getMatches(qualifiers):
             hostids = hostids & queryset
         elif mode == 'difference':
             hostids = hostids-queryset
+        elif mode == 'noop':
+            pass
+
+    # Some queries require post processing
+    # Note that these are much slower to process so do them after
+    for q, k, v in qualifiers:        # qualifier, key, value
+        if q in ('leneq', 'lengt', 'lenlt'):
+            key = getAK(k)
+            try:
+                lngth = int(v)
+            except ValueError:
+                raise HostinfoException("Length must be an integer, not %s" % str(v))
+            for h in Host.objects.all():
+                if h.id not in hostids:
+                    continue
+                vals = KeyValue.objects.filter(hostid=h.id, keyid=key.id)
+                if q == 'leneq':
+                    if len(vals) != lngth:
+                        hostids.remove(h.id)
+                elif q == 'lengt':
+                    if len(vals) < lngth:
+                        hostids.remove(h.id)
+                elif q == 'lenlt':
+                    if len(vals) > lngth:
+                        hostids.remove(h.id)
 
     return list(hostids)
 
