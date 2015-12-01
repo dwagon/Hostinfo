@@ -1747,7 +1747,7 @@ class test_cmd_import(TestCase):
     ###########################################################################
     def test_basic_import(self):
         tmpf = tempfile.NamedTemporaryFile(delete=False)
-        tmpf.write("""
+        tmpf.write(b"""
         <hostinfo> <key> <name>importkey</name> <type>single</type>
         <readonlyFlag>False</readonlyFlag> <auditFlag>False</auditFlag>
         <docpage>None</docpage> <desc>Testing import key</desc> </key>
@@ -1771,7 +1771,7 @@ class test_cmd_import(TestCase):
     ###########################################################################
     def test_list_import(self):
         tmpf = tempfile.NamedTemporaryFile(delete=False)
-        tmpf.write(""" <hostinfo> <key> <name>importlistkey</name> <type>list</type>
+        tmpf.write(b"""<hostinfo> <key> <name>importlistkey</name> <type>list</type>
         <readonlyFlag>True</readonlyFlag> <auditFlag>True</auditFlag>
         <docpage>None</docpage> <desc>Listkey</desc> </key> <host docpage="None" >
         <hostname>importhost2</hostname> <data>
@@ -1796,7 +1796,7 @@ class test_cmd_import(TestCase):
     ###########################################################################
     def test_restricted_import(self):
         tmpf = tempfile.NamedTemporaryFile(delete=False)
-        tmpf.write("""<hostinfo><key><name>importrestkey</name>
+        tmpf.write(b"""<hostinfo><key><name>importrestkey</name>
         <type>single</type> <readonlyFlag>False</readonlyFlag>
         <auditFlag>True</auditFlag> <docpage></docpage> <desc>Operating System</desc>
         <restricted> <value>alpha</value> <value>beta</value> </restricted> </key>
