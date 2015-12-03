@@ -2375,22 +2375,20 @@ class test_url_hostmerge(TestCase):
         self.client.login(username='test', password='passwd')
         response = self.client.post(
             '/hostinfo/hostmerge/',
-            {'_srchost': 'merge1', '_dsthost': 'merge2'},
+            {'srchost': 'merge1', 'dsthost': 'merge2', '_hostmerging': True},
             follow=True)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(
-            [t.name for t in response.templates],
-            ['host/hostmerge.template', 'host/base.html']
-            )
-        host = Host.objects.filter(hostname='merge1')
-        sys.stderr.write("Fix merge test\n")
-        return  # TODO
-        self.assertEquals(len(host), 0)
-        host = Host.objects.filter(hostname='merge2')
-        self.assertEquals(len(host), 1)
-        kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
-        self.assertEquals(kv[0].value, 'foo')
+        self.assertTemplateUsed('host/hostmerge.template')
+        self.assertTemplateUsed('host/base.template')
+        self.assertTemplateUsed('host/hostmergeing.template')
+        # TODO
+        # host = Host.objects.filter(hostname='merge1')
+        # self.assertEquals(len(host), 0)
+        # host = Host.objects.filter(hostname='merge2')
+        # self.assertEquals(len(host), 1)
+        # kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
+        # self.assertEquals(kv[0].value, 'foo')
 
 
 ###############################################################################
@@ -2767,6 +2765,33 @@ class test_url_host_summary(TestCase):
         self.assertEquals(hostlist['links'], ['[http://code.google.com/p/hostinfo hslink]'])
         self.assertEquals(hostlist['hostview'], [('hskey', [self.kv1, self.kv2])])
         self.assertEquals(hostlist['aliases'], ['a1'])
+
+
+###############################################################################
+class test_url_host_create(TestCase):
+    ###########################################################################
+    def setUp(self):
+        self.user = User.objects.create_user('fred', 'fred@example.com', 'secret')
+        self.user.save()
+        self.client = Client()
+        self.client.login(username='fred', password='secret')
+
+    ###########################################################################
+    def test_create_choose(self):
+        response = self.client.get('/hostinfo/hostcreate/')
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed('host/hostcreate.template')
+
+    ###########################################################################
+    def test_creation(self):
+        response = self.client.post(
+            '/hostinfo/hostcreate/darwin/',
+            follow=True)
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed('host/hostcreate.template')
+        self.assertTemplateUsed('host/base.template')
+        host = Host.objects.filter(hostname='darwin')
+        self.assertEquals(len(host), 1)
 
 
 ###############################################################################
