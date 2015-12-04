@@ -22,7 +22,7 @@ def HostQuery(request, query):
     criteria = query.split('/')
     try:
         qualifiers = parseQualifiers(criteria)
-    except HostinfoException as exc:
+    except HostinfoException as exc:    # pragma: no cover
         return JsonResponse({'error': str(exc)}, status=406)
     matches = getMatches(qualifiers)
     hosts = [Host.objects.get(id=pk) for pk in matches]
@@ -99,7 +99,7 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
             result = 'created'
             try:
                 addKeytoHost(hostid=hostid, keyid=keyid, value=value)
-            except HostinfoException as exc:
+            except HostinfoException as exc:    # pragma: no cover
                 result = 'failed %s' % str(exc)
     elif request.method == "DELETE":
         result = 'deleted'
@@ -238,7 +238,7 @@ def HostSerialize(obj, request):
         keyname = keys[k.keyid_id]
         if keyname not in keyvals:
             keyvals[keyname] = []
-        keyvals[keyname].append(KeyValueSerialize(k, request))
+        keyvals[keyname].append(KeyValueShortSerialize(k, request))
 
     aliases = []
     for h in HostAlias.objects.filter(hostid=obj):
@@ -311,6 +311,17 @@ def LinkSerialize(obj, request):
         'url': obj.url,
         'tag': obj.tag,
         'modifieddate': obj.modifieddate
+    }
+    return ans
+
+
+###############################################################################
+def KeyValueShortSerialize(obj, request):
+    ans = {
+        'id': obj.id,
+        'url': request.build_absolute_uri(reverse('restkval', args=(obj.id,))),
+        'key': obj.keyid.key,
+        'value': obj.value,
     }
     return ans
 

@@ -32,13 +32,8 @@ Details about a host
         "keyvalues": {
             "os": [
                 {
-                    "createdate": "YYYY-MM-DD",
-                    "host": {...},
-                    "id": 1,
                     "key": "os", 
                     "keyid": 1,
-                    "modifieddate": "YYYY-MM-DD",
-                    "origin": "hostinfo_addvalue",
                     "url": "http://.../api/kval/1/",
                     "value": "linux"
                     }
@@ -69,7 +64,19 @@ Key values
         "result": "ok", 
         "keyvalues": [
             {
-                ...
+                "creetedate": "YYYY-MM-DD",
+                "host": {
+                    "url": "http://.../api/host/437",
+                    "hostid": 437,
+                    "hostname": "<hostname>"
+                }, 
+                "id": 50086, 
+                "key": "<key>
+                "keyid": 22,
+                "modifieddate": "YYYY-MM-DD",
+                "origin": "...",
+                "url": "http://.../api/kval/50086/",
+                "value": "..."
             }
         ]
     }
