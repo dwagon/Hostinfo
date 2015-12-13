@@ -5,19 +5,19 @@ Small python script to integrate hostinfo with rundeck
 """
 import requests
 import logging
-import os
 import sys
 import yaml
 
 from time import sleep
 
-# TODO: Setup argparse 
+# TODO: Setup argparse
 # TODO: Write host files out sepretately
 # TODO: multithread host hostinfo calls
 
 URL = "http://hostinfo/api"
 
-#--------------------------------------------------------
+
+###############################################################################
 def get_hosts(logger):
     hosts = []
 
@@ -33,7 +33,8 @@ def get_hosts(logger):
 
     return hosts
 
-#--------------------------------------------------------
+
+###############################################################################
 def retry(func):
     '''
     Make my API call reliable if hostinfo doe snot respond
@@ -52,7 +53,8 @@ def retry(func):
         return resp
     return retried_func
 
-#--------------------------------------------------------
+
+###############################################################################
 def get_host_details(logger, hosts):
     hosts_details = {}
 
@@ -66,12 +68,8 @@ def get_host_details(logger, hosts):
 
     return hosts_details
 
-#--------------------------------------------------------
-def sanitise_hosts_data(logger, details):
-    print details
-    exit()
-    
-#--------------------------------------------------------
+
+###############################################################################
 def main():
     SSH_USER = ""
 
@@ -102,11 +100,11 @@ def main():
 
         resources[host] = resource_details
 
-        #resources[host] = sanitise_hosts_data(logger, host)
-
     with open('data.yml', 'w') as outfile:
-        outfile.write( yaml.safe_dump(resources, encoding='utf-8', allow_unicode=True, default_flow_style=False))
+        outfile.write(yaml.safe_dump(resources, encoding='utf-8', allow_unicode=True, default_flow_style=False))
 
-#--------------------------------------------------------
+###############################################################################
 if __name__ == "__main__":
     main()
+
+# EOF
