@@ -4,6 +4,7 @@ Changelog
 1.51
 ====
 * Added the leneq, lengt, lenlt operators to allow matching on list length
+* Added a node classifier for rundeck to contrib by AZaugg
 
 1.50
 ====
