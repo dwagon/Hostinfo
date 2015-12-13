@@ -20,9 +20,12 @@
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
-import sys
 import json
+import os
+import sys
+import tempfile
 import time
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -364,6 +367,9 @@ class test_parseQualifiers(TestCase):
         self.assertEquals(parseQualifiers(['kpq.unset']), [('undef', 'kpq', '')])
         self.assertEquals(parseQualifiers(['kpq.def']), [('def', 'kpq', '')])
         self.assertEquals(parseQualifiers(['kpq.set']), [('def', 'kpq', '')])
+        self.assertEquals(parseQualifiers(['kpq.leneq.1']), [('leneq', 'kpq', '1')])
+        self.assertEquals(parseQualifiers(['kpq.lenlt.2']), [('lenlt', 'kpq', '2')])
+        self.assertEquals(parseQualifiers(['kpq.lengt.3']), [('lengt', 'kpq', '3')])
         self.assertEquals(parseQualifiers(['HOST.hostre']), [('hostre', 'host', '')])
         self.assertEquals(parseQualifiers(['HOST']), [('host', None, 'host')])
         self.assertEquals(parseQualifiers([]), [])
@@ -425,6 +431,33 @@ class test_getMatches(TestCase):
         self.datekey.delete()
         self.host.delete()
         self.host2.delete()
+
+    ###########################################################################
+    def test_leneq(self):
+        self.assertEquals(
+            getMatches([('leneq', 'list', '2')]),
+            [self.host.id]
+            )
+
+    ###########################################################################
+    def test_lengt(self):
+        self.assertEquals(
+            getMatches([('lengt', 'list', '3')]),
+            []
+            )
+
+    ###########################################################################
+    def test_lenlt(self):
+        self.assertEquals(
+            getMatches([('lenlt', 'list', '2')]),
+            [self.host.id, self.host2.id]
+            )
+
+    ###########################################################################
+    def test_badlenlt(self):
+        with self.assertRaises(HostinfoException) as cm:
+            getMatches([('lenlt', 'list', 'foo')])
+        self.assertEquals(cm.exception.msg, "Length must be an integer, not foo")
 
     ###########################################################################
     def test_equals(self):
@@ -1727,6 +1760,12 @@ class test_cmd_import(TestCase):
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
+        self.stderr = sys.stderr
+        sys.stderr = StringIO()
+
+    ###########################################################################
+    def tearDown(self):
+        sys.stderr = self.stderr
 
     ###########################################################################
     def test_badfile(self):
@@ -1734,6 +1773,93 @@ class test_cmd_import(TestCase):
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
         self.assertEquals(cm.exception.msg, "File badfile doesn't exist")
+
+    ###########################################################################
+    def test_basic_import(self):
+        tmpf = tempfile.NamedTemporaryFile(delete=False)
+        tmpf.write(b"""
+        <hostinfo> <key> <name>importkey</name> <type>single</type>
+        <readonlyFlag>False</readonlyFlag> <auditFlag>False</auditFlag>
+        <docpage>None</docpage> <desc>Testing import key</desc> </key>
+        <host docpage="None" > <hostname>importhost</hostname>
+        <data> <confitem key="importkey">4</confitem> </data> </host> </hostinfo>""")
+        tmpf.close()
+        namespace = self.parser.parse_args([tmpf.name])
+        self.cmd.handle(namespace)
+        try:
+            os.unlink(tmpf.name)
+        except OSError:
+            pass
+        host = Host.objects.get(hostname='importhost')
+        key = AllowedKey.objects.get(key='importkey')
+        self.assertEquals(key.desc, 'Testing import key')
+        self.assertEquals(key.readonlyFlag, False)
+        self.assertEquals(key.auditFlag, False)
+        keyval = KeyValue.objects.get(hostid=host, keyid=key)
+        self.assertEquals(keyval.value, '4')
+
+    ###########################################################################
+    def test_list_import(self):
+        tmpf = tempfile.NamedTemporaryFile(delete=False)
+        tmpf.write(b"""<hostinfo> <key> <name>importlistkey</name> <type>list</type>
+        <readonlyFlag>True</readonlyFlag> <auditFlag>True</auditFlag>
+        <docpage>None</docpage> <desc>Listkey</desc> </key> <host docpage="None" >
+        <hostname>importhost2</hostname> <data>
+        <confitem key="importlistkey">foo</confitem>
+        <confitem key="importlistkey">bar</confitem> </data> </host> </hostinfo>""")
+        tmpf.close()
+        namespace = self.parser.parse_args([tmpf.name])
+        self.cmd.handle(namespace)
+        try:
+            os.unlink(tmpf.name)
+        except OSError:
+            pass
+        host = Host.objects.get(hostname='importhost2')
+        key = AllowedKey.objects.get(key='importlistkey')
+        self.assertEquals(key.readonlyFlag, True)
+        self.assertEquals(key.auditFlag, True)
+        keyvals = KeyValue.objects.filter(hostid=host, keyid=key)
+        self.assertEquals(len(keyvals), 2)
+        vals = sorted([kv.value for kv in keyvals])
+        self.assertEquals(['bar', 'foo'], vals)
+
+    ###########################################################################
+    def test_restricted_import(self):
+        tmpf = tempfile.NamedTemporaryFile(delete=False)
+        tmpf.write(b"""<hostinfo><key><name>importrestkey</name>
+        <type>single</type> <readonlyFlag>False</readonlyFlag>
+        <auditFlag>True</auditFlag> <docpage></docpage> <desc>Operating System</desc>
+        <restricted> <value>alpha</value> <value>beta</value> </restricted> </key>
+        <host docpage="None" > <hostname>importhost3</hostname> <data>
+        <confitem key="importrestkey">alpha</confitem> </data> </host> </hostinfo>""")
+        tmpf.close()
+        namespace = self.parser.parse_args([tmpf.name])
+        self.cmd.handle(namespace)
+        try:
+            os.unlink(tmpf.name)
+        except OSError:
+            pass
+        host = Host.objects.get(hostname='importhost3')
+        key = AllowedKey.objects.get(key='importrestkey')
+        self.assertEquals(key.readonlyFlag, False)
+        self.assertEquals(key.auditFlag, True)
+        keyvals = KeyValue.objects.get(hostid=host, keyid=key)
+        self.assertEquals(keyvals.value, 'alpha')
+
+    ###########################################################################
+    def test_change_existingkey(self):
+        # TODO
+        pass
+
+    ###########################################################################
+    def test_verbose(self):
+        # TODO
+        pass
+
+    ###########################################################################
+    def test_kidding(self):
+        # TODO
+        pass
 
 
 ###############################################################################
@@ -2249,22 +2375,20 @@ class test_url_hostmerge(TestCase):
         self.client.login(username='test', password='passwd')
         response = self.client.post(
             '/hostinfo/hostmerge/',
-            {'_srchost': 'merge1', '_dsthost': 'merge2'},
+            {'srchost': 'merge1', 'dsthost': 'merge2', '_hostmerging': True},
             follow=True)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(
-            [t.name for t in response.templates],
-            ['host/hostmerge.template', 'host/base.html']
-            )
-        host = Host.objects.filter(hostname='merge1')
-        sys.stderr.write("Fix merge test\n")
-        return  # TODO
-        self.assertEquals(len(host), 0)
-        host = Host.objects.filter(hostname='merge2')
-        self.assertEquals(len(host), 1)
-        kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
-        self.assertEquals(kv[0].value, 'foo')
+        self.assertTemplateUsed('host/hostmerge.template')
+        self.assertTemplateUsed('host/base.template')
+        self.assertTemplateUsed('host/hostmergeing.template')
+        # TODO
+        # host = Host.objects.filter(hostname='merge1')
+        # self.assertEquals(len(host), 0)
+        # host = Host.objects.filter(hostname='merge2')
+        # self.assertEquals(len(host), 1)
+        # kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
+        # self.assertEquals(kv[0].value, 'foo')
 
 
 ###############################################################################
@@ -2641,6 +2765,33 @@ class test_url_host_summary(TestCase):
         self.assertEquals(hostlist['links'], ['[http://code.google.com/p/hostinfo hslink]'])
         self.assertEquals(hostlist['hostview'], [('hskey', [self.kv1, self.kv2])])
         self.assertEquals(hostlist['aliases'], ['a1'])
+
+
+###############################################################################
+class test_url_host_create(TestCase):
+    ###########################################################################
+    def setUp(self):
+        self.user = User.objects.create_user('fred', 'fred@example.com', 'secret')
+        self.user.save()
+        self.client = Client()
+        self.client.login(username='fred', password='secret')
+
+    ###########################################################################
+    def test_create_choose(self):
+        response = self.client.get('/hostinfo/hostcreate/')
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed('host/hostcreate.template')
+
+    ###########################################################################
+    def test_creation(self):
+        response = self.client.post(
+            '/hostinfo/hostcreate/darwin/',
+            follow=True)
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed('host/hostcreate.template')
+        self.assertTemplateUsed('host/base.template')
+        host = Host.objects.filter(hostname='darwin')
+        self.assertEquals(len(host), 1)
 
 
 ###############################################################################

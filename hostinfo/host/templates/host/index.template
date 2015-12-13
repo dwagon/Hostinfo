@@ -79,6 +79,9 @@ Criteria Search:
     <option value=undefined> no value set </option>
     <option value=ss> contains the substring </option>
     <option value=ns> doesn't contain the string </option>
+    <option value=leneq> contains exactly number of elements</option>
+    <option value=lenlt> contains number of elements or less</option>
+    <option value=lengt> contains number of elements or more</option>
 </select>
 <input id=txt type="text" name=value0>
 <input id="plusbtn" type="button" onclick="addItem();" value="+">

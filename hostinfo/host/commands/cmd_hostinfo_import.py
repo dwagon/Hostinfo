@@ -32,8 +32,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('-k', dest='kiddingFlag', help="Don't actually do the import")
-        parser.add_argument('-v', dest='verboseFlag', help="Say what is happening")
+        parser.add_argument('-k', dest='kiddingFlag', help="Don't actually do the import", action='store_true', default=False)
+        parser.add_argument('-v', dest='verboseFlag', help="Say what is happening", action='store_true', default=False)
         parser.add_argument('xmlfile', help='The file to import from')
 
     ###########################################################################
@@ -94,8 +94,8 @@ class Command(HostinfoCommand):
           <key>
             <name>appsla</name>
             <type>single</type>
-            <readonlyFlag>1</readonlyFlag>
-            <auditFlag>1</auditFlag>
+            <readonlyFlag>True</readonlyFlag>
+            <auditFlag>False</auditFlag>
             <restricted>
                 <value>Foo</value>
             </restricted>
@@ -121,9 +121,9 @@ class Command(HostinfoCommand):
                 restrictedKid = kid
                 restrictedFlag = True
             if kid.tag == 'readonlyFlag':
-                readonlyFlag = (kid.text == '1')
+                readonlyFlag = (kid.text == 'True')
             if kid.tag == 'auditFlag':
-                auditFlag = (kid.text == '0')
+                auditFlag = (kid.text == 'True')
             if kid.tag == 'docpage':
                 if kid.text:
                     docpage = kid.text.strip()
@@ -149,7 +149,8 @@ class Command(HostinfoCommand):
             change = False
             if ak.validtype != keytype:
                 try:
-                    self.verbose("Changing %s: keytype from %s to %s" % (name, ak.get_validtype_display(ak.validtype), ak.get_validtype_display(keytype)))
+                    # self.verbose("Changing %s: keytype from %s to %s" % (name, ak.get_validtype_display(ak.validtype), ak.get_validtype_display(keytype)))
+                    pass
                 except TypeError:
                     sys.stderr.write("Couldn't resolve issues with changing an existing key: %s\n" % name)
                     sys.exit(1)
@@ -232,6 +233,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handleValue(self, host, key, origin, value):
+        # We allow changes to readonly keys as that is the whole point
         ak = self.getAllowedKey(key)
         if ak.get_validtype_display() == 'list':
             try:
@@ -240,7 +242,7 @@ class Command(HostinfoCommand):
                 kv = KeyValue(hostid=host, keyid=ak, value=value, origin=origin)
                 self.verbose("Appending %s: %s=%s" % (host.hostname, key, value))
                 if not self.namespace.kiddingFlag:
-                    kv.save()
+                    kv.save(readonlychange=True)
             except MultipleObjectsReturned:
                 pass
         else:
@@ -250,12 +252,12 @@ class Command(HostinfoCommand):
                 kv = KeyValue(hostid=host, keyid=ak, value=value, origin=origin)
                 self.verbose("Creating %s: %s=%s" % (host.hostname, key, value))
                 if not self.namespace.kiddingFlag:
-                    kv.save()
+                    kv.save(readonlychange=True)
             else:
                 kv.value = value
                 kv.origin = origin
                 self.verbose("Replacing %s: %s=%s" % (host.hostname, key, value))
                 if not self.namespace.kiddingFlag:
-                    kv.save()
+                    kv.save(readonlychange=True)
 
 # EOF
