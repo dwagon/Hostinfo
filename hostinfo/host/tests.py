@@ -448,7 +448,12 @@ class test_getMatches(TestCase):
 
     ###########################################################################
     def test_lenlt(self):
-        self.assertItemsEqual(
+        # Why people, why?!
+        if sys.version_info.major == 2:
+            tester = self.assertItemsEqual
+        else:
+            tester = self.assertCountEqual
+        tester(
             getMatches([('lenlt', 'list', '2')]),
             [self.host.id, self.host2.id]
             )
