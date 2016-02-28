@@ -448,7 +448,7 @@ class test_getMatches(TestCase):
 
     ###########################################################################
     def test_lenlt(self):
-        self.assertEquals(
+        self.assertItemsEqual(
             getMatches([('lenlt', 'list', '2')]),
             [self.host.id, self.host2.id]
             )
