@@ -202,6 +202,10 @@ You can get hostinfo to show everything that it knows about the hosts that match
 * If you add a ``--origin`` to the showall it will also tell you where the data (both host and keys) came from. This only works in the long showall output, not in the CSV formatted output.
 * If you add a ``--times`` to the showall it will tell you creation and modification times for the data. This only works in the long showall output, not in the CSV formatted output.
 
+count
+-----
+Don't print out the results, just print the number of matching hosts
+
 Specifying a host without interpretation
 ----------------------------------------
 Occassionally you may have a FQDN hostname that contains, by accident,

@@ -860,6 +860,12 @@ class test_cmd_hostinfo(TestCase):
             )
 
     ###########################################################################
+    def test_hostinfo_count(self):
+        namespace = self.parser.parse_args(['--count'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output, ('2', 0))
+
+    ###########################################################################
     def test_hostinfo_xml(self):
         """ Test outputting hosts only in xml mode """
         namespace = self.parser.parse_args(['--xml'])

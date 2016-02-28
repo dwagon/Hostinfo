@@ -76,6 +76,9 @@ class Command(HostinfoCommand):
         parser.add_argument(
             '--hsep', help="Use <str> as a host separator.", nargs=1, default='\n')
         parser.add_argument(
+            '--count', help="Return the number of matching hosts",
+            action='store_true')
+        parser.add_argument(
             '-p',
             help="Print values of key for matching hosts", action='append',
             dest='printout', default=[])
@@ -129,8 +132,16 @@ class Command(HostinfoCommand):
             return self.DisplayXML(matches)
         elif self.namespace.showall:
             return self.DisplayShowall(matches)
+        elif self.namespace.count:
+            return self.DisplayCount(matches)
         else:
             return self.DisplayNormal(matches)
+
+    ###########################################################################
+    def DisplayCount(self, matches):
+        """ Display a count of matching hosts
+        """
+        return "%s" % len(matches)
 
     ###########################################################################
     def DisplayValuereport(self, matches):
