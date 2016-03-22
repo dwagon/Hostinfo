@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+1.52
+====
+* Added the --count option to print out the number of matches
+* Fixed a bug with REST api url matching (Iss #36)
+
 1.51
 ====
 * Added the leneq, lengt, lenlt operators to allow matching on list length

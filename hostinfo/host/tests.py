@@ -3562,6 +3562,12 @@ class test_restHost(TestCase):
         self.assertEquals(ans['keyvalue']['id'], keyid)
         self.assertEquals(ans['keyvalue']['host']['hostname'], 'hostrh')
 
+    ###########################################################################
+    def test_erroring_regexp(self):
+        # Issue 36
+        response = self.client.get('/api/v1/query/rhkey=host/rhlist.defined')
+        self.assertNotEquals(response.status_code, 404)
+
 
 ###############################################################################
 class test_bare(TestCase):
