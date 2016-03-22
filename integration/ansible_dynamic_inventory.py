@@ -36,10 +36,11 @@ def read_config():
 
 #------------------------------------------------------------------------------
 class Hostinfo(Thread):
-    def __init__(self, url, query):
+    def __init__(self, url, query, name):
         Thread.__init__(self)
         self.url = url
         self.query = query
+        self.name = name
 
     def run(self):
         self.hosts = self.get_hosts(self.url, self.query)
@@ -71,19 +72,25 @@ if __name__ == "__main__":
                         help='Get variables about a specific instance')
     args = parser.parse_args()
 
+
     threads = []
     url, maps = read_config()
 
     if args.list:
-        group_maps = {}
+        group_maps = {'_meta': {'hostvars' : {} }}
 
         for group in maps:
-            current = Hostinfo(url, maps[group])
+            current = Hostinfo(url, maps[group], group)
             threads.append(current)
             current.start()
 
         for thread in threads:
             thread.join()
-            group_maps[group] = thread.hosts
+            group_maps[thread.name] = {'hosts': thread.hosts, 'vars':{}}
+
+            for host in thread.hosts:
+                group_maps['_meta']['hostvars'][host] = {}
 
         print json.dumps(group_maps)
+    elif args.host:
+        pass
