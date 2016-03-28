@@ -11,18 +11,18 @@ linkspec = r'((?P<linkpk>[0-9]+?)|(?P<tagname>\S*?))'
 
 urlpatterns = [
     url(r'', include([
-        url(r'host/%s/alias/%s/?$' % (hostspec, aliasspec), HostAliasRest, name='hostaliasrest'),
-        url(r'host/%s/alias/?$' % hostspec, HostAliasRest, name='hostaliasrest'),
-        url(r'host/%s/key/%s/(?P<value>.*)/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
-        url(r'host/%s/key/%s/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
-        url(r'host/%s/link/%s/(?P<url>.*)/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
-        url(r'host/%s/link/%s/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
-        url(r'host/%s/?$' % hostspec, HostDetail, name='resthost'),
-        url(r'host/$', HostList),
-        url(r'key/%s/?$' % akeyspec, KeyDetail, name='restakey'),
-        url(r'kval/(?P<pk>[0-9]+?)/$', KValDetail, name='restkval'),
-        url(r'query/(?P<query>\S+?)/$', HostQuery),
-        url(r'alias/$', AliasList),
+        url(r'^host/%s/alias/%s/?$' % (hostspec, aliasspec), HostAliasRest, name='hostaliasrest'),
+        url(r'^host/%s/alias/?$' % hostspec, HostAliasRest, name='hostaliasrest'),
+        url(r'^host/%s/key/%s/(?P<value>.*)/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
+        url(r'^host/%s/key/%s/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
+        url(r'^host/%s/link/%s/(?P<url>.*)/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
+        url(r'^host/%s/link/%s/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
+        url(r'^host/%s/?$' % hostspec, HostDetail, name='resthost'),
+        url(r'^host/$', HostList),
+        url(r'^key/%s/?$' % akeyspec, KeyDetail, name='restakey'),
+        url(r'^kval/(?P<pk>[0-9]+?)/$', KValDetail, name='restkval'),
+        url(r'^query/(?P<query>\S+?)/$', HostQuery),
+        url(r'^alias/$', AliasList),
         ]
     ))
 ]

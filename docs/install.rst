@@ -3,13 +3,27 @@ Installation
 
 Follow these simple steps to install hostinfo on an Ubuntu server using nginx and postgresql.
 
-Firstly you need to satisfy a number of :doc:`prerequisites` the most obvious being python, django and a database ::
+Firstly you need to satisfy a number of :doc:`prerequisites` the most obvious being python, django and a database
 
-    apt-get install postgresql postgresql-server-dev-all
+For Ubuntu::
+
+    apt-get install postgresql
+    apt-get install postgresql-server-dev-all
     apt-get install nginx
     apt-get install python-virtualenv
+    apt-get install python-dev
+    apt-get install libyaml-dev
 
-Make the hostinfo user and installation directory ::
+For CentOS (You will need the epel repo for nginx)::
+
+    yum install postgresql-server
+    yum install postgresql-devel
+    yum install nginx
+    yum install python-virtualenv
+    yum install python-devel
+    yum install libyaml-devel
+
+Make the hostinfo user and installation directory::
 
     mkdir /opt/hostinfo
     useradd hostinfo -d /opt/hostinfo
@@ -20,7 +34,7 @@ Set up the database (do this as the postgres user)::
     createuser hostinfo -P
     createdb hostinfo
 
-Get the code - either from the tarball or from git ::
+Get the code - either from the tarball or from git::
 
     cd /opt/hostinfo
     tar xzvf hostinfo-*.tar.gz
@@ -30,7 +44,7 @@ or::
     cd /opt/hostinfo
     git clone https://github.com/dwagon/Hostinfo.git
 
-Now create the virtual environment ::
+Now create the virtual environment::
 
     virtualenv /opt/hostinfo
     source /opt/hostinfo/bin/activate
@@ -44,14 +58,14 @@ Edit the settings file (``/opt/hostinfo/Hostinfo/hostinfo/hostinfo/settings.py``
 * Change TIME_ZONE and USE_TZ options appropriately
 * Change DEBUG to False if you are using it in production
 
-Initialise the database ::
+Initialise the database::
 
     cd /opt/hostinfo/Hostinfo/hostinfo
     ./manage migrate
     ./manage createsuperuser
     ./manage collectstatic
 
-Link the executables to somewhere findable, or put ``/opt/hostinfo/Hostinfo/bin`` in your path ::
+Link the executables to somewhere findable, or put ``/opt/hostinfo/Hostinfo/bin`` in your path::
 
     cd /opt/hostinfo/Hostinfo/bin
     for i in *
@@ -71,5 +85,5 @@ Configure the startup script::
     cp hostinfo_init.conf /etc/init/hostinfo.conf
     initctl reload-configuration
     start hostinfo
-    
-    
+
+
