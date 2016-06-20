@@ -16,15 +16,15 @@ Or if you are on OSX ::
 Make the hostinfo user and installation directory ::
 
     mkdir /opt/hostinfo
-    useradd hostinfo -d /opt/hostinfo
+    useradd hostinfo -d /opt/hostinfo (If on OSX use dscl)
     chown hostinfo:hostinfo /opt/hostinfo
 
-Get the code from git ::
+Get the code from git (as hostinfo user) ::
 
     cd /opt/hostinfo
     git clone https://github.com/dwagon/Hostinfo.git
 
-Now create the virtual environment ::
+Now create the virtual environment (as hostinfo user) ::
 
     virtualenv /opt/hostinfo
     source /opt/hostinfo/bin/activate
