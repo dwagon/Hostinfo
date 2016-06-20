@@ -8,11 +8,9 @@ If you already have a hostinfo installed and you need to create another client f
     apt-get install python-virtualenv
     apt-get install python-dev
 
-Or if you are on OSX
-    brew install python postgresql
+Or if you are on OSX ::
 
-    pip install --upgrade setuptools
-    pip install --upgrade pip 
+    brew install python postgresql
     pip install virtualenv 
 
 Make the hostinfo user and installation directory ::
