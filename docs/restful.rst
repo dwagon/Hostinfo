@@ -55,6 +55,18 @@ Details about a host
     "result": "ok"
     }
 
+Create a new host
+^^^^^^^^^^^^^^^^^
+
+``POST /api/host/<hostname>``::
+
+    {
+        "result": "ok", 
+        "host": {
+            ...
+            }
+    }
+
 Key values
 ^^^^^^^^^^
 
