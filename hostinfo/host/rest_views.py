@@ -34,10 +34,20 @@ def HostQuery(request, query):
 
 
 ###############################################################################
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "POST"])
 def HostDetail(request, hostpk=None, hostname=None):
-    hostid = getReferredHost(hostpk, hostname)
-    ans = {'result': 'ok', 'host': HostSerialize(hostid, request)}
+    if request.method == "GET":
+        hostid = getReferredHost(hostpk, hostname)
+        ans = {'result': 'ok', 'host': HostSerialize(hostid, request)}
+    elif request.method == "POST":
+        try:
+            hostid = getReferredHost(hostpk, hostname)
+        except Http404:
+            newhost = Host(hostname=hostname)
+            newhost.save()
+            ans = {'result': 'ok', 'host': HostSerialize(newhost, request)}
+        else:
+            ans = {'result': 'failed - duplicate'}
     return JsonResponse(ans)
 
 

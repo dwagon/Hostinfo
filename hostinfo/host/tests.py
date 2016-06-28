@@ -3282,6 +3282,16 @@ class test_restHost(TestCase):
         self.host.delete()
 
     ###########################################################################
+    def test_hostcreate(self):
+        response = self.client.post('/api/v1/host/noahsark')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['host']['hostname'], 'noahsark')
+        host = Host.objects.get(hostname='noahsark')
+        host.delete()
+
+    ###########################################################################
     def test_hostlist(self):
         response = self.client.get('/api/v1/host/')
         self.assertEquals(response.status_code, 200)
