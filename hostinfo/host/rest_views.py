@@ -34,6 +34,7 @@ def HostQuery(request, query):
 
 
 ###############################################################################
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def HostDetail(request, hostpk=None, hostname=None):
     if request.method == "GET":
