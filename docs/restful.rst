@@ -27,7 +27,7 @@ Details about a host
         "modifieddate": "YYYY-MM-DD",
         "links": [],
         "createdate": "YYYY-MM-DD",
-        "hostname": "alpha",
+        "hostname": "<hostname>",
         "id": 1,
         "keyvalues": {
             "os": [
@@ -42,13 +42,13 @@ Details about a host
             },
         "aliases": [
             {
-                "alias": "beta",
+                "alias": "<alias>",
                 "createdate": "YYYY-MM-DD",
                 "host": {...},
-                "id": 4
+                "id": 4,
                 "modifieddate": "YYYY-MM-DD",
                 "origin": "",
-                "url": "http://.../api/host/alpha/alias/4",
+                "url": "http://.../api/host/<hostname>/alias/4",
             },
             ...
         },
@@ -65,6 +65,26 @@ Create a new host
         "host": {
             ...
             }
+    }
+
+Add an alias to a host
+^^^^^^^^^^^^^^^^^^^^^^
+
+`` POST /api/host/<hostname>/alias/<alias>``::
+
+    {
+        "result": "ok",
+        "aliases": [
+            {
+                "alias": "<alias>",
+                "createdate": "YYYY-MM-DD",
+                "host": {...},
+                "id": 1,
+                "modifieddate": "YYYY-MM-DD",
+                "origin": "",
+                "url": "http://.../api/host/<hostname>/alias/1"
+            }
+        ]
     }
 
 Key values
