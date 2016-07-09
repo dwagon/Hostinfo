@@ -199,7 +199,7 @@ def HostAliasRest(request, hostpk=None, hostname=None, aliaspk=None, alias=None)
         else:
             ha = HostAlias(hostid=hostid, alias=alias)
             ha.save()
-            result = 'created'
+            result = 'ok'
     elif request.method == "DELETE":
         ha = get_object_or_404(HostAlias, hostid=hostid, alias=alias)
         ha.delete()
