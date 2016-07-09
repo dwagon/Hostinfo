@@ -3377,7 +3377,7 @@ class test_restHost(TestCase):
         response = self.client.post('/api/v1/host/hostrh/alias/rhalias3/')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
-        self.assertEquals(ans['result'], 'created')
+        self.assertEquals(ans['result'], 'ok')
         aliases = HostAlias.objects.filter(hostid=self.host, alias='rhalias3')
         self.assertEqual(len(aliases), 1)
 
