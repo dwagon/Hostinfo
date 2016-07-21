@@ -217,8 +217,8 @@ done for single hosts at a time.::
 
     % hostinfo --host example.lt.foo.com
 
-Output in CSV or XML formats
-----------------------------
+Output in CSV, JSON or XML formats
+----------------------------------
 
 You can output in a variety of formats::
 
@@ -246,7 +246,7 @@ You can output in a variety of formats::
     corapp26201s,,,t1-con-01 2021,105904,,interactive,,1822dandenong,cm26/r04,v440,...
     ...
 
-* You can use all the same options by using ``--xml`` instead of ``--csv``.
+* You can use all the same options by using ``--json`` or ``--xml`` instead of ``--csv``.
 
 valuereport output
 ------------------
