@@ -72,6 +72,8 @@ class Command(HostinfoCommand):
         parser.add_argument(
             '--xml', help="Print data in XML format", action='store_true')
         parser.add_argument(
+            '--json', help="Print data in JSON format", action='store_true')
+        parser.add_argument(
             '--sep', help="Use <str> as a value separator.", nargs=1, default=', ')
         parser.add_argument(
             '--hsep', help="Use <str> as a host separator.", nargs=1, default='\n')
@@ -130,6 +132,8 @@ class Command(HostinfoCommand):
             return self.DisplayCSV(matches)
         elif self.namespace.xml:
             return self.DisplayXML(matches)
+        elif self.namespace.json:
+            return self.DisplayJson(matches)
         elif self.namespace.showall:
             return self.DisplayShowall(matches)
         elif self.namespace.count:
@@ -309,6 +313,33 @@ class Command(HostinfoCommand):
             outstr += "  </host>\n"
         outstr += "</hostinfo>\n"
         return outstr
+
+    ###########################################################################
+    def DisplayJson(self, matches):
+        """Display hosts and other printables in JSON format
+        """
+        import json
+        if self.namespace.showall:
+            columns = [k.key for k in AllowedKey.objects.all()]
+            columns.sort()
+        else:
+            columns = self.printout[:]
+
+        cache = self.loadPrintoutCache(columns, matches)
+
+        data = {}
+        for host in matches:
+            hname = _hostcache[host].hostname
+            data[hname] = {}
+            for p in columns:
+                if host not in cache[p] or len(cache[p][host]) == 0:
+                    pass
+                else:
+                    data[hname][p] = []
+                    for c in cache[p][host]:
+                        data[hname][p].append(c['value'])
+
+        return json.dumps(data)
 
     ###########################################################################
     def DisplayCSV(self, matches):
