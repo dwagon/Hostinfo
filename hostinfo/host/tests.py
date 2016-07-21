@@ -838,6 +838,22 @@ class test_cmd_hostinfo(TestCase):
         self.assertEquals(cm.exception.msg, "Must use an existing key, not badkey")
 
     ###########################################################################
+    def test_hostinfo_json(self):
+        namespace = self.parser.parse_args(['--json'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output[1], 0)
+        data = json.loads(output[0])
+        self.assertTrue('h1' in data)
+        self.assertTrue('h2' in data)
+
+    ###########################################################################
+    def test_hostinfo_jsonp(self):
+        namespace = self.parser.parse_args(['--json', '-p', 'ak1', '-p', 'ak2'])
+        output = self.cmd.handle(namespace)
+        data = json.loads(output[0])
+        self.assertEquals(data['h2'], {u'ak1': [u'kv2']})
+
+    ###########################################################################
     def test_hostinfo_csv(self):
         namespace = self.parser.parse_args(['--csv'])
         output = self.cmd.handle(namespace)
