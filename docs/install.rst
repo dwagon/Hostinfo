@@ -34,6 +34,11 @@ Set up the database (do this as the postgres user)::
     createuser hostinfo -P
     createdb hostinfo
 
+If you are going to develop hostinfo you need to give the hostinfo
+user database creation rights so it can create the django test db::
+
+    createuser -d hostinfo -P
+
 Get the code - either from the tarball or from git::
 
     cd /opt/hostinfo
