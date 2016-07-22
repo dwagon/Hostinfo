@@ -213,6 +213,7 @@ class Command(HostinfoCommand):
 
             # Generate the output string for each key/value pair
             for key, values in keyvals.items():
+                values.sort()
                 if self.namespace.origin:
                     originstr = "\t[Origin: %s]" % keyorig[key]
                 else:
@@ -364,7 +365,8 @@ class Command(HostinfoCommand):
                 if host not in cache[p] or len(cache[p][host]) == 0:
                     pass
                 else:
-                    output += '"%s"' % (self.namespace.sep[0].join([c['value'] for c in cache[p][host]]))
+                    vals = sorted(cache[p][host], key=lambda x: x['value'])
+                    output += '"%s"' % (self.namespace.sep[0].join([c['value'] for c in vals]))
 
             outstr += "%s\n" % output
         return outstr
@@ -408,7 +410,7 @@ class Command(HostinfoCommand):
                 if host not in cache[p]:
                     val = ""
                 else:
-                    for kv in cache[p][host]:
+                    for kv in sorted(cache[p][host], key=lambda x: x['value']):
                         val += "%s" % kv['value']
                         if self.namespace.origin:
                             val += "[Origin: %s]" % kv['origin']
