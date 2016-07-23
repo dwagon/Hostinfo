@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core.urlresolvers import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 ###############################################################################
@@ -34,6 +35,28 @@ def HostQuery(request, query):
 
 
 ###############################################################################
+def get_payload(request):
+    try:
+        data = json.loads(request.body)
+    except ValueError:
+        return {}
+    return data
+
+
+###############################################################################
+def get_origin(request):
+    try:
+        origin = request.META['REMOTE_HOST']
+        print "orig=%s" % origin
+    except KeyError:
+        origin = 'unknown rest'
+    data = get_payload(request)
+    if 'origin' in data and data['origin']:
+        origin = data['origin']
+    return origin
+
+
+###############################################################################
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def HostDetail(request, hostpk=None, hostname=None):
@@ -41,10 +64,11 @@ def HostDetail(request, hostpk=None, hostname=None):
         hostid = getReferredHost(hostpk, hostname)
         ans = {'result': 'ok', 'host': HostSerialize(hostid, request)}
     elif request.method == "POST":
+        origin = get_origin(request)
         try:
             hostid = getReferredHost(hostpk, hostname)
         except Http404:
-            newhost = Host(hostname=hostname)
+            newhost = Host(hostname=hostname, origin=origin)
             newhost.save()
             ans = {'result': 'ok', 'host': HostSerialize(newhost, request)}
         else:
@@ -94,22 +118,23 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
         sha = [KeyValueSerialize(k, request) for k in kvs]
         return JsonResponse({'result': result, 'keyvalues': sha})
     elif request.method == "POST":
+        origin = get_origin(request)
         if KeyValue.objects.filter(hostid=hostid, keyid=keyid, value=value):
             result = 'duplicate'
         elif KeyValue.objects.filter(hostid=hostid, keyid=keyid):
             if keytype == 'list':
-                addKeytoHost(hostid=hostid, keyid=keyid, value=value, appendFlag=True)
+                addKeytoHost(hostid=hostid, keyid=keyid, value=value, appendFlag=True, origin=origin)
                 result = 'appended'
             else:
                 try:
-                    addKeytoHost(hostid=hostid, keyid=keyid, value=value, updateFlag=True)
+                    addKeytoHost(hostid=hostid, keyid=keyid, value=value, updateFlag=True, origin=origin)
                     result = 'updated'
                 except HostinfoException as exc:
                     result = 'failed %s' % str(exc)
         else:
             result = 'created'
             try:
-                addKeytoHost(hostid=hostid, keyid=keyid, value=value)
+                addKeytoHost(hostid=hostid, keyid=keyid, value=value, origin=origin)
             except HostinfoException as exc:    # pragma: no cover
                 result = 'failed %s' % str(exc)
     elif request.method == "DELETE":
