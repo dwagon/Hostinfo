@@ -47,7 +47,6 @@ def get_payload(request):
 def get_origin(request):
     try:
         origin = request.META['REMOTE_HOST']
-        print "orig=%s" % origin
     except KeyError:
         origin = 'unknown rest'
     data = get_payload(request)

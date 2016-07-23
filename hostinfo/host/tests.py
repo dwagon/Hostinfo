@@ -3299,12 +3299,14 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_hostcreate(self):
-        response = self.client.post('/api/v1/host/noahsark')
+        data = {"origin": "testorigin"}
+        response = self.client.post('/api/v1/host/noahsark', data=json.dumps(data), content_type='application/json')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(ans['host']['hostname'], 'noahsark')
         host = Host.objects.get(hostname='noahsark')
+        self.assertEqual(host.origin, 'testorigin')
         host.delete()
 
     ###########################################################################
