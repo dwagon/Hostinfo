@@ -67,6 +67,13 @@ Create a new host
             }
     }
 
+Note that you can also send the origin through by adding a JSON payload::
+
+    {
+        "origin": "fluffy"
+    }
+
+
 Add an alias to a host
 ^^^^^^^^^^^^^^^^^^^^^^
 
