@@ -5,6 +5,10 @@ Changelog
 ====
 * Added the --count option to print out the number of matches
 * Fixed a bug with REST api url matching (Iss #36)
+* Sort value outputs (Iss #42)
+* Added option to output in JSON format (Iss #38)
+* Create Host through REST (Iss #40)
+* Pass the origin through the REST call (Iss #43)
 
 1.51
 ====
