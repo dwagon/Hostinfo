@@ -37,7 +37,7 @@ def HostQuery(request, query):
 ###############################################################################
 def get_payload(request):
     try:
-        data = json.loads(request.body)
+        data = json.loads(str(request.body))
     except ValueError:
         return {}
     return data
