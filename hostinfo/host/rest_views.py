@@ -36,8 +36,9 @@ def HostQuery(request, query):
 
 ###############################################################################
 def get_payload(request):
+    body_unicode = request.body.decode('utf-8')
     try:
-        data = json.loads(str(request.body))
+        data = json.loads(body_unicode)
     except ValueError:
         return {}
     return data
