@@ -10,8 +10,8 @@ List of hosts
 
     {
     "hosts": [
-        {"url": "http://.../api/host/1", "hostid": 1, "hostname": "alpha"},
-        {"url": "http://.../api/host/2", "hostid": 2, "hostname": "beta"}
+        {"url": "http://.../api/host/1", "id": 1, "hostname": "alpha"},
+        {"url": "http://.../api/host/2", "id": 2, "hostname": "beta"}
         ],
     "result": "2 hosts"
     }
@@ -106,7 +106,7 @@ Key values
                 "creetedate": "YYYY-MM-DD",
                 "host": {
                     "url": "http://.../api/host/437",
-                    "hostid": 437,
+                    "id": 437,
                     "hostname": "<hostname>"
                 }, 
                 "id": 50086, 
@@ -155,12 +155,33 @@ E.g.  ``GET /api/query/os=linux/foo=bar/``::
     "hosts": [
         {
             "url": "http://.../api/host/1",
-            "hostid": 1,
+            "id": 1,
             "hostname": "alpha"
             }
         ],
     "result": "1 matching hosts"
     }
+
+If you want to get more details you can pass a JSON payload::
+
+    {
+        "keys": "os"
+    }
+
+or a number of keys::
+
+    {
+        "keys": ["keya", "keyb"]
+    }
+
+or all keys::
+
+    {
+        "keys": "*"
+    }
+
+
+you can also pass 'links', 'aliases' and 'dates' with any value to get details about those.
 
 Details about a key
 ^^^^^^^^^^^^^^^^^^^
@@ -188,7 +209,7 @@ Details about a keyval
     {
     "keyvalue": {
         "origin": "hostinfo_addvalue",
-        "host": {"url": "http://.../api/host/1", "hostid": 1, "hostname": "alpha"},
+        "host": {"url": "http://.../api/host/1", "id": 1, "hostname": "alpha"},
         "keyid": 1,
         "modifieddate": "YYYY-MM-DD",
         "key": "os",
@@ -214,7 +235,7 @@ List of all aliases
                 u'alias': u'alias',
                 u'host': {
                     u'url': u'http://.../api/host/203',
-                    u'hostid': 203,
+                    u'id': 203,
                     u'hostname': u'realhost'
                     },
                 u'modifieddate': u'YYYY-MM-DD',
@@ -227,7 +248,7 @@ List of all aliases
                 u'alias': u'alias2',
                 u'host': {
                     u'url': u'http://.../api/host/203',
-                    u'hostid': 203,
+                    u'id': 203,
                     u'hostname': u'realhost'
                     },
                 u'modifieddate': u'YYYY-MM-DD',
