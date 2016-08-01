@@ -53,10 +53,13 @@ def HostQuery(request, query):
 ###############################################################################
 def get_payload(request):
     body_unicode = request.body.decode('utf-8')
+    data = {}
+    for k, v in request.GET.items():
+        data[k] = v
     try:
-        data = json.loads(body_unicode)
+        data.update(json.loads(body_unicode))
     except ValueError:
-        return {}
+        pass
     return data
 
 
