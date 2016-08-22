@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+1.53
+====
+* Added the count option to the bare interface (Iss #45)
+
 1.52
 ====
 * Added the --count option to print out the number of matches
