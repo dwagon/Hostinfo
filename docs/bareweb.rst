@@ -41,3 +41,9 @@ This is the equivalent of doing a ``hostinfo <criteria>``
 
 In both of these ``<criteria>`` can be multiple actual criteria.
 E.g. ``../hostlist/os.defined/os.ne.solaris/``
+
+Simple count of hosts
+---------------------
+Get a page with the number of the hosts that match the criteria ::
+
+    /bare/count/<criteria>

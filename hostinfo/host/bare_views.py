@@ -22,7 +22,7 @@ from django.shortcuts import render
 from .models import HostinfoException
 
 from .views import criteriaFromWeb
-from .views import hostData, calcKeylistVals
+from .views import calcKeylistVals, hostData
 
 
 ################################################################################
@@ -35,6 +35,17 @@ def displayHost(request, hostname):
     """ Display a single host """
     d = hostData(request.user, [hostname], linker=getConfLinks)
     return render(request, 'bare/host.html', d)
+
+
+################################################################################
+def doHostCount(request, criturl):
+    """ Display the count of matching hosts """
+    criteria = criteriaFromWeb(criturl)
+    data = hostData(request, criteria)
+    try:
+        return render(request, 'bare/hostcount.html', data)
+    except HostinfoException as err:    # pragma: no cover
+        return render(request, 'bare/hostcount.html', {'error': err})
 
 
 ################################################################################

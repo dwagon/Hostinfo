@@ -3626,6 +3626,17 @@ class test_bare(TestCase):
         self.host.delete()
 
     ###########################################################################
+    def test_hostcount(self):
+        """ Show in bare the count of hosts that match a criteria """
+        response = self.client.get('/bare/count/cnkey.defined/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['bare/hostcount.html', 'bare/base.html']
+            )
+        self.assertIn('1', str(response.content))
+
+    ###########################################################################
     def test_hostlist(self):
         """ Show in bare the hosts that match a criteria """
         response = self.client.get('/bare/hostlist/cnkey.defined/')
