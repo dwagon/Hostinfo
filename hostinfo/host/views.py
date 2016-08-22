@@ -277,12 +277,11 @@ def doRestrValList(request, key):
 
 
 ################################################################################
-def calcKeylistVals(key):
+def calcKeylistVals(key, hostids=[]):
     kvlist = KeyValue.objects.filter(keyid__key=key).values_list('hostid', 'value')
 
     # Calculate the number of times each value occurs
     values = {}
-    hostids = []
 
     for hostid, value in kvlist:
         if hostid not in hostids:

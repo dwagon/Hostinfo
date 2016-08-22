@@ -3678,6 +3678,16 @@ class test_bare(TestCase):
             )
 
     ###########################################################################
+    def test_keylist_with_crit(self):
+        """ Show in bare details about a key with criteria"""
+        response = self.client.get('/bare/keylist/cnkey/cnkey.defined/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['bare/keylist.html', 'bare/base.html']
+            )
+
+    ###########################################################################
     def test_hostcmp(self):
         """ Show in bare details about all hosts that match a criteria """
         response = self.client.get('/bare/hostcmp/cnkey.defin/')

@@ -24,6 +24,12 @@ Get the various values for a key and their popularity ::
 
 This is the equivalent of doing a ``hostinfo --valuereport <key>``
 
+Or for a subset of hosts::
+
+    /bare/keylist/<key>/<criteria>
+
+This is the equivalent of doing a ``hostinfo --valuereport <key> <criteria>``
+
 Details or lists of hosts
 --------------------------
 
