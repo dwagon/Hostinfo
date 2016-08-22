@@ -3269,6 +3269,45 @@ class test_orderhostlist(TestCase):
 
 
 ###############################################################################
+class test_restHost_keylist(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host = Host(hostname='hostrhkl')
+        self.host.save()
+        self.key = AllowedKey(key='rhkeykl', validtype=1, desc='testkey')
+        self.key.save()
+        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='val')
+        self.kv.save()
+
+    ###########################################################################
+    def tearDown(self):
+        self.kv.delete()
+        self.key.delete()
+        self.host.delete()
+
+    ###########################################################################
+    def test_keylist(self):
+        response = self.client.get('/api/keylist/rhkeykl/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key'], 'rhkeykl')
+        self.assertEquals(ans['numdef'], 1)
+        self.assertEquals(ans['numkeys'], 1)
+        self.assertEquals(ans['total'], 1)
+
+    ###########################################################################
+    def test_keylist_criteria(self):
+        response = self.client.get('/api/keylist/rhkeykl/rhkeykl.defined/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key'], 'rhkeykl')
+        self.assertEquals(ans['numdef'], 1)
+        self.assertEquals(ans['keylist'], [['val', 1, 100.0]])
+
+
+###############################################################################
 class test_restHost(TestCase):
     def setUp(self):
         self.client = Client()
@@ -3296,27 +3335,6 @@ class test_restHost(TestCase):
         self.key.delete()
         self.listkey.delete()
         self.host.delete()
-
-    ###########################################################################
-    def test_keylist(self):
-        response = self.client.get('/api/keylist/rhkey/')
-        self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content.decode())
-        self.assertEquals(ans['result'], 'ok')
-        self.assertEquals(ans['key'], 'rhkey')
-        self.assertEquals(ans['numdef'], 1)
-        self.assertEquals(ans['numkeys'], 1)
-        self.assertEquals(ans['total'], 1)
-
-    ###########################################################################
-    def test_keylist_criteria(self):
-        response = self.client.get('/api/keylist/rhkey/rhkey.defined/')
-        self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content.decode())
-        self.assertEquals(ans['result'], 'ok')
-        self.assertEquals(ans['key'], 'rhkey')
-        self.assertEquals(ans['numdef'], 1)
-        self.assertEquals(ans['keylist'], [['val', 1, 100.0]])
 
     ###########################################################################
     def test_hostcreate(self):
