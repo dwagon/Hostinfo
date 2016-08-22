@@ -1,6 +1,7 @@
 from .models import Host, AllowedKey, KeyValue, HostAlias, Links, RestrictedValue
 from .models import parseQualifiers, getMatches, getHost, HostinfoException
 from .models import addKeytoHost
+from .views import calcKeylistVals
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core.urlresolvers import reverse
@@ -85,6 +86,29 @@ def getReferredHost(hostpk=None, hostname=None):
         if not hostid:
             raise Http404("Host %s does not exist" % hostname)
     return hostid
+
+
+###############################################################################
+# /keylist/(keypk, key)/[query]
+@require_http_methods(["GET"])
+def KeyListRest(request, akeypk=None, akey=None, query=None):
+    matches = []
+    if akeypk:
+        akey = get_object_or_404(AllowedKey, id=akeypk)
+    elif akey:
+        akey = get_object_or_404(AllowedKey, key=akey)
+    if query:
+        criteria = query.split('/')
+        try:
+            qualifiers = parseQualifiers(criteria)
+        except HostinfoException as exc:    # pragma: no cover
+            return JsonResponse({'error': str(exc)}, status=406)
+        matches = getMatches(qualifiers)
+    else:
+        matches = []
+    data = calcKeylistVals(key=akey, hostids=matches)
+    data['result'] = 'ok'
+    return JsonResponse(data)
 
 
 ###############################################################################

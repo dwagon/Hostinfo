@@ -3298,6 +3298,27 @@ class test_restHost(TestCase):
         self.host.delete()
 
     ###########################################################################
+    def test_keylist(self):
+        response = self.client.get('/api/keylist/rhkey/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key'], 'rhkey')
+        self.assertEquals(ans['numdef'], 1)
+        self.assertEquals(ans['numkeys'], 1)
+        self.assertEquals(ans['total'], 1)
+
+    ###########################################################################
+    def test_keylist_criteria(self):
+        response = self.client.get('/api/keylist/rhkey/rhkey.defined/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key'], 'rhkey')
+        self.assertEquals(ans['numdef'], 1)
+        self.assertEquals(ans['keylist'], [['val', 1, 100.0]])
+
+    ###########################################################################
     def test_hostcreate(self):
         data = {"origin": "testorigin"}
         response = self.client.post('/api/v1/host/noahsark', data=json.dumps(data), content_type='application/json')

@@ -297,6 +297,8 @@ def calcKeylistVals(key, hostids=[]):
     tmpvalues.sort()
     total = Host.objects.count()
     numundef = total-len(hostids)
+    if not isinstance(key, str):
+        key = str(key)
     d = {
         'key': key,
         'keylist': tmpvalues,
