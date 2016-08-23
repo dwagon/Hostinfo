@@ -1,0 +1,13 @@
+{% extends "bare/base.html" %}
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+{% if error %}
+<h2 style="color:red"> {{error}} </h2> 
+{% endif %}
+
+{{count}}
+
+{% endblock %}
+{# EOF #}

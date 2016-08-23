@@ -24,6 +24,12 @@ Get the various values for a key and their popularity ::
 
 This is the equivalent of doing a ``hostinfo --valuereport <key>``
 
+Or for a subset of hosts::
+
+    /bare/keylist/<key>/<criteria>
+
+This is the equivalent of doing a ``hostinfo --valuereport <key> <criteria>``
+
 Details or lists of hosts
 --------------------------
 
@@ -41,3 +47,9 @@ This is the equivalent of doing a ``hostinfo <criteria>``
 
 In both of these ``<criteria>`` can be multiple actual criteria.
 E.g. ``../hostlist/os.defined/os.ne.solaris/``
+
+Simple count of hosts
+---------------------
+Get a page with the number of the hosts that match the criteria ::
+
+    /bare/count/<criteria>
