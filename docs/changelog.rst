@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+1.53
+====
+* Added the count option to the bare interface (Iss #45)
+* Added the valuereport equivalent to REST and bare interface (Iss #44)
+
 1.52
 ====
 * Added the --count option to print out the number of matches

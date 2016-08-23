@@ -1,6 +1,6 @@
 from django.conf.urls import url, include
 
-from .rest_views import HostAliasRest, HostKeyRest, HostLinkRest, HostDetail
+from .rest_views import HostAliasRest, HostKeyRest, HostLinkRest, HostDetail, KeyListRest
 from .rest_views import HostQuery, HostList, KeyDetail, KValDetail, AliasList
 
 hostspec = r'((?P<hostpk>[0-9]+?)|(?P<hostname>\S+?))'
@@ -22,6 +22,7 @@ urlpatterns = [
         url(r'^key/%s/?$' % akeyspec, KeyDetail, name='restakey'),
         url(r'^kval/(?P<pk>[0-9]+?)/$', KValDetail, name='restkval'),
         url(r'^query/(?P<query>\S+?)/$', HostQuery),
+        url(r'^keylist/%s/(?P<query>\S+?)?/?$' % akeyspec, KeyListRest),
         url(r'^alias/$', AliasList),
         ]
     ))

@@ -262,3 +262,31 @@ List of all aliases
         ]
     }
     
+ValueReport for keys
+^^^^^^^^^^^^^^^^^^^^
+
+To get the equivalent of the valureport that the command line interface has:
+
+``GET /api/keylist/<key>/``
+
+or
+
+``GET /api/keylist/<key>/<criteria>/``::
+
+    {
+        u'key': '<key>',
+        u'keylist': [['<val1>', <int>, <float>], ['<val2>', <int>, <float>, ...]],
+        u'numdef': <int>,
+        u'numkeys': <int>,
+        u'numundef': <int>
+        u'pctdef': <float>,
+        u'pctundef': <float>,
+        u'result': 'ok',
+        u'total': <int>,
+    }
+
+keylist is a list of:
+  * value of the key
+  * number of times that key has this value
+  * percent of hosts that have that value
+

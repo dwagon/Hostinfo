@@ -3269,6 +3269,45 @@ class test_orderhostlist(TestCase):
 
 
 ###############################################################################
+class test_restHost_keylist(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.host = Host(hostname='hostrhkl')
+        self.host.save()
+        self.key = AllowedKey(key='rhkeykl', validtype=1, desc='testkey')
+        self.key.save()
+        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='val')
+        self.kv.save()
+
+    ###########################################################################
+    def tearDown(self):
+        self.kv.delete()
+        self.key.delete()
+        self.host.delete()
+
+    ###########################################################################
+    def test_keylist(self):
+        response = self.client.get('/api/keylist/rhkeykl/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key'], 'rhkeykl')
+        self.assertEquals(ans['numdef'], 1)
+        self.assertEquals(ans['numkeys'], 1)
+        self.assertEquals(ans['total'], 1)
+
+    ###########################################################################
+    def test_keylist_criteria(self):
+        response = self.client.get('/api/keylist/rhkeykl/rhkeykl.defined/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key'], 'rhkeykl')
+        self.assertEquals(ans['numdef'], 1)
+        self.assertEquals(ans['keylist'], [['val', 1, 100.0]])
+
+
+###############################################################################
 class test_restHost(TestCase):
     def setUp(self):
         self.client = Client()
@@ -3636,6 +3675,17 @@ class test_bare(TestCase):
         self.host.delete()
 
     ###########################################################################
+    def test_hostcount(self):
+        """ Show in bare the count of hosts that match a criteria """
+        response = self.client.get('/bare/count/cnkey.defined/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['bare/hostcount.html', 'bare/base.html']
+            )
+        self.assertIn('1', str(response.content))
+
+    ###########################################################################
     def test_hostlist(self):
         """ Show in bare the hosts that match a criteria """
         response = self.client.get('/bare/hostlist/cnkey.defined/')
@@ -3670,6 +3720,16 @@ class test_bare(TestCase):
     def test_keylist(self):
         """ Show in bare details about a key"""
         response = self.client.get('/bare/keylist/cnkey/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(
+            [t.name for t in response.templates],
+            ['bare/keylist.html', 'bare/base.html']
+            )
+
+    ###########################################################################
+    def test_keylist_with_crit(self):
+        """ Show in bare details about a key with criteria"""
+        response = self.client.get('/bare/keylist/cnkey/cnkey.defined/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(
             [t.name for t in response.templates],

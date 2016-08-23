@@ -19,14 +19,15 @@
 
 from django.conf.urls import patterns, url
 from .bare_views import (
-    displayHost, doKeylist, doHostcmp, doHostList
+    displayHost, doHostCount, doHostList, doHostcmp, doKeylist
     )
 
 urlpatterns = patterns(
     'host.bare_views',
     url(r'^hostlist/(?P<criturl>.*)/?$', doHostList),
+    url(r'^count/(?P<criturl>.*)/?$', doHostCount),
     url(r'^host/(?P<hostname>\S+)/?$', displayHost),
-    url(r'^keylist/(?P<key>\S+)/?$', doKeylist),
+    url(r'^keylist/(?P<key>\S+)/(?P<criturl>.*)?/?$', doKeylist),
     url(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$', doHostcmp),
     url(r'^hostcmp/?$', doHostcmp),
     )
