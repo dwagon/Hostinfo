@@ -5,6 +5,7 @@ Changelog
 ====
 * Added the count option to the bare interface (Iss #45)
 * Added the valuereport equivalent to REST and bare interface (Iss #44)
+* Retrieve specific values out with REST query (Iss #39)
 
 1.52
 ====
