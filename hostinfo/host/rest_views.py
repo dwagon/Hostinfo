@@ -20,7 +20,7 @@ def AliasList(request):
 
 ###############################################################################
 def getSerializerArgs(request):
-    sargs = {}
+    sargs = {'keys': False, 'links': False, 'aliases': False, 'dates': False, 'origin': False}
     payload = get_payload(request)
     if 'keys' in payload:
         sargs['keys'] = payload['keys']
