@@ -30,18 +30,20 @@ def getSerializerArgs(request):
         sargs['aliases'] = True
     if 'dates' in payload:
         sargs['dates'] = True
+    if 'origin' in payload:
+        sargs['origin'] = True
     return sargs
 
 
 ###############################################################################
 @require_http_methods(["GET"])
 def HostQuery(request, query):
+    sargs = getSerializerArgs(request)
     criteria = query.split('/')
     try:
         qualifiers = parseQualifiers(criteria)
     except HostinfoException as exc:    # pragma: no cover
         return JsonResponse({'error': str(exc)}, status=406)
-    sargs = getSerializerArgs(request)
     matches = getMatches(qualifiers)
     hosts = [Host.objects.get(id=pk) for pk in matches]
     ans = {
@@ -172,7 +174,7 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
                 try:
                     addKeytoHost(hostid=hostid, keyid=keyid, value=value, updateFlag=True, origin=origin)
                     result = 'updated'
-                except HostinfoException as exc:
+                except HostinfoException as exc:    # pragma: no cover
                     result = 'failed %s' % str(exc)
         else:
             result = 'created'
@@ -309,8 +311,7 @@ def KValDetail(request, pk=None):
 
 ###############################################################################
 def HostSerialize(obj, request, **kwargs):
-    fields = {}
-    fields = {'keys': False, 'aliases': False, 'links': False, 'dates': False}
+    fields = {'keys': False, 'aliases': False, 'links': False, 'dates': False, 'origin': False}
     if 'keys' in kwargs:
         fields['keys'] = kwargs['keys']
     if 'aliases' in kwargs:
@@ -319,15 +320,19 @@ def HostSerialize(obj, request, **kwargs):
         fields['links'] = kwargs['links']
     if 'dates' in kwargs:
         fields['dates'] = kwargs['dates']
+    if 'origin' in kwargs:
+        fields['origin'] = kwargs['origin']
     if not kwargs:
-        fields = {'keys': ['*'], 'aliases': True, 'links': True, 'dates': True}
+        fields = {'keys': ['*'], 'aliases': True, 'links': True, 'dates': True, 'origin': True}
 
     ans = {
         'id': obj.id,
         'hostname': obj.hostname,
-        'origin': obj.origin,
-        'url': request.build_absolute_uri(reverse('resthost', args=(obj.id,))),
+        'url': request.build_absolute_uri(reverse('resthost', args=(obj.id,)))
         }
+
+    if fields['origin']:
+        ans['origin'] = obj.origin
 
     if fields['dates']:
         ans['createdate'] = obj.createdate
