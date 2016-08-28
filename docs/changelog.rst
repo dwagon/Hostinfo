@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+1.53.1
+======
+* Fixed bug with pulling specific values out with REST query (Iss #46)
+
+
 1.53
 ====
 * Added the count option to the bare interface (Iss #45)
