@@ -3271,6 +3271,7 @@ class test_orderhostlist(TestCase):
 ###############################################################################
 class test_restHost_keylist(TestCase):
     def setUp(self):
+        clearAKcache()
         self.client = Client()
         self.host = Host(hostname='hostrhkl')
         self.host.save()
@@ -3305,6 +3306,64 @@ class test_restHost_keylist(TestCase):
         self.assertEquals(ans['key'], 'rhkeykl')
         self.assertEquals(ans['numdef'], 1)
         self.assertEquals(ans['keylist'], [['val', 1, 100.0]])
+
+
+###############################################################################
+class test_restHost_query(TestCase):
+    def setUp(self):
+        clearAKcache()
+        self.client = Client()
+        self.host = Host(hostname='hostrhq')
+        self.host.save()
+        self.key = AllowedKey(key='rhqkey', validtype=1, desc='testkey')
+        self.key.save()
+        self.kv = KeyValue(hostid=self.host, keyid=self.key, value='val')
+        self.kv.save()
+
+    ###########################################################################
+    def tearDown(self):
+        self.kv.delete()
+        self.key.delete()
+        self.host.delete()
+
+    ###########################################################################
+    def test_query(self):
+        response = self.client.get('/api/query/rhqkey=val/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], '1 matching hosts')
+        self.assertEquals(ans['hosts'][0]['hostname'], 'hostrhq')
+        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url']))
+
+    ###########################################################################
+    def test_query_origin(self):
+        response = self.client.get('/api/query/rhqkey=val/?origin=True')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url', 'origin']))
+
+    ###########################################################################
+    def test_query_multi(self):
+        response = self.client.get('/api/query/rhqkey=val/?aliases=True&dates=True&links=True')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url', 'aliases', 'createdate', 'modifieddate', 'links']))
+
+    ###########################################################################
+    def test_query_keys(self):
+        response = self.client.get('/api/query/rhqkey=val/?keys=rhqkey')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], '1 matching hosts')
+        self.assertEquals(ans['hosts'][0]['hostname'], 'hostrhq')
+        self.assertEquals(ans['hosts'][0]['keyvalues']['rhqkey'][0]['value'], 'val')
+
+    ###########################################################################
+    def test_bad_query(self):
+        response = self.client.get('/api/query/badkey=val/')
+        self.assertEquals(response.status_code, 406)
+        ans = json.loads(response.content.decode())
+        self.assertIn('badkey', ans['error'])
 
 
 ###############################################################################
@@ -3387,31 +3446,6 @@ class test_restHost(TestCase):
     def test_missing_details(self):
         response = self.client.get('/api/host/badhost/')
         self.assertEquals(response.status_code, 404)
-
-    ###########################################################################
-    def test_query(self):
-        response = self.client.get('/api/query/rhkey=val/')
-        self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content.decode())
-        self.assertEquals(ans['result'], '1 matching hosts')
-        self.assertEquals(ans['hosts'][0]['hostname'], 'hostrh')
-
-    ###########################################################################
-    def Xtest_query_keys(self):
-        data = {"keys": "rhkey"}
-        response = self.client.get('/api/query/rhkey=val/', data=data)
-        self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content.decode())
-        self.assertEquals(ans['result'], '1 matching hosts')
-        self.assertEquals(ans['hosts'][0]['hostname'], 'hostrh')
-        self.assertEquals(ans['hosts'][0]['keyvalues']['rhkey'][0]['value'], 'val')
-
-    ###########################################################################
-    def test_bad_query(self):
-        response = self.client.get('/api/query/badkey=val/')
-        self.assertEquals(response.status_code, 406)
-        ans = json.loads(response.content.decode())
-        self.assertIn('badkey', ans['error'])
 
     ###########################################################################
     def test_list_aliases(self):
