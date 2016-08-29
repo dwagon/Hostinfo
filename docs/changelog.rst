@@ -4,6 +4,7 @@ Changelog
 1.53.2
 ======
 * Improved speed when counting in the bare interface (Iss #47)
+* Fixed valuereport bugs for REST and bare interface (Iss #48)
 
 1.53.1
 ======
