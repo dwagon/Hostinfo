@@ -22,7 +22,7 @@ from django.shortcuts import render
 from .models import HostinfoException, calcKeylistVals, getMatches, parseQualifiers
 
 from .views import criteriaFromWeb
-from .views import hostData
+from .views import hostData, hostCount
 
 
 ################################################################################
@@ -41,7 +41,7 @@ def displayHost(request, hostname):
 def doHostCount(request, criturl):
     """ Display the count of matching hosts """
     criteria = criteriaFromWeb(criturl)
-    data = hostData(request, criteria)
+    data = hostCount(request, criteria)
     try:
         return render(request, 'bare/hostcount.html', data)
     except HostinfoException as err:    # pragma: no cover

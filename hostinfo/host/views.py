@@ -104,6 +104,23 @@ def doHost(request, hostname):
 
 
 ################################################################################
+def hostCount(user, criteria=[]):
+    """ Count number of matching hosts """
+    starttime = time.time()
+    hl = getHostList(criteria)
+    elapsed = time.time()-starttime
+
+    d = {
+        'elapsed': "%0.4f" % elapsed,
+        'title': " AND ".join(criteria),
+        'criteria': criteriaToWeb(criteria),
+        'user': user,
+        'count': len(hl),
+        }
+    return d
+
+
+################################################################################
 def hostData(user, criteria=[], options='', printers=[], order=None, linker=None):
     """ Convert criteria and other options into a consistent data format
     for consumption in the templates """
