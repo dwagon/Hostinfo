@@ -18,6 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import defaultdict
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -415,6 +416,46 @@ def parseQualifiers(args):
             raise HostinfoException("Unknown qualifier %s" % arg)
 
     return qualifiers
+
+
+################################################################################
+def calcKeylistVals(key, from_hostids=[]):
+    getAK(key)
+    kvlist = KeyValue.objects.filter(keyid__key=key).values_list('hostid', 'value')
+    if not from_hostids:
+        from_hostids = [v[0] for v in Host.objects.all().values_list('id')]
+    total = len(from_hostids)
+
+    # Calculate the number of times each value occurs
+    values = defaultdict(int)
+    hostids = set()
+    for hostid, value in kvlist:
+        if hostid not in from_hostids:
+            continue
+        hostids.add(hostid)
+        values[value] += 1
+
+    # Calculate for each distinct value percentages
+    tmpvalues = []
+    for k, v in list(values.items()):
+        p = 100.0 * v / len(hostids)
+        tmpvalues.append((k, v, p))
+
+    tmpvalues.sort()
+    numundef = total - len(hostids)
+    if not isinstance(key, str):
+        key = str(key)
+    d = {
+        'key': key,
+        'vallist': tmpvalues,
+        'numvals': len(tmpvalues),
+        'numdef': len(hostids),
+        'pctdef': 100.0*len(hostids)/total,
+        'numundef': numundef,
+        'pctundef': 100.0*numundef/total,
+        'total': total,
+    }
+    return d
 
 
 ################################################################################

@@ -1,7 +1,6 @@
 from .models import Host, AllowedKey, KeyValue, HostAlias, Links, RestrictedValue
 from .models import parseQualifiers, getMatches, getHost, HostinfoException
-from .models import addKeytoHost
-from .views import calcKeylistVals
+from .models import addKeytoHost, calcKeylistVals
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core.urlresolvers import reverse
@@ -127,7 +126,7 @@ def KeyListRest(request, akeypk=None, akey=None, query=None):
         matches = getMatches(qualifiers)
     else:
         matches = []
-    data = calcKeylistVals(key=akey, hostids=matches)
+    data = calcKeylistVals(key=akey, from_hostids=matches)
     data['result'] = 'ok'
     return JsonResponse(data)
 

@@ -25,7 +25,7 @@ from collections import defaultdict
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
-from .models import Host, KeyValue, AllowedKey
+from .models import Host, KeyValue, AllowedKey, calcKeylistVals
 from .models import RestrictedValue, HostinfoException
 from .models import Links, getHostList, getAliases
 
@@ -274,42 +274,6 @@ def doRestrValList(request, key):
         'rvlist': rvlist
     }
     return render(request, 'host/restrval.template', d)
-
-
-################################################################################
-def calcKeylistVals(key, hostids=[]):
-    kvlist = KeyValue.objects.filter(keyid__key=key).values_list('hostid', 'value')
-
-    # Calculate the number of times each value occurs
-    values = {}
-
-    for hostid, value in kvlist:
-        if hostid not in hostids:
-            hostids.append(hostid)
-        values[value] = values.get(value, 0) + 1
-
-    # Calculate for each distinct value percentages
-    tmpvalues = []
-    for k, v in list(values.items()):
-        p = 100.0 * v / len(hostids)
-        tmpvalues.append((k, v, p))
-
-    tmpvalues.sort()
-    total = Host.objects.count()
-    numundef = total-len(hostids)
-    if not isinstance(key, str):
-        key = str(key)
-    d = {
-        'key': key,
-        'keylist': tmpvalues,
-        'numkeys': len(tmpvalues),
-        'numdef': len(hostids),
-        'pctdef': 100.0*len(hostids)/total,
-        'numundef': numundef,
-        'pctundef': 100.0*numundef/total,
-        'total': total,
-    }
-    return d
 
 
 ################################################################################
