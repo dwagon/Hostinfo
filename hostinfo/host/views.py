@@ -320,7 +320,11 @@ def doKeylist(request, key):
     Also do other key funkiness
     """
     starttime = time.time()
-    d = calcKeylistVals(key)
+    d = {}
+    try:
+        d = calcKeylistVals(key)
+    except HostinfoException as exc:
+        d['error'] = exc
     d['elapsed'] = "%0.4f" % (time.time() - starttime)
     d['user'] = request.user
     return render(request, 'host/keylist.template', d)
