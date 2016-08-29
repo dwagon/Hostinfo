@@ -152,6 +152,7 @@ class Command(HostinfoCommand):
         """ Display a report about the values a key has and how many hosts have
         that particular value
         """
+        # TODO: Migrate to using calcKeylistVals
         outstr = ""
         values = {}
         hostids = set()   # hostids that match the criteria

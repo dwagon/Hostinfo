@@ -6,7 +6,7 @@
 <table class="table table-striped">
 <tr>
     <td colspan="2">
-        {{ key }} &nbsp; ({{ numkeys }} different values)
+        {{ key }} &nbsp; ({{ numvals }} different values)
     </td>
 </tr>
 <tr>
@@ -25,7 +25,7 @@
         ({{ numundef }} instance{{numdef|pluralize}} - {{pctundef|floatformat:1}}%)
     </td>
 </tr>
-{% for kv in keylist %}
+{% for kv in vallist %}
 <tr>
     <td>
         {{ kv.0 }}

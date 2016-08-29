@@ -27,7 +27,7 @@ urlpatterns = patterns(
     url(r'^hostlist/(?P<criturl>.*)/?$', doHostList),
     url(r'^count/(?P<criturl>.*)/?$', doHostCount),
     url(r'^host/(?P<hostname>\S+)/?$', displayHost),
-    url(r'^keylist/(?P<key>\S+)/(?P<criturl>.*)?/?$', doKeylist),
+    url(r'^keylist/(?P<key>\S+?)/(?P<criturl>.*)?/?$', doKeylist),
     url(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$', doHostcmp),
     url(r'^hostcmp/?$', doHostcmp),
     )

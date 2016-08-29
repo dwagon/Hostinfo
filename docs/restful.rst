@@ -275,9 +275,9 @@ or
 
     {
         u'key': '<key>',
-        u'keylist': [['<val1>', <int>, <float>], ['<val2>', <int>, <float>, ...]],
+        u'vallist': [['<val1>', <int>, <float>], ['<val2>', <int>, <float>, ...]],
         u'numdef': <int>,
-        u'numkeys': <int>,
+        u'numvals': <int>,
         u'numundef': <int>
         u'pctdef': <float>,
         u'pctundef': <float>,

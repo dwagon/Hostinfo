@@ -25,7 +25,7 @@ from collections import defaultdict
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
-from .models import Host, KeyValue, AllowedKey
+from .models import Host, KeyValue, AllowedKey, calcKeylistVals
 from .models import RestrictedValue, HostinfoException
 from .models import Links, getHostList, getAliases
 
@@ -101,6 +101,23 @@ def doHost(request, hostname):
     """ Display a single host """
     d = hostData(request.user, [hostname], linker=getWebLinks)
     return render(request, 'host/host.template', d)
+
+
+################################################################################
+def hostCount(user, criteria=[]):
+    """ Count number of matching hosts """
+    starttime = time.time()
+    hl = getHostList(criteria)
+    elapsed = time.time()-starttime
+
+    d = {
+        'elapsed': "%0.4f" % elapsed,
+        'title': " AND ".join(criteria),
+        'criteria': criteriaToWeb(criteria),
+        'user': user,
+        'count': len(hl),
+        }
+    return d
 
 
 ################################################################################
@@ -277,42 +294,6 @@ def doRestrValList(request, key):
 
 
 ################################################################################
-def calcKeylistVals(key, hostids=[]):
-    kvlist = KeyValue.objects.filter(keyid__key=key).values_list('hostid', 'value')
-
-    # Calculate the number of times each value occurs
-    values = {}
-
-    for hostid, value in kvlist:
-        if hostid not in hostids:
-            hostids.append(hostid)
-        values[value] = values.get(value, 0) + 1
-
-    # Calculate for each distinct value percentages
-    tmpvalues = []
-    for k, v in list(values.items()):
-        p = 100.0 * v / len(hostids)
-        tmpvalues.append((k, v, p))
-
-    tmpvalues.sort()
-    total = Host.objects.count()
-    numundef = total-len(hostids)
-    if not isinstance(key, str):
-        key = str(key)
-    d = {
-        'key': key,
-        'keylist': tmpvalues,
-        'numkeys': len(tmpvalues),
-        'numdef': len(hostids),
-        'pctdef': 100.0*len(hostids)/total,
-        'numundef': numundef,
-        'pctundef': 100.0*numundef/total,
-        'total': total,
-    }
-    return d
-
-
-################################################################################
 def doKeylist(request, key):
     """ Return all values for the specified key
     Need to count the number of different hosts, not different values to work out
@@ -320,7 +301,11 @@ def doKeylist(request, key):
     Also do other key funkiness
     """
     starttime = time.time()
-    d = calcKeylistVals(key)
+    d = {}
+    try:
+        d = calcKeylistVals(key)
+    except HostinfoException as exc:
+        d['error'] = exc
     d['elapsed'] = "%0.4f" % (time.time() - starttime)
     d['user'] = request.user
     return render(request, 'host/keylist.template', d)
