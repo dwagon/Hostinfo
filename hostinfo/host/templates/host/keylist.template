@@ -2,7 +2,7 @@
 {% block title %} Values of {{ key }} {% endblock %}
 {% block content %}
 {% load local_escape %}
-{{ key }} &nbsp; ({{ numkeys }} different values)
+{{ key }} &nbsp; ({{ numvals }} different values)
 <ul class="list-group">
     <li class="list-group-item"> 
         <a href="/hostinfo/hostcmp/{{ key }}.defined">{{key.title}} set</a>
@@ -16,7 +16,7 @@
             ({{ numundef }} instance{{numdef|pluralize}} - {{pctundef|floatformat:1}}%)
         </span>
     </li> 
-{% for kv in keylist %}
+{% for kv in vallist %}
     <li class="list-group-item">
         <a class="keyvalue" href="/hostinfo/hostcmp/{{ key }}.eq.{{ kv.0|local_escape }}">{{ kv.0 }}</a>
         <span class="badge">
