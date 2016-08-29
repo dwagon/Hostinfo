@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+1.53.2
+======
+* Improved speed when counting in the bare interface (Iss #47)
+
 1.53.1
 ======
 * Fixed bug with pulling specific values out with REST query (Iss #46)
