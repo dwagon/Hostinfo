@@ -19,10 +19,10 @@
 
 from django.shortcuts import render
 
-from .models import HostinfoException, getHostList
+from .models import HostinfoException, calcKeylistVals, getMatches, parseQualifiers
 
 from .views import criteriaFromWeb
-from .views import calcKeylistVals, hostData
+from .views import hostData
 
 
 ################################################################################
@@ -67,7 +67,8 @@ def doKeylist(request, key, criturl=None):
     data = {}
     if criturl:
         criteria = criteriaFromWeb(criturl)
-        hostids = getHostList(criteria)
+        qualifiers = parseQualifiers(criteria)
+        hostids = getMatches(qualifiers)
         data['title'] = "Valuereport for %s: %s" % (key, " AND ".join(criteria))
     else:
         hostids = []
