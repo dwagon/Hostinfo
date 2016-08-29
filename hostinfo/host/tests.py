@@ -34,7 +34,7 @@ except ImportError:
 from .models import HostinfoException, ReadonlyValueException, RestrictedValueException
 from .models import Host, HostAlias, AllowedKey, KeyValue, RestrictedValue, Links
 
-from .models import validateDate, clearAKcache
+from .models import validateDate, clearAKcache, calcKeylistVals
 from .models import parseQualifiers, getMatches
 from .models import getHost, checkHost, getAK
 from .models import addKeytoHost, run_from_cmdline
@@ -2553,31 +2553,23 @@ class test_url_keylist(TestCase):
             ['host/base.html', 'host/keylist.template']
             )
         self.assertEquals(response.context['key'], 'urlkey')
-        self.assertEquals(response.context['total'], 2)          # Number of hosts
-        self.assertEquals(response.context['numkeys'], 1)        # Number of different values
-        self.assertEquals(response.context['pctundef'], 50)      # % hosts with key not defined
-        self.assertEquals(response.context['numundef'], 1)       # Num hosts with key not defined
-        self.assertEquals(response.context['pctdef'], 50)        # % hosts with key defined
-        self.assertEquals(response.context['numdef'], 1)         # Num hosts with key defined
-        self.assertEquals(response.context['keylist'], [('foo', 1, 100)])    # Key, Value, Percentage
+        self.assertEquals(response.context['total'], 2)      # Number of hosts
+        self.assertEquals(response.context['numvals'], 1)    # Number of different values
+        self.assertEquals(response.context['pctundef'], 50)  # % hosts with key not def
+        self.assertEquals(response.context['numundef'], 1)   # Num hosts with key not def
+        self.assertEquals(response.context['pctdef'], 50)    # % hosts with key defined
+        self.assertEquals(response.context['numdef'], 1)     # Num hosts with key defined
+        self.assertEquals(response.context['vallist'], [('foo', 1, 100)])    # Key, Value, Percentage
 
     ###########################################################################
     def test_badkey(self):
         response = self.client.get('/hostinfo/keylist/badkey/')
         self.assertEquals(response.status_code, 200)
-        self.assertTrue('error' not in response.context)
+        self.assertTrue('error' in response.context)
         self.assertEquals(
             sorted([t.name for t in response.templates]),
             ['host/base.html', 'host/keylist.template']
             )
-        self.assertEquals(response.context['key'], 'badkey')
-        self.assertEquals(response.context['total'], 2)          # Number of hosts
-        self.assertEquals(response.context['numkeys'], 0)        # Number of different values
-        self.assertEquals(response.context['pctundef'], 100)      # % hosts with key not defined
-        self.assertEquals(response.context['numundef'], 2)       # Num hosts with key not defined
-        self.assertEquals(response.context['pctdef'], 0)        # % hosts with key defined
-        self.assertEquals(response.context['numdef'], 0)         # Num hosts with key defined
-        self.assertEquals(response.context['keylist'], [])    # Key, Value, Percentage
 
 
 ###############################################################################
@@ -3294,7 +3286,7 @@ class test_restHost_keylist(TestCase):
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(ans['key'], 'rhkeykl')
         self.assertEquals(ans['numdef'], 1)
-        self.assertEquals(ans['numkeys'], 1)
+        self.assertEquals(ans['numvals'], 1)
         self.assertEquals(ans['total'], 1)
 
     ###########################################################################
@@ -3305,7 +3297,7 @@ class test_restHost_keylist(TestCase):
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(ans['key'], 'rhkeykl')
         self.assertEquals(ans['numdef'], 1)
-        self.assertEquals(ans['keylist'], [['val', 1, 100.0]])
+        self.assertEquals(ans['vallist'], [['val', 1, 100.0]])
 
 
 ###############################################################################
@@ -3765,6 +3757,7 @@ class test_bare(TestCase):
         """ Show in bare details about a key with criteria"""
         response = self.client.get('/bare/keylist/cnkey/cnkey.defined/')
         self.assertEquals(response.status_code, 200)
+        self.assertIn('tbval', str(response.content))
         self.assertEquals(
             [t.name for t in response.templates],
             ['bare/keylist.html', 'bare/base.html']
@@ -3779,6 +3772,74 @@ class test_bare(TestCase):
             sorted([str(t.name) for t in response.templates]),
             sorted(['bare/base.html', 'bare/showall.html', 'bare/multihost.html'])
             )
+
+
+###############################################################################
+class test_calcKeylistVals(TestCase):
+    def setUp(self):
+        clearAKcache()
+        self.key1 = AllowedKey(key='ckvkey1', validtype=1)
+        self.key1.save()
+        self.key2 = AllowedKey(key='ckvkey2', validtype=1)
+        self.key2.save()
+        self.host1 = Host(hostname='ckvhost1')
+        self.host1.save()
+        self.host2 = Host(hostname='ckvhost2')
+        self.host2.save()
+        self.kv1 = KeyValue(hostid=self.host1, keyid=self.key1, value='foo')
+        self.kv1.save()
+        self.kv2 = KeyValue(hostid=self.host1, keyid=self.key2, value='bar')
+        self.kv2.save()
+        self.kv3 = KeyValue(hostid=self.host2, keyid=self.key2, value='baz')
+        self.kv3.save()
+
+    def tearDown(self):
+        self.kv3.delete()
+        self.kv2.delete()
+        self.kv1.delete()
+        self.host2.delete()
+        self.host1.delete()
+        self.key2.delete()
+        self.key1.delete()
+
+    def test_conditional(self):
+        qualifiers = parseQualifiers(['ckvkey1.undefined'])
+        matches = getMatches(qualifiers)
+        d = calcKeylistVals('ckvkey2', matches)
+        self.assertEquals(d['key'], 'ckvkey2')
+        self.assertEquals(d['numdef'], 1)
+        self.assertEquals(d['numundef'], 0)
+        self.assertEquals(d['pctdef'], 100.0)
+        self.assertEquals(d['pctundef'], 0.0)
+        self.assertEquals(d['total'], 1)
+        self.assertEquals(d['numvals'], 1)
+        self.assertEquals(d['vallist'], [(u'baz', 1, 100.0)])
+
+    def test_another_key(self):
+        d = calcKeylistVals('ckvkey1')
+        self.assertEquals(d['key'], 'ckvkey1')
+        self.assertEquals(d['numdef'], 1)
+        self.assertEquals(d['numundef'], 1)
+        self.assertEquals(d['pctdef'], 50.0)
+        self.assertEquals(d['pctundef'], 50.0)
+        self.assertEquals(d['total'], 2)
+        self.assertEquals(d['numvals'], 1)
+        self.assertEquals(d['vallist'], [(u'foo', 1, 100.0)])
+
+    def test_simple_key(self):
+        d = calcKeylistVals('ckvkey2')
+        self.assertEquals(d['key'], 'ckvkey2')
+        self.assertEquals(d['numdef'], 2)
+        self.assertEquals(d['numundef'], 0)
+        self.assertEquals(d['pctdef'], 100.0)
+        self.assertEquals(d['pctundef'], 0.0)
+        self.assertEquals(d['total'], 2)
+        self.assertEquals(d['numvals'], 2)
+        self.assertEquals(d['vallist'], [(u'bar', 1, 50.0), (u'baz', 1, 50.0)])
+
+    def test_bad_key(self):
+        with self.assertRaises(HostinfoException):
+            calcKeylistVals('badkey')
 
 
 ###############################################################################
