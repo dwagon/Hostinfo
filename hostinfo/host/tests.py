@@ -3351,6 +3351,22 @@ class test_restHost_query(TestCase):
         self.assertEquals(ans['hosts'][0]['keyvalues']['rhqkey'][0]['value'], 'val')
 
     ###########################################################################
+    def test_query_multikeys(self):
+        k2 = AllowedKey(key='rhqkey2', validtype=1, desc='testkey2')
+        k2.save()
+        kv2 = KeyValue(hostid=self.host, keyid=k2, value='val2')
+        kv2.save()
+        response = self.client.get('/api/query/rhqkey=val/?keys=rhqkey,rhqkey2')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], '1 matching hosts')
+        self.assertEquals(ans['hosts'][0]['hostname'], 'hostrhq')
+        self.assertEquals(ans['hosts'][0]['keyvalues']['rhqkey'][0]['value'], 'val')
+        self.assertEquals(ans['hosts'][0]['keyvalues']['rhqkey2'][0]['value'], 'val2')
+        kv2.delete()
+        k2.delete()
+
+    ###########################################################################
     def test_bad_query(self):
         response = self.client.get('/api/query/badkey=val/')
         self.assertEquals(response.status_code, 406)

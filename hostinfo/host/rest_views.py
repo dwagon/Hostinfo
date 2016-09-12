@@ -57,7 +57,7 @@ def get_payload(request):
     body_unicode = request.body.decode('utf-8')
     data = {}
     for k, v in request.GET.items():
-        data[k] = v
+        data[k] = v.split(',')
     try:
         data.update(json.loads(body_unicode))
     except ValueError:

@@ -183,7 +183,7 @@ or all keys::
 You can pass it using the URI:
 
 
-E.g.  ``GET /api/query/os=linux/foo=bar/?keys=keya``
+E.g.  ``GET /api/query/os=linux/foo=bar/?keys=keya,keyb``
 
 
 you can also pass 'links', 'aliases', 'origin' and 'dates' with any value to get details about those.
