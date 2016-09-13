@@ -17,13 +17,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from .views import index, doReport
 
-urlpatterns = patterns(
-    'report.views',
+urlpatterns = [
     url(r'^$', index, name='reportIndex'),
     url(r'^(?P<report>\w+)/(?P<args>.*)', doReport, name='report'),
-    )
+    ]
 
 # EOF

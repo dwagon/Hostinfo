@@ -17,19 +17,18 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from .bare_views import (
     displayHost, doHostCount, doHostList, doHostcmp, doKeylist
     )
 
-urlpatterns = patterns(
-    'host.bare_views',
+urlpatterns = [
     url(r'^hostlist/(?P<criturl>.*)/?$', doHostList),
     url(r'^count/(?P<criturl>.*)/?$', doHostCount),
     url(r'^host/(?P<hostname>\S+)/?$', displayHost),
     url(r'^keylist/(?P<key>\S+?)/(?P<criturl>.*)?/?$', doKeylist),
     url(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$', doHostcmp),
     url(r'^hostcmp/?$', doHostcmp),
-    )
+    ]
 
 # EOF

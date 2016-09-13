@@ -17,16 +17,15 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, url
-from .views import index, doHostlist, doHost, doKeylist, handlePost
+from django.conf.urls import url
+from .views import index, doHostlist, doHost, doKeylist, handlePost, doHostcmp, doHostSummary, doCsvreport, doRestrValList
 from .edits import (
     doHostMerge, doHostMergeChoose, doHostRenameChoose, doHostEditChoose,
     doHostCreateChoose, doHostEdit, doHostCreate, doHostRename
     )
 
 
-urlpatterns = patterns(
-    'host.views',
+urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^handlePost/$', handlePost, name='formhandler'),
 
@@ -42,17 +41,17 @@ urlpatterns = patterns(
     url(r'^hostrename/$', doHostRenameChoose, name='hostRenameChoose'),
     url(r'^hostrename/(?P<srchost>\S+)/(?P<dsthost>\S+)$', doHostRename, name='hostRename'),
 
-    (r'^hostlist/(?P<criturl>.*)/(?P<options>opts=.*)?$', 'doHostlist'),
+    url(r'^hostlist/(?P<criturl>.*)/(?P<options>opts=.*)?$', doHostlist),
     url(r'^hostlist/$', doHostlist, name='hostlist'),
-    (r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?$', 'doHostcmp'),
-    (r'^hostcmp/$', 'doHostcmp'),
+    url(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?$', doHostcmp),
+    url(r'^hostcmp/$', doHostcmp),
     url(r'^host/(?P<hostname>\S+)/$', doHost, name='host'),
     url(r'^host/$', doHostlist),
-    (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
-    (r'^csv/$', 'doCsvreport'),
-    (r'^csv/(?P<criturl>.*)/$', 'doCsvreport'),
+    url(r'^host_summary/(?P<hostname>.*)$', doHostSummary),
+    url(r'^csv/$', doCsvreport),
+    url(r'^csv/(?P<criturl>.*)/$', doCsvreport),
     url(r'^keylist/(?P<key>\S+)/$', doKeylist, name='keylist'),
-    (r'^rvlist/(?P<key>\S+)/$', 'doRestrValList'),
-    )
+    url(r'^rvlist/(?P<key>\S+)/$', doRestrValList),
+    ]
 
 # EOF

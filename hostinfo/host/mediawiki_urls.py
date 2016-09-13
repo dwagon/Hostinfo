@@ -17,18 +17,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from .mediawiki_views import (
     hosttable, hostlist, displayHost, displaySummary, doRestrValList
     )
 
-urlpatterns = patterns(
-    'host.mediawiki_views',
+urlpatterns = [
     url(r'^hosttable/(?P<criturl>.*?)(?P<options>/(?:order=|print=).*)?$', hosttable),
     url(r'^hostlist/(?P<criturl>.*)/$', hostlist),
     url(r'^host/(?P<hostname>\S+)$', displayHost),
     url(r'^host_summary/(?P<hostname>.*)$', displaySummary),
     url(r'^rvlist/(?P<key>\S+)/$', doRestrValList),
-    )
+    ]
 
 # EOF
