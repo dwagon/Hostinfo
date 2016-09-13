@@ -11,7 +11,7 @@ import json
 
 ###############################################################################
 @require_http_methods(["GET"])
-def AliasList(request):
+def AliasList(request, *args):
     aliases = get_list_or_404(HostAlias)
     ans = {'result': 'ok', 'aliases': [HostAliasSerialize(a, request) for a in aliases]}
     return JsonResponse(ans)
@@ -283,7 +283,7 @@ def HostAliasRest(request, hostpk=None, hostname=None, aliaspk=None, alias=None)
 
 ###############################################################################
 @require_http_methods(["GET"])
-def HostList(request):
+def HostList(request, *args):
     hosts = get_list_or_404(Host)
     ans = {'result': '%d hosts' % len(hosts), 'hosts': [HostShortSerialize(h, request) for h in hosts]}
     return JsonResponse(ans)
