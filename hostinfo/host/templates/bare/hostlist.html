@@ -21,7 +21,7 @@
     <tr>
     <td>{{ host.hostname }}</td>
     {% if printers %}
-        {% for kv, vallist, safeval in host.hostview %}
+        {% for kv, vallist in host.hostview %}
             <td>
             {% for val in vallist %}
                 {{val.value}}
