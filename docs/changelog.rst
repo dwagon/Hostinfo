@@ -1,6 +1,8 @@
 Changelog
 ---------
 
+* Allow multiple keys on the REST query (Iss #50)
+
 1.53.2
 ======
 * Improved speed when counting in the bare interface (Iss #47)
