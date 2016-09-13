@@ -12,7 +12,8 @@ addons:
 before_script:
   - psql -c 'create database hostinfo;' -U postgres
   - psql -c 'create role hostinfo with createdb login;' -U postgres
-  - python hostinfo/manage.py syncdb --noinput
+  - python hostinfo/manage.py makemigrations --noinput
+  - python hostinfo/manage.py migrate --noinput
 script: cd hostinfo ; ./runtests 
 after_success:
     coveralls --data_file .coverage
