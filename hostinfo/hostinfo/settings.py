@@ -23,8 +23,6 @@ SECRET_KEY = 'sz=+0539&k7bt=0+3#@9pgn%0jmokiz9#g1%x3*(7cuzjlow^6'
 DEBUG = True
 VERSION = open(os.path.join(BASE_DIR, '..', 'version')).read().strip()
 
-TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
 
 LOGIN_REDIRECT_URL = '/hostinfo/'
