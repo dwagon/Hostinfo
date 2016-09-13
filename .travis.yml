@@ -2,14 +2,13 @@ language: python
 sudo: false
 python:
   - "2.7"
-  - "3.4"
   - "3.5"
 install:
   - pip install .
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
 addons:
-  postgresql: "9.3"
+  postgresql: "9.5"
 before_script:
   - psql -c 'create database hostinfo;' -U postgres
   - psql -c 'create role hostinfo with createdb login;' -U postgres
