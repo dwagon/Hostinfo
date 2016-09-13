@@ -2,6 +2,7 @@ Changelog
 ---------
 
 * Allow multiple keys on the REST query (Iss #50)
+* Upgrade to use Django 1.10+
 
 1.53.2
 ======
