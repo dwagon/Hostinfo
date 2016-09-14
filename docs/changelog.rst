@@ -2,7 +2,7 @@ Changelog
 ---------
 
 ====
-Note:: Schema change so remember to 'manage migrate'
+Note:: Schema change so remember to 'manage.py migrate'
 
 * Allow multiple keys on the REST query (Iss #50)
 * Added numeric key type (Iss #49)
