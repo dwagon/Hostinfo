@@ -32,7 +32,7 @@ class HostAliasAdmin(SimpleHistoryAdmin):
 class AllowedKeyAdmin(SimpleHistoryAdmin):
     search_fields = ['key']
     list_display = (
-        'key', 'validtype', 'restrictedFlag', 'readonlyFlag', 'auditFlag', 'desc')
+        'key', 'validtype', 'restrictedFlag', 'readonlyFlag', 'numericFlag', 'auditFlag', 'desc')
 
 
 class KeyValueAdmin(SimpleHistoryAdmin):

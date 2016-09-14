@@ -1,7 +1,11 @@
 Changelog
 ---------
 
+====
+Note:: Schema change so remember to 'manage migrate'
+
 * Allow multiple keys on the REST query (Iss #50)
+* Added numeric key type (Iss #49)
 * Upgrade to use Django 1.10+
 
 1.53.2

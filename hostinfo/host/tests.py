@@ -2,7 +2,7 @@
 
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2016 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -53,9 +53,12 @@ class test_SingleKey(TestCase):
         self.host.save()
         self.key = AllowedKey(key='single', validtype=1)
         self.key.save()
+        self.num = AllowedKey(key='number', validtype=1, numericFlag=True)
+        self.num.save()
 
     ###########################################################################
     def tearDown(self):
+        self.num.delete()
         self.key.delete()
         self.host.delete()
 
@@ -65,6 +68,27 @@ class test_SingleKey(TestCase):
         hostid = getHost(host)
         kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
         return kv[0].value
+
+    ###########################################################################
+    def checkNumValue(self, host, key):
+        keyid = getAK(key)
+        hostid = getHost(host)
+        kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
+        return kv[0].numvalue
+
+    ###########################################################################
+    def test_numeric_nonnumeric(self):
+        """Test numeric keys with a non-numeric value """
+        addKeytoHost(host='host', key='number', value='a')
+        self.assertEquals(self.checkValue('host', 'number'), 'a')
+        self.assertIsNone(self.checkNumValue('host', 'number'))
+
+    ###########################################################################
+    def test_numeric_numeric(self):
+        """Test numeric keys with a numeric value """
+        addKeytoHost(host='host', key='number', value='100')
+        self.assertEquals(self.checkValue('host', 'number'), '100')
+        self.assertEquals(self.checkNumValue('host', 'number'), 100)
 
     ###########################################################################
     def test_adds(self):
@@ -414,6 +438,11 @@ class test_getMatches(TestCase):
         self.singlekey.save()
         addKeytoHost(host='hostgma', key='single', value='100')
 
+        self.numberkey = AllowedKey(key='number', validtype=1, numericFlag=True)
+        self.numberkey.save()
+        addKeytoHost(host='hostgma', key='number', value='100')
+        addKeytoHost(host='hostgmb', key='number', value='2')
+
         self.listkey = AllowedKey(key='list', validtype=2)
         self.listkey.save()
         addKeytoHost(host='hostgma', key='list', value='alpha')
@@ -426,6 +455,7 @@ class test_getMatches(TestCase):
 
     ###########################################################################
     def tearDown(self):
+        self.numberkey.delete()
         self.singlekey.delete()
         self.listkey.delete()
         self.datekey.delete()
@@ -494,6 +524,10 @@ class test_getMatches(TestCase):
             getMatches([('equal', 'date', '2012/12/26')]),
             []
             )
+        self.assertEquals(
+            getMatches([('equal', 'number', '2.0')]),
+            [self.host2.id]
+            )
 
     ###########################################################################
     def test_unequals(self):
@@ -523,11 +557,15 @@ class test_getMatches(TestCase):
             set(getMatches([('unequal', 'date', '2012-12-26')])),
             set([self.host.id, self.host2.id])
             )
+        self.assertEquals(
+            set(getMatches([('unequal', 'number', '100.0')])),
+            set([self.host2.id])
+            )
 
     ###########################################################################
     def test_greaterthan(self):
-        # hostA: single=100, list==[alpha, beta], date=2012/12/25
-        # hostB: list=[alpha]
+        # hostA: single=100, list==[alpha, beta], date=2012/12/25, number=100
+        # hostB: list=[alpha], number=2
         self.assertEquals(getMatches([('greaterthan', 'single', '99')]), [])
         self.assertEquals(getMatches([('greaterthan', 'single', '101')]), [])
         self.assertEquals(
@@ -543,11 +581,15 @@ class test_getMatches(TestCase):
             getMatches([('greaterthan', 'date', '2012-12-26')]),
             []
             )
+        self.assertEquals(
+            getMatches([('greaterthan', 'number', '10')]),
+            [self.host.id]
+            )
 
     ###########################################################################
     def test_lessthan(self):
-        # hostA: single=100, list==[alpha, beta], date=2012/12/25
-        # hostB: list=[alpha]
+        # hostA: single=100, list==[alpha, beta], date=2012/12/25, number=100
+        # hostB: list=[alpha], number=2
         self.assertEquals(
             getMatches([('lessthan', 'single', '99')]),
             [self.host.id]
@@ -571,6 +613,10 @@ class test_getMatches(TestCase):
         self.assertEquals(
             getMatches([('lessthan', 'date', '2012-12-26')]),
             [self.host.id]
+            )
+        self.assertEquals(
+            getMatches([('lessthan', 'number', '90')]),
+            [self.host2.id]
             )
 
     ###########################################################################

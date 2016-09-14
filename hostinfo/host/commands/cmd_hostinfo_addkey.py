@@ -40,6 +40,10 @@ class Command(HostinfoCommand):
             help="Changes to this key won't be audited",
             action='store_false', default=True, dest='audit')
         parser.add_argument(
+            '--numeric',
+            help="Key contains a numeric value",
+            action='store_true', default=False, dest='numeric')
+        parser.add_argument(
             '--keytype',
             help="Type of key", choices=self.type_choices, default=None)
         parser.add_argument(
@@ -68,6 +72,7 @@ class Command(HostinfoCommand):
                 key=key, validtype=keytype, desc=desc,
                 restrictedFlag=namespace.restricted,
                 readonlyFlag=namespace.readonly,
+                numericFlag=namespace.numeric,
                 auditFlag=namespace.audit)
             newak.save()
         else:
@@ -87,4 +92,4 @@ class Command(HostinfoCommand):
                 "Unknown type %s - should be one of %s" % (keytype, ",".join(self.type_choices)))
         return vt
 
-#EOF
+# EOF

@@ -176,7 +176,7 @@ class AllowedKey(models.Model):
     restrictedFlag = models.BooleanField(default=False)
     readonlyFlag = models.BooleanField(default=False)
     auditFlag = models.BooleanField(default=True)
-    reservedFlag1 = models.BooleanField(default=True)
+    numericFlag = models.BooleanField(default=False)
     reservedFlag2 = models.BooleanField(default=True)
     docpage = models.URLField(blank=True, null=True)
     history = HistoricalRecords()
@@ -197,6 +197,7 @@ class KeyValue(models.Model):
     hostid = models.ForeignKey(Host, db_index=True)
     keyid = models.ForeignKey(AllowedKey, db_index=True)
     value = models.CharField(max_length=200, blank=True)
+    numvalue = models.FloatField(null=True)
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
@@ -207,6 +208,10 @@ class KeyValue(models.Model):
         if not user:
             user = getUser()
         self.value = self.value.lower().strip()
+        try:
+            self.numvalue = float(self.value)
+        except ValueError:
+            self.numvalue = None
         # Check to see if we are restricted
         if self.keyid.restrictedFlag:
             rk = RestrictedValue.objects.filter(keyid=self.keyid, value=self.value)
@@ -524,13 +529,22 @@ def getMatches(qualifiers):
             queryset = hostqs | aliasqs
             vals = []
         elif q == 'equal':
-            vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')
+            if key.numericFlag:
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values('hostid')
+            else:
+                vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')
         elif q == 'lessthan':
-            vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values('hostid')
+            if key.numericFlag:
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue__lt=v).values('hostid')
+            else:
+                vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values('hostid')
         elif q == 'approx':
             vals = getApproxObjects(keyid=key.id, value=v)
         elif q == 'greaterthan':
-            vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values('hostid')
+            if key.numericFlag:
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue__gt=v).values('hostid')
+            else:
+                vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values('hostid')
         elif q == 'contains':
             vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values('hostid')
         elif q == 'notcontains':
@@ -539,7 +553,10 @@ def getMatches(qualifiers):
         elif q == 'def':
             vals = KeyValue.objects.filter(keyid=key.id).values('hostid')
         elif q == 'unequal':
-            vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')
+            if key.numericFlag:
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values('hostid')
+            else:
+                vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')
             mode = 'difference'
         elif q == 'undef':
             vals = KeyValue.objects.filter(keyid=key.id).values('hostid')
