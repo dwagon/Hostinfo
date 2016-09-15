@@ -786,6 +786,84 @@ class test_checkHost(TestCase):
 
 
 ###############################################################################
+class test_cmd_hostinfo_xml(TestCase):
+    ###########################################################################
+    def setUp(self):
+        clearAKcache()
+        import argparse
+        from .commands.cmd_hostinfo import Command
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
+        self.cmd.parseArgs(self.parser)
+        self.h1 = Host(hostname='xh1', origin='me')
+        self.h1.save()
+        self.h2 = Host(hostname='xh2', origin='you')
+        self.h2.save()
+        self.ak1 = AllowedKey(key='xak1', numericFlag=True, desc="Test Key")
+        self.ak1.save()
+        self.ak2 = AllowedKey(key='xak2', restrictedFlag=True, desc="Restricted Test")
+        self.ak2.save()
+        self.rv = RestrictedValue(keyid=self.ak2, value='xkv3')
+        self.rv.save()
+        self.kv1 = KeyValue(hostid=self.h1, keyid=self.ak1, value='1', origin='foo')
+        self.kv1.save()
+        self.kv2 = KeyValue(hostid=self.h2, keyid=self.ak1, value='xkv2', origin='bar')
+        self.kv2.save()
+        self.kv3 = KeyValue(hostid=self.h1, keyid=self.ak2, value='xkv3', origin='baz')
+        self.kv3.save()
+        self.alias = HostAlias(hostid=self.h1, alias='xhalias')
+        self.alias.save()
+
+    ###########################################################################
+    def tearDown(self):
+        self.rv.delete()
+        self.alias.delete()
+        self.kv1.delete()
+        self.kv2.delete()
+        self.kv3.delete()
+        self.h1.delete()
+        self.h2.delete()
+        self.ak1.delete()
+        self.ak2.delete()
+
+    ###########################################################################
+    def test_xml_numerickey(self):
+        namespace = self.parser.parse_args(['--xml', '-p', 'xak1'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output[1], 0)
+        self.assertIn('<name>xak1</name>', output[0])
+        self.assertIn('<desc>Test Key</desc>', output[0])
+        self.assertIn('<numericFlag>True</numericFlag>', output[0])
+        self.assertIn('<auditFlag>True</auditFlag>', output[0])
+        self.assertIn('<type>single</type>', output[0])
+        self.assertIn('<confitem key="xak1">1</confitem>', output[0])
+
+    ###########################################################################
+    def test_xml_restrictedkey(self):
+        namespace = self.parser.parse_args(['--xml', '-p', 'xak2'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output[1], 0)
+        self.assertIn('<name>xak2</name>', output[0])
+        self.assertIn('<desc>Restricted Test</desc>', output[0])
+        self.assertIn('<numericFlag>False</numericFlag>', output[0])
+        self.assertIn('<auditFlag>True</auditFlag>', output[0])
+        self.assertIn('<restricted>', output[0])
+        self.assertIn('<value>xkv3</value>', output[0])
+        self.assertIn('<confitem key="xak2">xkv3</confitem>', output[0])
+
+    ###########################################################################
+    def test_hostinfo_xml(self):
+        """ Test outputting hosts only in xml mode """
+        namespace = self.parser.parse_args(['--xml'])
+        output = self.cmd.handle(namespace)
+        self.assertEquals(output[1], 0)
+        self.assertIn('<hostname>xh1</hostname>', output[0])
+        self.assertIn('<hostname>xh2</hostname>', output[0])
+        self.assertNotIn('confitem', output[0])
+        # TODO: Replace with something that pulls the whole xml apart
+
+
+###############################################################################
 class test_cmd_hostinfo(TestCase):
     ###########################################################################
     def setUp(self):
@@ -931,17 +1009,6 @@ class test_cmd_hostinfo(TestCase):
         namespace = self.parser.parse_args(['--count'])
         output = self.cmd.handle(namespace)
         self.assertEquals(output, ('2', 0))
-
-    ###########################################################################
-    def test_hostinfo_xml(self):
-        """ Test outputting hosts only in xml mode """
-        namespace = self.parser.parse_args(['--xml'])
-        output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
-        self.assertIn('<hostname>h1</hostname>', output[0])
-        self.assertIn('<hostname>h2</hostname>', output[0])
-        self.assertNotIn('confitem', output[0])
-        # TODO: Replace with something that pulls the whole xml apart
 
     ###########################################################################
     def test_hostinfo_hostsep(self):

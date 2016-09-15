@@ -270,6 +270,7 @@ class Command(HostinfoCommand):
             outstr += "    <type>%s</type>\n" % k.get_validtype_display()
             outstr += "    <readonlyFlag>%s</readonlyFlag>\n" % k.readonlyFlag
             outstr += "    <auditFlag>%s</auditFlag>\n" % k.auditFlag
+            outstr += "    <numericFlag>%s</numericFlag>\n" % k.numericFlag
             outstr += "    <docpage>%s</docpage>\n" % k.docpage
             outstr += "    <desc>%s</desc>\n" % k.desc
             if k.restrictedFlag:

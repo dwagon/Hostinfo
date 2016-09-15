@@ -110,6 +110,7 @@ class Command(HostinfoCommand):
         restrictedFlag = False
         readonlyFlag = False
         auditFlag = True
+        numericFlag = False
         docpage = ''
         desc = ''
         for kid in key.getchildren():
@@ -124,6 +125,8 @@ class Command(HostinfoCommand):
                 readonlyFlag = (kid.text == 'True')
             if kid.tag == 'auditFlag':
                 auditFlag = (kid.text == 'True')
+            if kid.tag == 'numericFlag':
+                numericFlag = (kid.text == 'True')
             if kid.tag == 'docpage':
                 if kid.text:
                     docpage = kid.text.strip()
@@ -141,6 +144,7 @@ class Command(HostinfoCommand):
             ak = AllowedKey(
                 key=name, validtype=keytype, restrictedFlag=restrictedFlag,
                 readonlyFlag=readonlyFlag, auditFlag=auditFlag,
+                numericFlag=numericFlag,
                 docpage=docpage, desc=desc)
             self.verbose("New key %s" % repr(ak))
             if not self.namespace.kiddingFlag:
