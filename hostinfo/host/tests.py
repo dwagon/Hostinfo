@@ -3279,8 +3279,11 @@ class test_orderhostlist(TestCase):
         self.key1.save()
         self.key2 = AllowedKey(key='ohlkey2', validtype=2)
         self.key2.save()
+        self.key3 = AllowedKey(key='ohlkey3', numericFlag=True)
+        self.key3.save()
         self.hosts = []
         self.kvals = []
+        counts = ['1', '9', '10', '20', '100']
         for h in ('a', 'b', 'c', 'd', 'e'):
             t = Host(hostname=h)
             t.save()
@@ -3294,6 +3297,9 @@ class test_orderhostlist(TestCase):
             kv = KeyValue(hostid=t, keyid=self.key2, value='2')
             kv.save()
             self.kvals.append(kv)
+            kv = KeyValue(hostid=t, keyid=self.key3, value=counts.pop(0))
+            kv.save()
+            self.kvals.append(kv)
 
     ###########################################################################
     def tearDown(self):
@@ -3303,10 +3309,17 @@ class test_orderhostlist(TestCase):
             h.delete()
         self.key1.delete()
         self.key2.delete()
+        self.key3.delete()
 
     ###########################################################################
     def test_order(self):
         out = orderHostList(self.hosts, 'ohlkey1')
+        self.hosts.sort(key=lambda x: x.hostname)
+        self.assertEquals(out, self.hosts)
+
+    ###########################################################################
+    def test_numeric_order(self):
+        out = orderHostList(self.hosts, 'ohlkey3')
         self.hosts.sort(key=lambda x: x.hostname)
         self.assertEquals(out, self.hosts)
 
@@ -3320,8 +3333,9 @@ class test_orderhostlist(TestCase):
     def test_noval(self):
         """ Output will be in hash order as all will sort equally
         """
-        out = orderHostList(self.hosts, 'badkey')
-        self.assertEquals(len(out), len(self.hosts))
+        with self.assertRaises(HostinfoException) as cm:
+            orderHostList(self.hosts, 'badkey')
+        self.assertEquals(cm.exception.msg, "Must use an existing key, not badkey")
 
     ###########################################################################
     def test_list(self):

@@ -27,7 +27,7 @@ from django.shortcuts import render
 
 from .models import Host, KeyValue, AllowedKey, calcKeylistVals
 from .models import RestrictedValue, HostinfoException
-from .models import Links, getHostList, getAliases
+from .models import Links, getHostList, getAliases, getAK
 
 
 ################################################################################
@@ -200,14 +200,21 @@ def orderHostList(hostlist, order):
         order = order[1:]
 
     tmp = []
+    ak = getAK(key=order)
     for host in hostlist:
-        kv = KeyValue.objects.filter(keyid__key=order, hostid=host)
+        kv = KeyValue.objects.filter(keyid=ak, hostid=host)
         if len(kv) == 0:
             val = ""
         elif len(kv) == 1:
-            val = kv[0].value
+            if ak.numericFlag:
+                val = kv[0].numvalue
+            else:
+                val = kv[0].value
         else:
-            val = ",".join([key.value for key in kv])
+            if ak.numericFlag:
+                val = ",".join([key.numvalue for key in kv])
+            else:
+                val = ",".join([key.value for key in kv])
         tmp.append((val, host))
     tmp.sort(key=lambda x: x[0])
     if direct == NEGATIVE:
