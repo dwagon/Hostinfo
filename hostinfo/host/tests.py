@@ -28,7 +28,7 @@ import time
 
 try:
     from StringIO import StringIO
-except ImportError:
+except ImportError:     # pragma: no cover
     from io import StringIO
 
 from .models import HostinfoException, ReadonlyValueException, RestrictedValueException
@@ -479,9 +479,9 @@ class test_getMatches(TestCase):
     ###########################################################################
     def test_lenlt(self):
         # Why people, why?!
-        if sys.version_info.major == 2:
+        if sys.version_info.major == 2:     # pragma: no cover
             tester = self.assertItemsEqual
-        else:
+        else:                               # pragma: no cover
             tester = self.assertCountEqual
         tester(
             getMatches([('lenlt', 'list', '2')]),
@@ -1804,27 +1804,6 @@ class test_cmd_history(TestCase):
         host.delete()
 
     ###########################################################################
-    def test_actor(self):
-        """ Make sure that we are saving the actor properly
-        """
-        # Currently actor is not supported
-        return
-        host = Host(hostname='host_history_a')
-        host.save()
-        ak = AllowedKey(key='key5_dv')
-        ak.save()
-        kv = KeyValue(keyid=ak, hostid=host, value='historic')
-        kv.save()
-        namespace = self.parser.parse_args(['-a', 'host_history_a'])
-        output = self.cmd.handle(namespace)
-        self.assertTrue('using ' in output[0])
-        self.assertTrue(sys.argv[0] in output[0])
-        self.assertTrue(self.t in output[0])
-        kv.delete()
-        ak.delete()
-        host.delete()
-
-    ###########################################################################
     def test_hostadd(self):
         host = Host(hostname='host_history_ha')
         host.save()
@@ -1866,29 +1845,6 @@ class test_cmd_history(TestCase):
         ak.delete()
         host.delete()
 
-    ###########################################################################
-    def test_noaudit(self):
-        return  # TODO - fix this
-        host = Host(hostname='host_history_na')
-        host.save()
-        ak1 = AllowedKey(key='key5_na', auditFlag=False)
-        ak1.save()
-        ak2 = AllowedKey(key='key6_na')
-        ak2.save()
-        kv = KeyValue(keyid=ak1, hostid=host, value='historic')
-        kv.save()
-        kv2 = KeyValue(keyid=ak2, hostid=host, value='historic')
-        kv2.save()
-        namespace = self.parser.parse_args(['host_history_na'])
-        output = self.cmd.handle(namespace)
-        self.assertFalse('added key5_na:historic on host_history_na' in output[0])
-        self.assertTrue('added key6_na:historic on host_history_na' in output[0])
-        kv.delete()
-        kv2.delete()
-        ak1.delete()
-        ak2.delete()
-        host.delete()
-
 
 ###############################################################################
 class test_cmd_import(TestCase):
@@ -1928,7 +1884,7 @@ class test_cmd_import(TestCase):
         self.cmd.handle(namespace)
         try:
             os.unlink(tmpf.name)
-        except OSError:
+        except OSError:     # pragma: no cover
             pass
         host = Host.objects.get(hostname='importhost')
         key = AllowedKey.objects.get(key='importkey')
@@ -1952,7 +1908,7 @@ class test_cmd_import(TestCase):
         self.cmd.handle(namespace)
         try:
             os.unlink(tmpf.name)
-        except OSError:
+        except OSError:     # pragma: no cover
             pass
         host = Host.objects.get(hostname='importhost2')
         key = AllowedKey.objects.get(key='importlistkey')
@@ -1977,7 +1933,7 @@ class test_cmd_import(TestCase):
         self.cmd.handle(namespace)
         try:
             os.unlink(tmpf.name)
-        except OSError:
+        except OSError:     # pragma: no cover
             pass
         host = Host.objects.get(hostname='importhost3')
         key = AllowedKey.objects.get(key='importrestkey')
