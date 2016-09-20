@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2012 Dougal Scott
+#    Copyright (C) 2016 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -65,4 +65,4 @@ class Command(HostinfoCommand):
                         raise HostinfoException("Cannot delete a readonly value")
         return None, 0
 
-#EOF
+# EOF
