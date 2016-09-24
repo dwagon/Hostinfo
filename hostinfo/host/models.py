@@ -425,8 +425,8 @@ def parseQualifiers(args):
 
 ################################################################################
 def calcKeylistVals(key, from_hostids=[]):
-    getAK(key)
-    kvlist = KeyValue.objects.filter(keyid__key=key).values_list('hostid', 'value')
+    keyid = getAK(key)
+    kvlist = KeyValue.objects.filter(keyid__key=key).values_list('hostid', 'value', 'numvalue')
     if not from_hostids:
         from_hostids = [v[0] for v in Host.objects.all().values_list('id')]
     total = len(from_hostids)
@@ -434,11 +434,14 @@ def calcKeylistVals(key, from_hostids=[]):
     # Calculate the number of times each value occurs
     values = defaultdict(int)
     hostids = set()
-    for hostid, value in kvlist:
+    for hostid, value, numvalue in kvlist:
         if hostid not in from_hostids:
             continue
         hostids.add(hostid)
-        values[value] += 1
+        if keyid.numericFlag:
+            values[numvalue] += 1
+        else:
+            values[value] += 1
 
     # Calculate for each distinct value percentages
     tmpvalues = []
