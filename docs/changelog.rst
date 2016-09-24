@@ -4,6 +4,7 @@ Changelog
 2.00
 ====
 Note:: Schema change so remember to 'manage.py migrate'
+Also helper script host/migrations/numeric_key to convert existing key to a numeric key and to save the existing keyvalues as numerics.
 
 * Allow multiple keys on the REST query (Iss #50)
 * Added numeric key type (Iss #49)
