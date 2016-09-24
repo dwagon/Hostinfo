@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
 from django.contrib.auth.views import login, logout
-
+from django.conf import settings
 from django.contrib import admin
 
 from .views import version
@@ -21,5 +21,11 @@ urlpatterns += [
     url(r'^accounts/login/', login, {'template_name': 'registration/login.html'}, name='login'),
     url(r'^accounts/logout/', logout, {'next_page': '/hostinfo/'}, name='logoff'),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
 
 # EOF
