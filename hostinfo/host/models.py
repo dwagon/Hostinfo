@@ -19,6 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
+from operator import itemgetter
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -435,27 +436,26 @@ def calcKeylistVals(key, from_hostids=[]):
     values = defaultdict(int)
     hostids = set()
     for hostid, value, numvalue in kvlist:
-        if hostid not in from_hostids:
-            continue
         hostids.add(hostid)
-        if keyid.numericFlag and numvalue is not None:
-            values[numvalue] += 1
-        else:
-            values[value] += 1
+        values[(value, numvalue)] += 1
 
     # Calculate for each distinct value percentages
     tmpvalues = []
     for k, v in list(values.items()):
         p = 100.0 * v / len(hostids)
-        tmpvalues.append((k, v, p))
+        tmpvalues.append((k[0], k[1], v, p))
+    # (strval, numval), count, pct
 
-    tmpvalues.sort()
+    if keyid.numericFlag:
+        tv = sorted(tmpvalues, key=itemgetter(1, 0))
+    else:
+        tv = sorted(tmpvalues, key=itemgetter(1))
     numundef = total - len(hostids)
     if not isinstance(key, str):
         key = str(key)
     d = {
         'key': key,
-        'vallist': tmpvalues,
+        'vallist': [(val, count, pct) for [val, numval, count, pct] in tv],
         'numvals': len(tmpvalues),
         'numdef': len(hostids),
         'pctdef': 100.0*len(hostids)/total,
