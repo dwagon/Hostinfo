@@ -452,7 +452,7 @@ def calcKeylistVals(key, from_hostids=[]):
     if keyid.numericFlag:
         tv = sorted(tmpvalues, key=itemgetter(1, 0))
     else:
-        tv = sorted(tmpvalues, key=itemgetter(1))
+        tv = sorted(tmpvalues, key=itemgetter(0))
     numundef = total - numdef
     if not isinstance(key, str):
         key = str(key)
