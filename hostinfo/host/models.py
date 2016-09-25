@@ -436,29 +436,32 @@ def calcKeylistVals(key, from_hostids=[]):
     values = defaultdict(int)
     hostids = set()
     for hostid, value, numvalue in kvlist:
+        if hostid not in from_hostids:
+            continue
         hostids.add(hostid)
         values[(value, numvalue)] += 1
+    numdef = len(hostids)
 
-    # Calculate for each distinct value percentages
+    # Calculate for each distinct value the percentages
     tmpvalues = []
     for k, v in list(values.items()):
-        p = 100.0 * v / len(hostids)
+        p = 100.0 * v / numdef
         tmpvalues.append((k[0], k[1], v, p))
-    # (strval, numval), count, pct
+        # (strval, numval), count, pct
 
     if keyid.numericFlag:
         tv = sorted(tmpvalues, key=itemgetter(1, 0))
     else:
         tv = sorted(tmpvalues, key=itemgetter(1))
-    numundef = total - len(hostids)
+    numundef = total - numdef
     if not isinstance(key, str):
         key = str(key)
     d = {
         'key': key,
         'vallist': [(val, count, pct) for [val, numval, count, pct] in tv],
         'numvals': len(tmpvalues),
-        'numdef': len(hostids),
-        'pctdef': 100.0*len(hostids)/total,
+        'numdef': numdef,
+        'pctdef': 100.0*numdef/total,
         'numundef': numundef,
         'pctundef': 100.0*numundef/total,
         'total': total,
