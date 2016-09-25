@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import time
+from collections import defaultdict
 
 from host.models import AllowedKey, KeyValue, parseQualifiers
 from host.models import getMatches, getAK, Host, getHost
@@ -154,21 +155,24 @@ class Command(HostinfoCommand):
         """
         # TODO: Migrate to using calcKeylistVals
         outstr = ""
-        values = {}
+        values = defaultdict(int)
         hostids = set()   # hostids that match the criteria
-        getAK(self.namespace.valuereport[0])
+        key = getAK(self.namespace.valuereport[0])
         total = len(matches)
         if total == 0:
             return ""
         nummatch = 0
         kvlist = KeyValue.objects.filter(
-            keyid__key=self.namespace.valuereport[0]).values_list('hostid', 'value')
+            keyid__key=self.namespace.valuereport[0]).values_list('hostid', 'value', 'numvalue')
 
-        for hostid, value in kvlist:
+        for hostid, value, numvalue in kvlist:
             if hostid not in matches:
                 continue
             hostids.add(hostid)
-            values[value] = values.get(value, 0)+1
+            if key.numericFlag and numvalue is not None:
+                values[numvalue] += 1
+            else:
+                values[value] += 1
         nummatch = len(hostids)     # Number of hosts that match
         numundef = total-len(hostids)
 
