@@ -438,7 +438,7 @@ def calcKeylistVals(key, from_hostids=[]):
         if hostid not in from_hostids:
             continue
         hostids.add(hostid)
-        if keyid.numericFlag:
+        if keyid.numericFlag and numvalue is not None:
             values[numvalue] += 1
         else:
             values[value] += 1
