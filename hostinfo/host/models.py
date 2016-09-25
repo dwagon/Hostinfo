@@ -527,6 +527,14 @@ def getMatches(qualifiers):
     for q, k, v in qualifiers:        # qualifier, key, value
         if q != 'hostre':   # hostre doesn't put a key into key
             key = getAK(k)
+            checknum = False
+            # Numeric keys can be queried for non-numeric values
+            if key and key.numericFlag:
+                try:
+                    float(v)
+                    checknum = True
+                except ValueError:
+                    pass
         mode = 'intersection'
         queryset = set([])        # Else if no match it won't have a queryset defined
         if q == 'host':
@@ -535,19 +543,19 @@ def getMatches(qualifiers):
             queryset = hostqs | aliasqs
             vals = []
         elif q == 'equal':
-            if key.numericFlag:
+            if checknum:
                 vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values('hostid')
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')
         elif q == 'lessthan':
-            if key.numericFlag:
+            if checknum:
                 vals = KeyValue.objects.filter(keyid=key.id, numvalue__lt=v).values('hostid')
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values('hostid')
         elif q == 'approx':
             vals = getApproxObjects(keyid=key.id, value=v)
         elif q == 'greaterthan':
-            if key.numericFlag:
+            if checknum:
                 vals = KeyValue.objects.filter(keyid=key.id, numvalue__gt=v).values('hostid')
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values('hostid')
@@ -559,7 +567,7 @@ def getMatches(qualifiers):
         elif q == 'def':
             vals = KeyValue.objects.filter(keyid=key.id).values('hostid')
         elif q == 'unequal':
-            if key.numericFlag:
+            if checknum:
                 vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values('hostid')
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')

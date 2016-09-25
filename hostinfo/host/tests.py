@@ -528,6 +528,10 @@ class test_getMatches(TestCase):
             getMatches([('equal', 'number', '2.0')]),
             [self.host2.id]
             )
+        try:
+            getMatches([('equal', 'number', 'five')]),
+        except Exception:
+            self.fail("Non-numeric value for numeric key in equal")
 
     ###########################################################################
     def test_unequals(self):
@@ -561,6 +565,10 @@ class test_getMatches(TestCase):
             set(getMatches([('unequal', 'number', '100.0')])),
             set([self.host2.id])
             )
+        try:
+            getMatches([('unequal', 'number', 'string')])
+        except Exception:
+            self.fail("Non-numeric value for numeric key in unequal")
 
     ###########################################################################
     def test_greaterthan(self):
@@ -585,6 +593,10 @@ class test_getMatches(TestCase):
             getMatches([('greaterthan', 'number', '10')]),
             [self.host.id]
             )
+        try:
+            getMatches([('greaterthan', 'number', 'hello')]),
+        except Exception:
+            self.fail("Non-numeric value for numeric key in greaterthan")
 
     ###########################################################################
     def test_lessthan(self):
@@ -618,6 +630,10 @@ class test_getMatches(TestCase):
             getMatches([('lessthan', 'number', '90')]),
             [self.host2.id]
             )
+        try:
+            getMatches([('lessthan', 'number', 'goodbye')]),
+        except Exception:
+            self.fail("Non-numeric value for numeric key in lessthan")
 
     ###########################################################################
     def test_contains(self):
