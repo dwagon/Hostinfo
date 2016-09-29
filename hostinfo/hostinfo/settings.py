@@ -29,7 +29,7 @@ LOGIN_REDIRECT_URL = '/hostinfo/'
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,11 +40,11 @@ INSTALLED_APPS = (
     'host',
     'hostinfo',
     'report',
-    'debug_toolbar',
-)
+]
+if DEBUG:
+    INSTALLED_APPS.append('debug_toolbar')
 
-MIDDLEWARE_CLASSES = (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -52,8 +52,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
-
-)
+]
+if DEBUG:
+    MIDDLEWARE_CLASSES.insert('debug_toolbar.middleware.DebugToolbarMiddleware', 0)
 
 ROOT_URLCONF = 'hostinfo.urls'
 
