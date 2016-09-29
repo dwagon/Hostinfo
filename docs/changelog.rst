@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+2.00.1
+======
+* Don't use debug toolbar if not in debug mode
+
 2.00
 ====
 Note:: Schema change so remember to 'manage.py migrate'
