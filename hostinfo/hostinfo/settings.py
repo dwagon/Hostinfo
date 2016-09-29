@@ -54,7 +54,7 @@ MIDDLEWARE_CLASSES = [
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
 if DEBUG:
-    MIDDLEWARE_CLASSES.insert('debug_toolbar.middleware.DebugToolbarMiddleware', 0)
+    MIDDLEWARE_CLASSES.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
 ROOT_URLCONF = 'hostinfo.urls'
 
