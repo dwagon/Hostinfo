@@ -20,9 +20,10 @@
 
 from collections import defaultdict
 from operator import itemgetter
-from django.db import models
+from django.db import models, connection
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 from simple_history.models import HistoricalRecords
 import argparse
 import os
@@ -763,6 +764,7 @@ class HostinfoCommand(object):
 ###############################################################################
 def run_from_cmdline():
     import importlib
+    start_time = time.time()
     cmdname = "host.commands.cmd_%s" % os.path.basename(sys.argv[0])
     try:
         cmd = importlib.import_module(cmdname)
@@ -778,6 +780,11 @@ def run_from_cmdline():
     except HostinfoException as exc:
         sys.stderr.write("%s\n" % exc.msg)
         return exc.retval
+    if settings.DEBUG:
+        end_time = time.time()
+        db_query_time = sum([float(x['time']) for x in connection.queries])
+        sys.stderr.write("DB Queries: %d queries in %f secs.\n" % (len(connection.queries), db_query_time))
+        sys.stderr.write("Total time %f secs\n" % (end_time - start_time))
     return retval
 
 # EOF
