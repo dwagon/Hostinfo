@@ -88,9 +88,9 @@ class Command(HostinfoCommand):
         parser.add_argument('criteria', nargs='*')
 
     ###########################################################################
-    def getHostCache(self):
+    def getHostCache(self, matches):
         c = {}
-        for h in Host.objects.all():
+        for h in Host.objects.filter(id__in=matches):
             c[h.id] = h
         return c
 
@@ -99,7 +99,6 @@ class Command(HostinfoCommand):
         global _hostcache
         self.namespace = namespace
         self.printout = namespace.printout
-        _hostcache = self.getHostCache()
         if namespace.host:
             host = getHost(namespace.host[0])
             if host:
@@ -112,6 +111,7 @@ class Command(HostinfoCommand):
             except TypeError as err:  # pragma: no cover
                 raise HostinfoException(err)
             matches = getMatches(qualifiers)
+        _hostcache = self.getHostCache(matches)
         output = self.Display(matches)
         if matches:
             retval = 0
