@@ -32,6 +32,8 @@ import sys
 import time
 
 _akcache = {None: None}
+_all_hosts = None
+_all_hosts_cache_time = None
 
 
 ################################################################################
@@ -112,6 +114,7 @@ class Host(models.Model):
 
     ############################################################################
     def save(self, user=None, **kwargs):
+        global _all_hosts
         if not user:
             user = getUser()
         self.hostname = self.hostname.lower()
@@ -119,14 +122,17 @@ class Host(models.Model):
             undo = UndoLog(user=user, action='hostinfo_deletehost --lethal %s' % self.hostname)
             undo.save()
         super(Host, self).save(**kwargs)
+        _all_hosts = None
 
     ############################################################################
     def delete(self, user=None):
+        global _all_hosts
         if not user:
             user = getUser()
         undo = UndoLog(user=user, action='hostinfo_addhost %s' % self.hostname)
         undo.save()
         super(Host, self).delete()
+        _all_hosts = None
 
     ############################################################################
     def __str__(self):  # pragma: no cover
@@ -430,7 +436,7 @@ def calcKeylistVals(key, from_hostids=[]):
     keyid = getAK(key)
     kvlist = KeyValue.objects.filter(keyid__key=key).values_list('hostid', 'value', 'numvalue')
     if not from_hostids:
-        from_hostids = [v[0] for v in Host.objects.all().values_list('id')]
+        from_hostids = [v[0] for v in get_all_hosts().values_list('id')]
     total = len(from_hostids)
 
     # Calculate the number of times each value occurs
@@ -501,9 +507,19 @@ def getApproxObjects(keyid, value):
 
 
 ################################################################################
+def get_all_hosts():
+    global _all_hosts
+    global _all_hosts_cache_time
+    if _all_hosts is None or _all_hosts_cache_time < time.time() - 60:
+        _all_hosts = Host.objects.all()
+        _all_hosts_cache_time = time.time()
+    return _all_hosts
+
+
+################################################################################
 def getHostList(criteria):
     allhosts = {}
-    for host in Host.objects.all():
+    for host in get_all_hosts():
         allhosts[host.id] = host
 
     qualifiers = parseQualifiers(criteria)
@@ -524,7 +540,7 @@ def getMatches(qualifiers):
     Unequal queries are handled a bit differently by taking the
     difference between all hosts and the hosts that have that value set.
     """
-    hostids = set([host.id for host in Host.objects.all()])
+    hostids = set([host.id for host in get_all_hosts()])
     for q, k, v in qualifiers:        # qualifier, key, value
         if q != 'hostre':   # hostre doesn't put a key into key
             key = getAK(k)
@@ -602,7 +618,7 @@ def getMatches(qualifiers):
                 lngth = int(v)
             except ValueError:
                 raise HostinfoException("Length must be an integer, not %s" % str(v))
-            for h in Host.objects.all():
+            for h in get_all_hosts():
                 if h.id not in hostids:
                     continue
                 vals = KeyValue.objects.filter(hostid=h.id, keyid=key.id)
