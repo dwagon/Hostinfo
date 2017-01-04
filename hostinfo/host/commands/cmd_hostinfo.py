@@ -199,7 +199,7 @@ class Command(HostinfoCommand):
         for aks in AllowedKey.objects.all():
             revcache[aks.id] = aks.key
 
-        kvs = KeyValue.objects.select_related('hostid', 'keyid').filter(hostid__in=matches)
+        kvs = KeyValue.objects.filter(hostid__in=matches)
 
         for host in matches:
             output = []
@@ -210,7 +210,7 @@ class Command(HostinfoCommand):
 
             # Get all the keyvalues for this host
             for k in kvs:
-                if k.hostid.id != host:
+                if k.hostid_id != host:
                     continue
                 keyname = revcache[k.keyid_id]
                 if keyname not in keyvals:
