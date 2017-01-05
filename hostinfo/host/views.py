@@ -31,13 +31,20 @@ from .models import Links, getHostList, getAliases, getAK
 
 
 ################################################################################
-def hostviewrepr(host, printers=[]):
-    """ Return a list of KeyValue objects per key for a host
-        E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
-    """
+def get_rev_akcache():
     revcache = {}
     for aks in AllowedKey.objects.all():
         revcache[aks.id] = aks.key
+    return revcache
+
+
+################################################################################
+def hostviewrepr(host, printers=[], revcache={}):
+    """ Return a list of KeyValue objects per key for a host
+        E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
+    """
+    if not revcache:
+        revcache = get_rev_akcache()
 
     kvlist = KeyValue.objects.filter(hostid__hostname=host)
     kvdict = defaultdict(list)
@@ -52,6 +59,7 @@ def hostviewrepr(host, printers=[]):
         tmp = kvdict.get(pr, [])
         tmp.sort(key=lambda x: x.value)
         output.append((pr, tmp))
+
     return output
 
 
@@ -135,10 +143,12 @@ def hostData(user, criteria=[], options='', printers=[], order=None, linker=None
     else:
         hl = sorted(hl, key=operator.attrgetter('hostname'))
     data = []
+    revcache = get_rev_akcache()
+
     for host in hl:
         tmp = {
             'hostname': host.hostname,
-            'hostview': hostviewrepr(host.hostname, printers=printers),
+            'hostview': hostviewrepr(host.hostname, printers=printers, revcache=revcache),
             'aliases': getAliases(host.hostname)
             }
         if linker:
@@ -256,9 +266,10 @@ def csvDump(hostlist, filename):
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
     # Convert list of hosts into all required data
+    revcache = get_rev_akcache()
     data = []
     for host in hostlist:
-        data.append((host.hostname, hostviewrepr(host.hostname), None))
+        data.append((host.hostname, hostviewrepr(host.hostname, revcache=revcache), None))
     data.sort(key=lambda x: x[0])
 
     # Grab all the headings
