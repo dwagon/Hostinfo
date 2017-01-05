@@ -199,7 +199,7 @@ class Command(HostinfoCommand):
         for aks in AllowedKey.objects.all():
             revcache[aks.id] = aks.key
 
-        batchsize = 10
+        batchsize = 100
         batches = []
         for b in range(0, len(matches), batchsize):
             batches.append(matches[b:b+batchsize])
@@ -207,7 +207,6 @@ class Command(HostinfoCommand):
         for batch in batches:
             kvs = KeyValue.objects.filter(hostid__in=batch)
             for host in batch:
-
                 output = []
                 keyvals = {}
                 keyorig = {}
@@ -252,13 +251,13 @@ class Command(HostinfoCommand):
                     timestr = ""
 
                 # Output the pregenerated output
-                outstr += "%s%s%s\n" % (_hostcache[host].hostname, originstr, timestr)
+                output.insert(0, "%s%s%s" % (_hostcache[host].hostname, originstr, timestr))
 
                 if self.namespace.aliases:
-                    outstr += "    [Aliases: %s]\n" % (", ".join(getAliases(_hostcache[host].hostname)))
+                    output.insert(0, "    [Aliases: %s]" % (", ".join(getAliases(_hostcache[host].hostname))))
 
-                for str in output:
-                    outstr += "%s\n" % str
+                outstr += "\n".join(output)
+                outstr += "\n"
         return outstr
 
     ###########################################################################
