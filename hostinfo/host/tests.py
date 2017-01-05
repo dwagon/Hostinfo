@@ -1015,10 +1015,9 @@ class test_cmd_hostinfo(TestCase):
     def test_hostinfo_showall(self):
         namespace = self.parser.parse_args(['--showall'])
         output = self.cmd.handle(namespace)
-        self.assertEquals(
-            output,
-            ('h1\n    ak1: kv1            \n    ak2: kv3            \nh2\n    ak1: kv2            \n', 0)
-            )
+        self.assertIn('ak1: kv1', output[0])
+        self.assertIn('ak2: kv3', output[0])
+        self.assertIn('ak1: kv2', output[0])
 
     ###########################################################################
     def test_hostinfo_count(self):
