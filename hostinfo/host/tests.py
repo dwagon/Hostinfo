@@ -997,19 +997,19 @@ class test_cmd_hostinfo(TestCase):
     def test_hostinfo_csv(self):
         namespace = self.parser.parse_args(['--csv'])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('hostname,\nh1\nh2\n', 0))
+        self.assertEquals(output, ('hostname,\nh1\nh2', 0))
 
     ###########################################################################
     def test_hostinfo_csvp(self):
         namespace = self.parser.parse_args(['--csv', '-p', 'ak1', '-p', 'ak2'])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('hostname,ak1,ak2\nh1,"kv1","kv3"\nh2,"kv2",\n', 0))
+        self.assertEquals(output, ('hostname,ak1,ak2\nh1,"kv1","kv3"\nh2,"kv2",', 0))
 
     ###########################################################################
     def test_hostinfo_csvsep(self):
         namespace = self.parser.parse_args(['-p', 'ak1', '-p', 'ak2', '--csv', '--sep', '#'])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('hostname#ak1#ak2\nh1#"kv1"#"kv3"\nh2#"kv2"#\n', 0))
+        self.assertEquals(output, ('hostname#ak1#ak2\nh1#"kv1"#"kv3"\nh2#"kv2"#', 0))
 
     ###########################################################################
     def test_hostinfo_showall(self):

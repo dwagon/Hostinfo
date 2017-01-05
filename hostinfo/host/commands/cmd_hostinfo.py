@@ -366,7 +366,7 @@ class Command(HostinfoCommand):
     def DisplayCSV(self, matches):
         """Display hosts and other printables in CSV format
         """
-        outstr = ""
+        output = []
         if self.namespace.showall:
             columns = [k.key for k in AllowedKey.objects.all()]
             columns.sort()
@@ -376,20 +376,20 @@ class Command(HostinfoCommand):
         cache = self.loadPrintoutCache(columns, matches)
 
         if self.namespace.header:
-            outstr += "hostname%s%s\n" % (self.namespace.sep[0], self.namespace.sep[0].join(columns))
+            output.append("hostname%s%s" % (self.namespace.sep[0], self.namespace.sep[0].join(columns)))
 
         for host in matches:
-            output = "%s" % _hostcache[host].hostname
+            outline = "%s" % _hostcache[host].hostname
             for p in columns:
-                output += self.namespace.sep[0]
+                outline += self.namespace.sep[0]
                 if host not in cache[p] or len(cache[p][host]) == 0:
                     pass
                 else:
                     vals = sorted(cache[p][host], key=lambda x: x['value'])
-                    output += '"%s"' % (self.namespace.sep[0].join([c['value'] for c in vals]))
+                    outline += '"%s"' % (self.namespace.sep[0].join([c['value'] for c in vals]))
 
-            outstr += "%s\n" % output
-        return outstr
+            output.append(outline)
+        return "\n".join(output)
 
     ###########################################################################
     def loadPrintoutCache(self, columns, matches=None):
