@@ -35,10 +35,14 @@ def hostviewrepr(host, printers=[]):
     """ Return a list of KeyValue objects per key for a host
         E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
     """
-    kvlist = KeyValue.objects.select_related().filter(hostid__hostname=host)
+    revcache = {}
+    for aks in AllowedKey.objects.all():
+        revcache[aks.id] = aks.key
+
+    kvlist = KeyValue.objects.filter(hostid__hostname=host)
     kvdict = defaultdict(list)
     for kv in kvlist:
-        kvdict[kv.keyid.key].append(kv)
+        kvdict[revcache[kv.keyid_id]].append(kv)
 
     if not printers:
         printers = sorted(kvdict.keys())
@@ -250,6 +254,7 @@ def criteriaFromWeb(criteria):
 def csvDump(hostlist, filename):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
     # Convert list of hosts into all required data
     data = []
     for host in hostlist:
