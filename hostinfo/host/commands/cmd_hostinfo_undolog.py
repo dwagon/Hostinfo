@@ -46,10 +46,13 @@ class Command(HostinfoCommand):
         if namespace.user:
             user = namespace.user[0]
         else:
-            user = os.getlogin()
+            try:
+                user = os.getlogin()
+            except OSError:
+                user = "unknown"
         ulog = UndoLog.objects.filter(user=user, actiondate__gte=then)
         for undoact in ulog:
             outstr += "%-55s # %s\n" % (undoact.action, undoact.actiondate)
         return outstr, 0
 
-#EOF
+# EOF
