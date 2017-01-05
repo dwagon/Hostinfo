@@ -195,11 +195,11 @@ class Command(HostinfoCommand):
         """Display all the known information about the matched hosts
         """
         revcache = {}
-        outstr = ""
+        outputs = []
         for aks in AllowedKey.objects.all():
             revcache[aks.id] = aks.key
 
-        batchsize = 100
+        batchsize = 10
         batches = []
         for b in range(0, len(matches), batchsize):
             batches.append(matches[b:b+batchsize])
@@ -207,57 +207,62 @@ class Command(HostinfoCommand):
         for batch in batches:
             kvs = KeyValue.objects.filter(hostid__in=batch)
             for host in batch:
-                output = []
-                keyvals = {}
-                keyorig = {}
-                keyctime = {}
-                keymtime = {}
+                outputs.append(self.gen_host(host, kvs, revcache))
+        return "\n".join(outputs)
 
-                # Get all the keyvalues for this host
-                for k in kvs:
-                    if k.hostid_id != host:
-                        continue
-                    keyname = revcache[k.keyid_id]
-                    if keyname not in keyvals:
-                        keyvals[keyname] = []
-                    keyvals[keyname].append(k.value)
-                    keyorig[keyname] = k.origin
-                    keyctime[keyname] = k.createdate
-                    keymtime[keyname] = k.modifieddate
+    ###########################################################################
+    def gen_host(self, host, kvs, revcache):
+        outstr = ""
+        output = []
+        keyvals = {}
+        keyorig = {}
+        keyctime = {}
+        keymtime = {}
 
-                # Generate the output string for each key/value pair
-                for key, values in keyvals.items():
-                    values.sort()
-                    if self.namespace.origin:
-                        originstr = "\t[Origin: %s]" % keyorig[key]
-                    else:
-                        originstr = ""
+        # Get all the keyvalues for this host
+        for k in kvs:
+            if k.hostid_id != host:
+                continue
+            keyname = revcache[k.keyid_id]
+            if keyname not in keyvals:
+                keyvals[keyname] = []
+            keyvals[keyname].append(k.value)
+            keyorig[keyname] = k.origin
+            keyctime[keyname] = k.createdate
+            keymtime[keyname] = k.modifieddate
 
-                    if self.namespace.times:
-                        timestr = "\t[Created: %s Modified: %s]" % (keyctime[key], keymtime[key])
-                    else:
-                        timestr = ""
-                    output.append("    %s: %-15s%s%s" % (key, self.namespace.sep[0].join(values), originstr, timestr))
-                output.sort()
+        # Generate the output string for each key/value pair
+        for key, values in keyvals.items():
+            values.sort()
+            if self.namespace.origin:
+                originstr = "\t[Origin: %s]" % keyorig[key]
+            else:
+                originstr = ""
 
-                # Generate the output for the hostname
-                if self.namespace.origin:
-                    originstr = "\t[Origin: %s]" % _hostcache[host].origin
-                else:
-                    originstr = ""
-                if self.namespace.times:
-                    timestr = "\t[Created: %s Modified: %s]" % (_hostcache[host].createdate, _hostcache[host].modifieddate)
-                else:
-                    timestr = ""
+            if self.namespace.times:
+                timestr = "\t[Created: %s Modified: %s]" % (keyctime[key], keymtime[key])
+            else:
+                timestr = ""
+            output.append("    %s: %-15s%s%s" % (key, self.namespace.sep[0].join(values), originstr, timestr))
+        output.sort()
 
-                # Output the pregenerated output
-                output.insert(0, "%s%s%s" % (_hostcache[host].hostname, originstr, timestr))
+        # Generate the output for the hostname
+        if self.namespace.origin:
+            originstr = "\t[Origin: %s]" % _hostcache[host].origin
+        else:
+            originstr = ""
+        if self.namespace.times:
+            timestr = "\t[Created: %s Modified: %s]" % (_hostcache[host].createdate, _hostcache[host].modifieddate)
+        else:
+            timestr = ""
 
-                if self.namespace.aliases:
-                    output.insert(0, "    [Aliases: %s]" % (", ".join(getAliases(_hostcache[host].hostname))))
+        # Output the pregenerated output
+        output.insert(0, "%s%s%s" % (_hostcache[host].hostname, originstr, timestr))
 
-                outstr += "\n".join(output)
-                outstr += "\n"
+        if self.namespace.aliases:
+            output.insert(0, "    [Aliases: %s]" % (", ".join(getAliases(_hostcache[host].hostname))))
+
+        outstr += "\n".join(output)
         return outstr
 
     ###########################################################################
