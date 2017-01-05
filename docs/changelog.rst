@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+2.00.2
+======
+* Speed improvements
+
 2.00.1
 ======
 * Don't use debug toolbar if not in debug mode
