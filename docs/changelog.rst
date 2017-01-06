@@ -1,9 +1,9 @@
 Changelog
 ---------
 
-2.00.2
-======
-* Speed improvements
+2.0.1
+=====
+* Speed improvements to --showall and hostlist
 
 2.00.1
 ======
