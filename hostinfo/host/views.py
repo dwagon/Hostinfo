@@ -179,9 +179,30 @@ def hostData(user, criteria=[], options='', printers=[], order=None, linker=None
 ################################################################################
 def doHostlist(request, criturl='', options=''):
     """ Display a list of matching hosts by name only"""
-    criteria = criteriaFromWeb(criturl)
     try:
-        return render(request, 'host/hostlist.template', hostData(request.user, criteria, options))
+        starttime = time.time()
+        criteria = criteriaFromWeb(criturl)
+        hl = getHostList(criteria)
+        hl = sorted(hl, key=operator.attrgetter('hostname'))
+        data = []
+        for host in hl:
+            data.append({'hostname': host.hostname})
+
+        d = {
+            'hostlist': data,
+            'elapsed': "%0.4f" % (time.time() - starttime),
+            'csvavailable': '/hostinfo/csv/%s' % criteriaToWeb(criteria),
+            'title': " AND ".join(criteria),
+            'criteria': criteriaToWeb(criteria),
+            'user': request.user,
+            'count': len(data),
+            'options': options,
+            }
+        if options and 'dates' in options:
+            d['dates'] = True
+        if options and 'origin' in options:
+            d['origin'] = True
+        return render(request, 'host/hostlist.template', d)
     except HostinfoException as err:
         return render(request, 'host/hostlist.template', {'error': err})
 
