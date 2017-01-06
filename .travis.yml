@@ -1,8 +1,8 @@
 language: python
 sudo: false
 env:
-    - DB=mysql
-    - DB=postgresql
+  - DB=mysql
+  - DB=postgresql
 python:
   - "2.7"
   - "3.5"
@@ -13,6 +13,8 @@ install:
 services:
     - mysql
     - postgresql
+before_install:
+  - if [[ $DB = 'mysql' ]]; then pip install MySQL-python; fi
 before_script:
   - if [[ $DB = 'postgresql' ]]; then psql -c 'create database hostinfo;' -U postgres; fi
   - if [[ $DB = 'postgresql' ]]; then psql -c 'create role hostinfo with createdb login;' -U postgres; fi
