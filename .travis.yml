@@ -1,5 +1,8 @@
 language: python
 sudo: false
+env:
+    - DB=mysql
+    - DB=postgresql
 python:
   - "2.7"
   - "3.5"
@@ -7,11 +10,13 @@ install:
   - pip install .
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
-addons:
-  postgresql: "9.4"
+services:
+    - mysql
+    - postgresql
 before_script:
-  - psql -c 'create database hostinfo;' -U postgres
-  - psql -c 'create role hostinfo with createdb login;' -U postgres
+  - if [[ $DB = 'postgresql' ]]; then psql -c 'create database hostinfo;' -U postgres; fi
+  - if [[ $DB = 'postgresql' ]]; then psql -c 'create role hostinfo with createdb login;' -U postgres; fi
+  - if [[ $DB = 'mysql' ]]; then mysql -e 'CREATE DATABASE hostinfo;'; fi
   - python hostinfo/manage.py makemigrations --noinput
   - python hostinfo/manage.py migrate --noinput
 script: cd hostinfo ; ./runtests 
