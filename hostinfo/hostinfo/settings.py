@@ -23,9 +23,27 @@ SECRET_KEY = 'sz=+0539&k7bt=0+3#@9pgn%0jmokiz9#g1%x3*(7cuzjlow^6'
 DEBUG = True
 VERSION = open(os.path.join(BASE_DIR, '..', 'version')).read().strip()
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+INTERNAL_IPS = ['127.0.0.1']
 
 LOGIN_REDIRECT_URL = '/hostinfo/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    }
+}
 
 # Application definition
 
@@ -73,6 +91,28 @@ DATABASES = {
         'HOST': '127.0.0.1',
     }
 }
+
+if 'TRAVIS' in os.environ:
+    if os.environ['DB'] == 'mysql':
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': 'hostinfo',
+                'USER': 'hostinfo',
+                'PASSWORD': '',
+                'HOST': '127.0.0.1',
+            }
+        }
+    elif os.environ['DB'] == 'postgresql':
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'NAME': 'hostinfo',
+                'USER': 'hostinfo',
+                'PASSWORD': '',
+                'HOST': '127.0.0.1',
+            }
+        }
 
 TEMPLATES = [
     {
