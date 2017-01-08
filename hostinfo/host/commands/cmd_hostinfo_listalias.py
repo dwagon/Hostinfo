@@ -43,7 +43,7 @@ class Command(HostinfoCommand):
         if not hid:
             raise HostinfoException("Host %s doesn't exist" % namespace.host)
         outstr += "%s\n" % hid.hostname
-        aliases = HostAlias.objects.filter(hostid=hid)
+        aliases = HostAlias.objects.filter(hostid=hid).order_by('alias')
         if not aliases:
             return outstr, 1
         for alias in aliases:
