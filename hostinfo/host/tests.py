@@ -2026,14 +2026,14 @@ class test_cmd_listalias(TestCase):
         """ Test listing all aliases """
         namespace = self.parser.parse_args(['--all'])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('foo host\nbar host\n', 0))
+        self.assertEquals(output, ('bar host\nfoo host\n', 0))
 
     ###########################################################################
     def test_listnone(self):
         """ Test listing neither all or a host """
         namespace = self.parser.parse_args([])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('foo host\nbar host\n', 0))
+        self.assertEquals(output, ('bar host\nfoo host\n', 0))
 
 
 ###############################################################################

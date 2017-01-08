@@ -35,7 +35,7 @@ class Command(HostinfoCommand):
     def handle(self, namespace):
         outstr = ""
         if namespace.all or not namespace.host:
-            aliases = HostAlias.objects.all()
+            aliases = HostAlias.objects.all().order_by('alias').select_related('hostid')
             for alias in aliases:
                 outstr += "%s %s\n" % (alias.alias, alias.hostid.hostname)
             return outstr, 0
@@ -51,4 +51,4 @@ class Command(HostinfoCommand):
 
         return outstr, 0
 
-#EOF
+# EOF
