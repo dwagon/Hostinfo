@@ -99,7 +99,7 @@ if 'TRAVIS' in os.environ:
                 'ENGINE': 'django.db.backends.mysql',
                 'NAME': 'hostinfo',
                 'USER': 'hostinfo',
-                'PASSWORD': '',
+                'PASSWORD': 'hostinfo',
                 'HOST': '127.0.0.1',
             }
         }
