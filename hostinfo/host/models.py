@@ -216,6 +216,8 @@ class KeyValue(models.Model):
         if not user:
             user = getUser()
         self.value = self.value.lower().strip()
+        if not self.value:
+            raise HostinfoException("Empty value not permitted")
         try:
             self.numvalue = float(self.value)
         except ValueError:
@@ -230,6 +232,7 @@ class KeyValue(models.Model):
             raise ReadonlyValueException(key=self.keyid, msg="%s is a readonly key" % self.keyid)
         if self.keyid.get_validtype_display() == 'date':
             self.value = validateDate(self.value)
+
         if self.id:                        # Check for update
             oldobj = KeyValue.objects.get(id=self.id)
             undo = UndoLog(user=user, action='hostinfo_replacevalue %s=%s %s %s' % (self.keyid, self.value, oldobj.value, self.hostid))

@@ -77,6 +77,14 @@ class test_SingleKey(TestCase):
         return kv[0].numvalue
 
     ###########################################################################
+    def test_blank_value(self):
+        """ Test that blank and whitespace only values fail """
+        with self.assertRaises(HostinfoException):
+            addKeytoHost(host='host', key='single', value='')
+        with self.assertRaises(HostinfoException):
+            addKeytoHost(host='host', key='single', value='  ')
+
+    ###########################################################################
     def test_numeric_nonnumeric(self):
         """Test numeric keys with a non-numeric value """
         addKeytoHost(host='host', key='number', value='a')

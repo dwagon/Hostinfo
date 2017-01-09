@@ -1,6 +1,9 @@
 Changelog
 ---------
 
+* Testing using mysql as well as postgresql in travis
+* Don't allow blank values (Iss#54)
+
 2.0.1
 =====
 * Speed improvements to --showall and hostlist
