@@ -282,19 +282,22 @@ def doHostEditChanges(request, hostname):
     listdata = {}
     newkey = None
     newval = None
+
     for k, v in list(request.POST.items()):
         if k == '_newkey.new':
             newkey = AllowedKey.objects.get(key=v)
         if k == '_newvalue.new':
             newval = v
+
     if newkey and newval:
         kv = KeyValue(hostid=hostobj, keyid=newkey, value=newval, origin='webform')
-        kv.save(request.user)
+        kv.save(user=request.user)
+
     for k, v in list(request.POST.items()):
         if k.startswith('_'):
             continue
         # An existing key is being edited
-        m = re.match('(?P<key>\D+)\.(?P<instance>[\d+|new])', k)
+        m = re.match('(?P<key>\w+)\.(?P<instance>[\d+|new])', k)
         if not m:
             continue
         key = m.group('key')
@@ -335,6 +338,5 @@ def doHostEditChanges(request, hostname):
             if val not in listdata[key]:
                 kv = KeyValue.objects.get(hostid=hostobj, keyid=keyobj, value=val)
                 kv.delete(request.user)
-
 
 # EOF
