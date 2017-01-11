@@ -152,14 +152,8 @@ class Command(HostinfoCommand):
         else:
             change = False
             if ak.validtype != keytype:
-                try:
-                    # self.verbose("Changing %s: keytype from %s to %s" % (name, ak.get_validtype_display(ak.validtype), ak.get_validtype_display(keytype)))
-                    pass
-                except TypeError:
-                    sys.stderr.write("Couldn't resolve issues with changing an existing key: %s\n" % name)
+                sys.stderr.write("Changing key types currently unsupported: %s\n" % name)
                     sys.exit(1)
-                ak.validtype = keytype
-                change = True
             if ak.restrictedFlag != restrictedFlag:
                 self.verbose("Changing %s: restrictedFlag from %s to %s" % (name, ak.restrictedFlag, restrictedFlag))
                 ak.restrictedFlag = restrictedFlag
