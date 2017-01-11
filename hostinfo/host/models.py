@@ -139,14 +139,6 @@ class Host(models.Model):
         return "%s" % self.hostname
 
     ############################################################################
-    def showall(self):
-        msg = "%s\n" % self.hostname
-        keys = KeyValue.objects.filter(hostid__hostname=self.hostname)
-        for k in keys:
-            msg += "%s:\t%s\n" % (k.keyid.key, k.value)
-        return msg
-
-    ############################################################################
     class Meta:
         ordering = ['hostname']
 
@@ -679,7 +671,8 @@ def getOrigin(origin):
         return origin
     try:
         origin = os.getlogin()
-    except OSError:        # Web interface can't do os.getlogin calls
+    except OSError:        # pragma: no cover
+        # Web interface can't do os.getlogin calls
         for e in ('REMOTE_USER', 'REMOTE_ADDR', 'USER'):
             try:
                 origin = os.environ[e]
@@ -748,10 +741,7 @@ def addKeytoHost(
             kv[0].save(readonlychange=readonlyFlag)
         elif appendFlag:
             checkkv = KeyValue.objects.filter(hostid=hostid, keyid=keyid, value=value)
-            if checkkv:
-                if checkkv[0].value != value:
-                    raise HostinfoException("%s:%s already has a value:%s" % (host, key, value))
-            else:
+            if not checkkv:
                 newkv = KeyValue(hostid=hostid, origin=origin, keyid=keyid, value=value)
                 newkv.save(readonlychange=readonlyFlag)
                 retval = 0
@@ -799,7 +789,7 @@ def run_from_cmdline():
     except HostinfoException as exc:
         sys.stderr.write("%s\n" % exc.msg)
         return exc.retval
-    if settings.DEBUG:
+    if settings.DEBUG:  # pragma: no cover
         end_time = time.time()
         db_query_time = sum([float(x['time']) for x in connection.queries])
         sys.stderr.write("DB Queries: %d queries in %f secs.\n" % (len(connection.queries), db_query_time))
