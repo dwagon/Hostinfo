@@ -153,7 +153,7 @@ class Command(HostinfoCommand):
             change = False
             if ak.validtype != keytype:
                 sys.stderr.write("Changing key types currently unsupported: %s\n" % name)
-                    sys.exit(1)
+                sys.exit(1)
             if ak.restrictedFlag != restrictedFlag:
                 self.verbose("Changing %s: restrictedFlag from %s to %s" % (name, ak.restrictedFlag, restrictedFlag))
                 ak.restrictedFlag = restrictedFlag

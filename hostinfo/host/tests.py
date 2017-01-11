@@ -1980,7 +1980,7 @@ class test_cmd_import(TestCase):
         try:
             os.unlink(tmpf.name)
         except OSError:     # pragma: no cover
-        pass
+            pass
         host = Host.objects.get(hostname='importhost4')
         newkey = AllowedKey.objects.get(key='importexisting')
         self.assertEquals(newkey.readonlyFlag, False)
