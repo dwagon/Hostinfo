@@ -2499,26 +2499,40 @@ class test_url_hostmerge(TestCase):
             )
 
     ###########################################################################
+    def test_merge_form_submit(self):
+        """ Submit the host merge form """
+        self.client.login(username='test', password='passwd')
+        response = self.client.post('/hostinfo/hostmerge/', {'srchost': 'merge1', 'dsthost': 'merge2'}, follow=True)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(
+            sorted([t.name for t in response.templates]),
+            sorted(['host/hostmerge.template', 'host/base.html', 'host/hostmerging.template'])
+            )
+        self.assertIn('action="/hostinfo/hostmerge/merge1/merge2"', response.content)
+
+    ###########################################################################
     def test_do_merge(self):
         """ Send answers to the host merge form
         """
         self.client.login(username='test', password='passwd')
         response = self.client.post(
-            '/hostinfo/hostmerge/',
-            {'srchost': 'merge1', 'dsthost': 'merge2', '_hostmerging': True},
+            '/hostinfo/hostmerge/merge1/merge2',
+            {'_srchost': 'merge1', '_dsthost': 'merge2', '_hostmerging': True, 'mergekey': 'src'},
             follow=True)
 
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed('host/hostmerge.template')
         self.assertTemplateUsed('host/base.template')
         self.assertTemplateUsed('host/hostmergeing.template')
-        # TODO
-        # host = Host.objects.filter(hostname='merge1')
-        # self.assertEquals(len(host), 0)
-        # host = Host.objects.filter(hostname='merge2')
-        # self.assertEquals(len(host), 1)
-        # kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
-        # self.assertEquals(kv[0].value, 'foo')
+
+        host = Host.objects.filter(hostname='merge1')
+        self.assertEquals(len(host), 0)
+
+        host = Host.objects.filter(hostname='merge2')
+        self.assertEquals(len(host), 1)
+
+        kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
+        self.assertEquals(kv[0].value, 'foo')
 
 
 ###############################################################################
