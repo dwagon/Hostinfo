@@ -1965,18 +1965,31 @@ class test_cmd_import(TestCase):
 
     ###########################################################################
     def test_change_existingkey(self):
-        # TODO
+        key = AllowedKey(key='importexisting', validtype=1, readonlyFlag=True, restrictedFlag=False, auditFlag=False, desc='old desc')
+        key.save()
+        tmpf = tempfile.NamedTemporaryFile(delete=False)
+        tmpf.write(b"""<hostinfo><key><name>importexisting</name>
+        <type>single</type> <readonlyFlag>False</readonlyFlag>
+        <auditFlag>True</auditFlag> <docpage></docpage> <desc>New Desc</desc>
+        <restricted> <value>alpha</value> <value>beta</value> </restricted> </key>
+        <host docpage="None" > <hostname>importhost4</hostname> <data>
+        <confitem key="importexisting">alpha</confitem> </data> </host> </hostinfo>""")
+        tmpf.close()
+        namespace = self.parser.parse_args([tmpf.name])
+        self.cmd.handle(namespace)
+        try:
+            os.unlink(tmpf.name)
+        except OSError:     # pragma: no cover
         pass
-
-    ###########################################################################
-    def test_verbose(self):
-        # TODO
-        pass
-
-    ###########################################################################
-    def test_kidding(self):
-        # TODO
-        pass
+        host = Host.objects.get(hostname='importhost4')
+        newkey = AllowedKey.objects.get(key='importexisting')
+        self.assertEquals(newkey.readonlyFlag, False)
+        self.assertEquals(newkey.auditFlag, True)
+        self.assertEquals(newkey.desc, 'New Desc')
+        keyvals = KeyValue.objects.get(hostid=host, keyid=newkey)
+        self.assertEquals(keyvals.value, 'alpha')
+        key.delete()
+        newkey.delete()
 
 
 ###############################################################################
