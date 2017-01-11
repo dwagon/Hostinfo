@@ -92,13 +92,11 @@ def mergeKey(request, srchostobj, dsthostobj, key):
 
 ################################################################################
 @login_required
-def doHostMerging(request):
+def doHostMerging(request, srchost, dsthost):
     """ Actually perform the merge
         We use underscores to avoid any future clash with keys that may be picked
     """
-    srchost = request.POST['_srchost']
     srchostobj = Host.objects.get(hostname=srchost)
-    dsthost = request.POST['_dsthost']
     dsthostobj = Host.objects.get(hostname=dsthost)
     for key in request.POST:
         if key.startswith('_'):
@@ -139,7 +137,7 @@ def doHostMerge(request, srchost, dsthost):
     d['dsthost'] = dsthost
     if '_hostmerging' in request.POST:
         # User has selected which bits to merge
-        doHostMerging(request)
+        doHostMerging(request, srchost, dsthost)
         d['merged'] = True
     else:
         d['keys'] = getHostMergeKeyData(getHost(srchost), getHost(dsthost))
