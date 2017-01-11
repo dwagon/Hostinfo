@@ -1879,12 +1879,10 @@ class test_cmd_import(TestCase):
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.stderr = sys.stderr
-        sys.stderr = StringIO()
 
     ###########################################################################
     def tearDown(self):
-        sys.stderr = self.stderr
+        pass
 
     ###########################################################################
     def test_badfile(self):
