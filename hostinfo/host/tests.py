@@ -2919,6 +2919,15 @@ class test_url_host_create(TestCase):
         self.assertTemplateUsed('host/hostcreate.template')
 
     ###########################################################################
+    def test_create_choose_submit(self):
+        response = self.client.post('/hostinfo/hostcreate/', {'newhost': 'noob'}, follow=True)
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed('host/hostcreate.template')
+        self.assertIn('noob has been successfully created', response.content)
+        host = Host.objects.filter(hostname='noob')
+        self.assertEquals(len(host), 1)
+
+    ###########################################################################
     def test_creation(self):
         response = self.client.post(
             '/hostinfo/hostcreate/darwin/',
