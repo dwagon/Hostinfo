@@ -2508,7 +2508,7 @@ class test_url_hostmerge(TestCase):
             sorted([t.name for t in response.templates]),
             sorted(['host/hostmerge.template', 'host/base.html', 'host/hostmerging.template'])
             )
-        self.assertIn('action="/hostinfo/hostmerge/merge1/merge2"', response.content)
+        self.assertIn(b'action="/hostinfo/hostmerge/merge1/merge2"', response.content)
 
     ###########################################################################
     def test_do_merge(self):
@@ -2923,7 +2923,7 @@ class test_url_host_create(TestCase):
         response = self.client.post('/hostinfo/hostcreate/', {'newhost': 'noob'}, follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed('host/hostcreate.template')
-        self.assertIn('noob has been successfully created', response.content)
+        self.assertIn(b'noob has been successfully created', response.content)
         host = Host.objects.filter(hostname='noob')
         self.assertEquals(len(host), 1)
 
