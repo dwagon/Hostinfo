@@ -236,6 +236,14 @@ class test_ListKey(TestCase):
         self.assertEquals(self.checkValue('host', 'lk_list'), ['a', 'b'])
 
     ###########################################################################
+    def test_append_twice(self):
+        """ Test to make sure we can't append the same value twice
+        """
+        addKeytoHost(host='host', key='lk_list', value='a')
+        addKeytoHost(host='host', key='lk_list', value='a', appendFlag=True)
+        self.assertEquals(self.checkValue('host', 'lk_list'), 'a')
+
+    ###########################################################################
     def test_badkey(self):
         """ Test adding to a key that doesn't exist"""
         with self.assertRaises(HostinfoException):
