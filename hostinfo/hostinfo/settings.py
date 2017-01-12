@@ -40,7 +40,7 @@ LOGGING = {
 }
 
 # Will print queries and their times to console
-if 'DEBUG_DJANGO_DB' is os.environ:
+if 'DEBUG_DJANGO_DB' in os.environ:
     LOGGING['loggers'] = {
         'django.db.backends': {
             'handlers': ['console'],
