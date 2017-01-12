@@ -37,13 +37,16 @@ LOGGING = {
             'class': 'logging.StreamHandler',
         }
     },
-#    'loggers': {
-#        'django.db.backends': {
-#            'handlers': ['console'],
-#            'level': 'DEBUG',
-#        },
-#    }
 }
+
+# Will print queries and their times to console
+if 'DEBUG_DJANGO_DB' is os.environ:
+    LOGGING['loggers'] = {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        }
+    }
 
 # Application definition
 
