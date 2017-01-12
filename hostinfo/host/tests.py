@@ -2485,15 +2485,28 @@ class test_url_hostmerge(TestCase):
         self.host2.save()
         self.key = AllowedKey(key='mergekey', validtype=1)
         self.key.save()
+        self.list = AllowedKey(key='mergelist', validtype=2)
+        self.list.save()
         self.kv = KeyValue(hostid=self.host1, keyid=self.key, value='foo')
         self.kv.save()
+        self.lv0 = KeyValue(hostid=self.host1, keyid=self.list, value='a')
+        self.lv0.save()
+        self.lv1 = KeyValue(hostid=self.host1, keyid=self.list, value='b')
+        self.lv1.save()
+        self.lv2 = KeyValue(hostid=self.host2, keyid=self.list, value='c')
+        self.lv2.save()
 
     ###########################################################################
     def tearDown(self):
+        self.kv.delete()
+        self.lv0.delete()
+        self.lv1.delete()
+        self.lv2.delete()
         self.user.delete()
         self.host1.delete()
         self.host2.delete()
         self.key.delete()
+        self.list.delete()
 
     ###########################################################################
     def test_merge_form(self):
@@ -2525,7 +2538,7 @@ class test_url_hostmerge(TestCase):
         self.client.login(username='test', password='passwd')
         response = self.client.post(
             '/hostinfo/hostmerge/merge1/merge2',
-            {'_srchost': 'merge1', '_dsthost': 'merge2', '_hostmerging': True, 'mergekey': 'src'},
+            {'_srchost': 'merge1', '_dsthost': 'merge2', '_hostmerging': True, 'mergekey': 'src', 'mergelist': 'src'},
             follow=True)
 
         self.assertEquals(response.status_code, 200)
@@ -2541,6 +2554,9 @@ class test_url_hostmerge(TestCase):
 
         kv = KeyValue.objects.filter(hostid=self.host2, keyid=self.key)
         self.assertEquals(kv[0].value, 'foo')
+
+        kvs = KeyValue.objects.filter(hostid=self.host2, keyid=self.list)
+        self.assertEquals(len(kvs), 2)
 
 
 ###############################################################################
