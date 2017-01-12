@@ -3030,6 +3030,7 @@ class test_url_host_edit(TestCase):
 
     ###########################################################################
     def test_hostedited(self):
+        self.kv2.delete()
         response = self.client.post(
             '/hostinfo/hostedit/hosteh/',
             {'hostname': 'hosteh', '_hostediting': 'hosteh', 'ehkey1.0': 'newval', '_newkey.new': 'ehkey3', '_newvalue.new': 'true'},
@@ -3038,8 +3039,8 @@ class test_url_host_edit(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
 
-        kv = KeyValue.objects.filter(hostid=self.host, keyid=self.key3)
-        self.assertEquals(kv[0].value, 'true')
+        self.kv2 = KeyValue.objects.filter(hostid=self.host, keyid=self.key3)
+        self.assertEquals(self.kv2[0].value, 'true')
 
         kv = KeyValue.objects.filter(hostid=self.host, keyid=self.key1)
         self.assertEquals(kv[0].value, 'newval')

@@ -249,6 +249,7 @@ def doHostEdit(request, hostname):
             d['errorsmall'] = "Please pick one of: %s" % reserr
         else:
             return HttpResponseRedirect('/hostinfo/host/%s' % hostname)
+
     # User has selected which host to change
     keyvals = hostviewrepr(hostname)
     kvlist = []
