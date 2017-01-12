@@ -299,7 +299,6 @@ def doHostEditChanges(request, hostname):
         if not m:
             continue
         key = m.group('key')
-        # instance = m.group('instance')
         newvalue = str(v)
 
         keyobj = AllowedKey.objects.get(key=key)
@@ -314,7 +313,7 @@ def doHostEditChanges(request, hostname):
 
         # If the value is the same - no change; blank - delete; different - new value
         keyval = KeyValue.objects.get(keyid=keyobj, hostid=hostobj)
-        if newvalue == '':
+        if newvalue.strip() == '':
             keyval.delete(request.user)
         elif newvalue == keyval.value:
             pass     # No change
