@@ -40,7 +40,7 @@ LOGGING = {
 }
 
 # Will print queries and their times to console
-if 'DEBUG_DJANGO_DB' in os.environ:
+if 'DEBUG_DJANGO_DB' in os.environ:     # pragma: no cover
     LOGGING['loggers'] = {
         'django.db.backends': {
             'handlers': ['console'],
@@ -95,7 +95,7 @@ DATABASES = {
     }
 }
 
-if 'TRAVIS' in os.environ:
+if 'TRAVIS' in os.environ:  # pragma: no cover
     if os.environ['DB'] == 'mysql':
         DATABASES = {
             'default': {
