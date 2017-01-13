@@ -48,7 +48,7 @@ class Command(HostinfoCommand):
         else:
             try:
                 user = os.getlogin()
-            except OSError:
+            except OSError:     # pragma: no cover
                 user = "unknown"
         ulog = UndoLog.objects.filter(user=user, actiondate__gte=then)
         for undoact in ulog:
