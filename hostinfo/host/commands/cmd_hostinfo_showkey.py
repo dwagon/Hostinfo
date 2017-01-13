@@ -35,7 +35,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
-        outstr = ""
+        outstr = []
         allkeys = AllowedKey.objects.all()
         if namespace.keylist:
             keys = [k for k in allkeys if k.key in namespace.keylist]
@@ -47,16 +47,16 @@ class Command(HostinfoCommand):
 
         for key in keys:
             if namespace.typeflag:
-                outstr += "%s\t%s\n" % (key.key, key.get_validtype_display())
+                outstr.append("%s\t%s" % (key.key, key.get_validtype_display()))
             else:
-                notes = ""
+                notes = "    "
                 if key.restrictedFlag:
-                    notes = "\t[KEY RESTRICTED]"
+                    notes += "[KEY RESTRICTED]"
                 if key.numericFlag:
-                    notes = "\t[Numeric]"
+                    notes += "[NUMERIC]"
                 if key.readonlyFlag:
-                    notes += "\t[KEY READ ONLY]"
-                outstr += "%s\t%s\t%s%s\n" % (key.key, key.get_validtype_display(), key.desc, notes)
-        return outstr, 0
+                    notes += "[KEY READ ONLY]"
+                outstr.append("%s\t%s\t%s%s" % (key.key, key.get_validtype_display(), key.desc, notes))
+        return "\n".join(outstr), 0
 
 # EOF

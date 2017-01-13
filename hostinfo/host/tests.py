@@ -2363,7 +2363,7 @@ class test_cmd_showkey(TestCase):
         self.cmd.parseArgs(self.parser)
         self.key1 = AllowedKey(key='showkey1', validtype=1, desc='description', restrictedFlag=True)
         self.key1.save()
-        self.key2 = AllowedKey(key='showkey2', validtype=2, desc='another description', readonlyFlag=True)
+        self.key2 = AllowedKey(key='showkey2', validtype=2, desc='another description', readonlyFlag=True, numericFlag=True)
         self.key2.save()
         self.key3 = AllowedKey(key='showkey3', validtype=3, desc='')
         self.key3.save()
@@ -2380,20 +2380,20 @@ class test_cmd_showkey(TestCase):
         output = self.cmd.handle(namespace)
         self.assertEquals(
             output,
-            ('showkey1\tsingle\tdescription\t[KEY RESTRICTED]\nshowkey2\tlist\tanother description\t[KEY READ ONLY]\nshowkey3\tdate\t\n', 0)
+            ('showkey1\tsingle\tdescription    [KEY RESTRICTED]\nshowkey2\tlist\tanother description    [NUMERIC][KEY READ ONLY]\nshowkey3\tdate\t    ', 0)
             )
 
     ###########################################################################
     def test_showtype(self):
         namespace = self.parser.parse_args(['--type'])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('showkey1\tsingle\nshowkey2\tlist\nshowkey3\tdate\n', 0))
+        self.assertEquals(output, ('showkey1\tsingle\nshowkey2\tlist\nshowkey3\tdate', 0))
 
     ###########################################################################
     def test_showkeylist(self):
         namespace = self.parser.parse_args(['showkey1'])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('showkey1\tsingle\tdescription\t[KEY RESTRICTED]\n', 0))
+        self.assertEquals(output, ('showkey1\tsingle\tdescription    [KEY RESTRICTED]', 0))
 
     ###########################################################################
     def test_showbadkeylist(self):
