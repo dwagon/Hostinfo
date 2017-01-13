@@ -546,7 +546,7 @@ class test_getMatches(TestCase):
             )
         try:
             getMatches([('equal', 'number', 'five')]),
-        except Exception:
+        except Exception:   # pragma: no cover
             self.fail("Non-numeric value for numeric key in equal")
 
     ###########################################################################
@@ -583,7 +583,7 @@ class test_getMatches(TestCase):
             )
         try:
             getMatches([('unequal', 'number', 'string')])
-        except Exception:
+        except Exception:   # pragma: no cover
             self.fail("Non-numeric value for numeric key in unequal")
 
     ###########################################################################
@@ -611,7 +611,7 @@ class test_getMatches(TestCase):
             )
         try:
             getMatches([('greaterthan', 'number', 'hello')]),
-        except Exception:
+        except Exception:   # pragma: no cover
             self.fail("Non-numeric value for numeric key in greaterthan")
 
     ###########################################################################
@@ -648,7 +648,7 @@ class test_getMatches(TestCase):
             )
         try:
             getMatches([('lessthan', 'number', 'goodbye')]),
-        except Exception:
+        except Exception:   # pragma: no cover
             self.fail("Non-numeric value for numeric key in lessthan")
 
     ###########################################################################
