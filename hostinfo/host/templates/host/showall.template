@@ -21,15 +21,15 @@
     </div>
     {% for key,vallist in host.hostview %}
         <div class="row">
-            <div class="col-md-1"> 
+            <div class="col-md-2">
                 &nbsp;
             </div>
 
-            <div class="col-md-1"> 
+            <div class="col-md-2">
                 <a class="keyname" href="/hostinfo/keylist/{{key}}">{{key}}</a>
-            </div> 
+            </div>
 
-            <div class="col-md-9">
+            <div class="col-md-8">
                 {% for val in vallist %}
                     <div class="row">
                         <div class="col-sm-8">
@@ -49,12 +49,12 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-            </div> 
+            </div>
 
             <div class="col-md-1">
                 {{ host.links|getnextelem|safe }}
             </div>
-        </div> 
+        </div>
     {% endfor %}
 </div>
 <!-- end showall -->
