@@ -5,20 +5,20 @@
 {{ key }} &nbsp; ({{ numvals }} different values)
 <ul class="list-group">
     <li class="list-group-item"> 
-        <a href="/hostinfo/hostcmp/{{ key }}.defined">{{key.title}} set</a>
+        <a href="/hostinfo/hostlist/{{ key }}.defined">{{key.title}} set</a>
          <span class="badge">
             ({{ numdef }} instance{{numdef|pluralize}} - {{pctdef|floatformat:1}}%)
         </span>
     </li> 
     <li class="list-group-item">
-        <a href="/hostinfo/hostcmp/{{ key }}.undefined">No {{key}} set</a> 
+        <a href="/hostinfo/hostlist/{{ key }}.undefined">No {{key}} set</a> 
         <span class="badge">
             ({{ numundef }} instance{{numdef|pluralize}} - {{pctundef|floatformat:1}}%)
         </span>
     </li> 
 {% for kv in vallist %}
     <li class="list-group-item">
-        <a class="keyvalue" href="/hostinfo/hostcmp/{{ key }}.eq.{{ kv.0|local_escape }}">{{ kv.0 }}</a>
+        <a class="keyvalue" href="/hostinfo/hostlist/{{ key }}.eq.{{ kv.0|local_escape }}">{{ kv.0 }}</a>
         <span class="badge">
             ({{ kv.1 }} instance{{kv.1|pluralize}} {{kv.2|floatformat:1}}%)
         </span>
