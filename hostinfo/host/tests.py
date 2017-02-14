@@ -1231,6 +1231,103 @@ class test_cmd_addhost(TestCase):
 
 
 ###############################################################################
+class test_cmd_deletelink(TestCase):
+    ###########################################################################
+    def setUp(self):
+        clearAKcache()
+        import argparse
+        from .commands.cmd_hostinfo_deletelink import Command
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
+        self.cmd.parseArgs(self.parser)
+        self.host = Host(hostname='linkhost')
+        self.host.save()
+        self.link = Links(hostid=self.host, tag='home', url='http://dwagon.net')
+        self.link.save()
+
+    ###########################################################################
+    def tearDown(self):
+        self.link.delete()
+        self.host.delete()
+
+    ###########################################################################
+    def test_deleteelink(self):
+        namespace = self.parser.parse_args(['--tag', 'home', 'linkhost'])
+        retval = self.cmd.handle(namespace)
+        self.assertEquals(retval, (None, 0))
+        l = Links.objects.filter(hostid=self.host)
+        self.assertEquals(len(l), 0)
+
+    ###########################################################################
+    def test_badhost(self):
+        namespace = self.parser.parse_args(['--tag', 'home', 'badhost'])
+        with self.assertRaises(HostinfoException) as cm:
+            self.cmd.handle(namespace)
+        self.assertEquals(cm.exception.msg, "Host badhost doesn't exist")
+
+    ###########################################################################
+    def test_everytag(self):
+        namespace = self.parser.parse_args(['--everytag', 'linkhost'])
+        retval = self.cmd.handle(namespace)
+        self.assertEquals(retval, (None, 0))
+        l = Links.objects.filter(hostid=self.host)
+        self.assertEquals(len(l), 0)
+
+
+###############################################################################
+class test_cmd_addlink(TestCase):
+    ###########################################################################
+    def setUp(self):
+        clearAKcache()
+        import argparse
+        from .commands.cmd_hostinfo_addlink import Command
+        self.cmd = Command()
+        self.parser = argparse.ArgumentParser()
+        self.cmd.parseArgs(self.parser)
+        self.host = Host(hostname='linkhost')
+        self.host.save()
+
+    ###########################################################################
+    def tearDown(self):
+        self.host.delete()
+
+    ###########################################################################
+    def test_createlink(self):
+        namespace = self.parser.parse_args(['home', 'http://dwagon.net', 'linkhost'])
+        retval = self.cmd.handle(namespace)
+        self.assertEquals(retval, (None, 0))
+        l = Links.objects.get(hostid=self.host)
+        self.assertEquals(l.url, 'http://dwagon.net')
+        self.assertEquals(l.tag, 'home')
+
+    ###########################################################################
+    def test_badhost(self):
+        namespace = self.parser.parse_args(['home', 'http://dwagon.net', 'badhost'])
+        with self.assertRaises(HostinfoException) as cm:
+            self.cmd.handle(namespace)
+        self.assertEquals(cm.exception.msg, "Host badhost doesn't exist")
+
+    ###########################################################################
+    def test_duplicatetag(self):
+        orig = Links(hostid=self.host, tag='home', url='http://dwagon.net')
+        orig.save()
+        namespace = self.parser.parse_args(['home', 'http://dwagon.net', 'linkhost'])
+        retval = self.cmd.handle(namespace)
+        self.assertEquals(retval, ('Host linkhost already has a link with tag home', 1))
+        orig.delete()
+
+    ###########################################################################
+    def test_update(self):
+        orig = Links(hostid=self.host, tag='home', url='http://google.com')
+        orig.save()
+        namespace = self.parser.parse_args(['--update', 'home', 'http://dwagon.net', 'linkhost'])
+        retval = self.cmd.handle(namespace)
+        self.assertEquals(retval, (None, 0))
+        l = Links.objects.get(hostid=self.host)
+        self.assertEquals(l.url, 'http://dwagon.net')
+
+
+###############################################################################
 class test_cmd_addkey(TestCase):
     ###########################################################################
     def setUp(self):

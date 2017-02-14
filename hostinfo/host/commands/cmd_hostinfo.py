@@ -166,8 +166,6 @@ class Command(HostinfoCommand):
             keyid__key=self.namespace.valuereport[0]).values_list('hostid', 'value', 'numvalue')
 
         for hostid, value, numvalue in kvlist:
-            if hostid not in matches:
-                continue
             hostids.add(hostid)
             if key.numericFlag and numvalue is not None:
                 values[numvalue] += 1
