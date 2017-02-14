@@ -1,6 +1,8 @@
 Changelog
 ---------
 
+2.0.2
+=====
 * Added hostinfo_addlink and hostinfo_deletelink commands back in
 * Default to hostlist for web interface
 * Testing using mysql as well as postgresql in travis
