@@ -2,6 +2,7 @@ Changelog
 ---------
 
 * Added hostinfo_addlink and hostinfo_deletelink commands back in
+* Default to hostlist for web interface
 * Testing using mysql as well as postgresql in travis
 * Don't allow blank values (Iss#54)
 
