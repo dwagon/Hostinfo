@@ -5,23 +5,24 @@ Follow these simple steps to install hostinfo on an Ubuntu server using nginx an
 
 Firstly you need to satisfy a number of :doc:`prerequisites` the most obvious being python, django and a database
 
+Using a postgres database see :doc:`postgresql`
+Using a mysqldb database see :doc:`mysql`
+
 For Ubuntu::
 
-    apt-get install postgresql
-    apt-get install postgresql-server-dev-all
     apt-get install nginx
     apt-get install python-virtualenv
     apt-get install python-dev
     apt-get install libyaml-dev
+    ... and appropriate database packages
 
 For CentOS (You will need the epel repo for nginx)::
 
-    yum install postgresql-server
-    yum install postgresql-devel
     yum install nginx
     yum install python-virtualenv
     yum install python-devel
     yum install libyaml-devel
+    ... and appropriate database packages
 
 Make the hostinfo user and installation directory::
 
@@ -29,15 +30,7 @@ Make the hostinfo user and installation directory::
     useradd hostinfo -d /opt/hostinfo
     chown hostinfo:hostinfo /opt/hostinfo
 
-Set up the database (do this as the postgres user)::
-
-    createuser hostinfo -P
-    createdb hostinfo
-
-If you are going to develop hostinfo you need to give the hostinfo
-user database creation rights so it can create the django test db::
-
-    createuser -d hostinfo -P
+Set up the database (see the database doc)
 
 Get the code - either from the tarball or from git::
 
@@ -90,5 +83,4 @@ Configure the startup script::
     cp hostinfo_init.conf /etc/init/hostinfo.conf
     initctl reload-configuration
     start hostinfo
-
 

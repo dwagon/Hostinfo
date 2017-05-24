@@ -20,6 +20,8 @@ Starting Out
 * :doc:`prerequisites` What is required before installation
 * :doc:`install` How to install hostinfo
 * :doc:`install_client` How to install hostinfo as a client
+* :doc:`postgresql` How to install using postgresql as a database
+* :doc:`mysql` How to install using mysql as a database
 * :doc:`gettingStarted` What to do after installation
 
 Concepts
