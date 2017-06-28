@@ -7,3 +7,4 @@ coverage
 python_coveralls
 django-simple-history
 django-debug-toolbar
+django-silk

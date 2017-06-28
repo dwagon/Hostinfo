@@ -64,6 +64,8 @@ INSTALLED_APPS = [
 ]
 if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
+    INSTALLED_APPS.append('silk')
+    SILKY_META = True
 
 MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -76,6 +78,7 @@ MIDDLEWARE_CLASSES = [
 ]
 if DEBUG:
     MIDDLEWARE_CLASSES.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    MIDDLEWARE_CLASSES.append('silk.middleware.SilkyMiddleware')
 
 ROOT_URLCONF = 'hostinfo.urls'
 
