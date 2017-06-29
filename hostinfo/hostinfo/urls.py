@@ -22,11 +22,14 @@ urlpatterns += [
     url(r'^accounts/logout/', logout, {'next_page': '/hostinfo/'}, name='logoff'),
 ]
 
+urlpatterns += [
+    url(r'^silk/', include('silk.urls', namespace='silk'))
+]
+
 if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
-        url(r'^silk/', include('silk.urls', namespace='silk'))
     ]
 
 # EOF

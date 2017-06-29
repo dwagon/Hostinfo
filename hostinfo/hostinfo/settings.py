@@ -60,11 +60,11 @@ INSTALLED_APPS = [
     'simple_history',
     'host',
     'hostinfo',
+    'silk',
     'report',
 ]
 if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
-    INSTALLED_APPS.append('silk')
     SILKY_META = True
 
 MIDDLEWARE_CLASSES = [
@@ -74,11 +74,11 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'silk.middleware.SilkyMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
 if DEBUG:
     MIDDLEWARE_CLASSES.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-    MIDDLEWARE_CLASSES.append('silk.middleware.SilkyMiddleware')
 
 ROOT_URLCONF = 'hostinfo.urls'
 
