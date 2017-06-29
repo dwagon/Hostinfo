@@ -156,9 +156,9 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
             kvs = get_list_or_404(KeyValue, hostid=hostid)
         else:
             if keypk:
-                kvs = get_list_or_404(KeyValue, hostid=hostid, pk=keypk).select_related('keyid')
+                kvs = get_list_or_404(KeyValue, hostid=hostid, pk=keypk)
             else:
-                kvs = get_list_or_404(KeyValue, hostid=hostid, keyid=keyid).select_related('keyid')
+                kvs = get_list_or_404(KeyValue, hostid=hostid, keyid=keyid)
         sha = [KeyValueSerialize(k, request) for k in kvs]
         return JsonResponse({'result': result, 'keyvalues': sha})
     elif request.method == "POST":
@@ -303,7 +303,7 @@ def KeyDetail(request, akeypk=None, akey=None):
 ###############################################################################
 @require_http_methods(["GET"])
 def KValDetail(request, pk=None):
-    keyid = get_object_or_404(KeyValue, id=pk.select_related('keyid'))
+    keyid = get_object_or_404(KeyValue, id=pk)
     ans = {'result': 'ok', 'keyvalue': KeyValueSerialize(keyid, request)}
     return JsonResponse(ans)
 
