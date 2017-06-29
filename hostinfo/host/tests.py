@@ -2612,8 +2612,8 @@ class test_url_hostmerge(TestCase):
         response = self.client.get('/hostinfo/hostmerge/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(
-            [t.name for t in response.templates],
-            ['host/hostmerge.template', 'host/base.html']
+            sorted([t.name for t in response.templates if 'django/forms/widgets' not in t.name]),
+            sorted(['host/hostmerge.template', 'host/base.html'])
             )
 
     ###########################################################################
@@ -2701,8 +2701,8 @@ class test_url_hostrename(TestCase):
         response = self.client.get('/hostinfo/hostrename/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(
-            [t.name for t in response.templates],
-            ['host/hostrename.template', 'host/base.html']
+            sorted([t.name for t in response.templates if 'django/forms/widgets' not in t.name]),
+            sorted(['host/hostrename.template', 'host/base.html'])
             )
 
 
@@ -3104,8 +3104,8 @@ class test_url_host_edit(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTrue('error' not in response.context)
         self.assertEquals(
-            [t.name for t in response.templates],
-            ['host/hostedit.template', 'host/base.html']
+            sorted([t.name for t in response.templates if 'django/forms/widgets' not in t.name]),
+            sorted(['host/hostedit.template', 'host/base.html'])
             )
 
     ###########################################################################

@@ -441,7 +441,10 @@ def calcKeylistVals(key, from_hostids=[]):
         if hostid not in from_hostids:
             continue
         hostids.add(hostid)
-        values[(value, numvalue)] += 1
+        if keyid.numericFlag:
+            values[(value, numvalue)] += 1
+        else:
+            values[(value, None)] += 1
     numdef = len(hostids)
 
     # Calculate for each distinct value the percentages
