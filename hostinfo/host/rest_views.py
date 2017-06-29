@@ -9,6 +9,20 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 
 
+try:
+    from silk.profiling.profiler import silk_profile
+except ImportError:
+    import functools
+
+    def silk_profile(name=None):
+        def decorator(method):
+            @functools.wraps(method)
+            def f(*args, **kwargs):
+                return method(*args, **kwargs)
+            return f
+        return decorator
+
+
 ###############################################################################
 @require_http_methods(["GET"])
 def AliasList(request, *args):
@@ -36,6 +50,7 @@ def getSerializerArgs(request):
 
 ###############################################################################
 @require_http_methods(["GET"])
+@silk_profile(name='Host Query')
 def HostQuery(request, query):
     sargs = getSerializerArgs(request)
     criteria = query.split('/')
@@ -80,6 +95,7 @@ def get_origin(request):
 ###############################################################################
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
+@silk_profile(name='Host Details')
 def HostDetail(request, hostpk=None, hostname=None):
     if request.method == "GET":
         hostid = getReferredHost(hostpk, hostname)
@@ -111,6 +127,7 @@ def getReferredHost(hostpk=None, hostname=None):
 ###############################################################################
 # /keylist/(keypk, key)/[query]
 @require_http_methods(["GET"])
+@silk_profile(name='Key List')
 def KeyListRest(request, akeypk=None, akey=None, query=None):
     matches = []
     if akeypk:
@@ -135,6 +152,7 @@ def KeyListRest(request, akeypk=None, akey=None, query=None):
 # /host/(hostname|pk)/key/(keyname|pk)[/value]
 @require_http_methods(["GET", "POST", "DELETE"])
 @csrf_exempt
+@silk_profile(name='Key Change')
 def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value=None):
     result = 'ok'
     hostid = getReferredHost(hostpk, hostname)
@@ -200,6 +218,7 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
 # /host/(hostname|pk)/link/(tagname|linkpk)[/url]
 @require_http_methods(["GET", "POST", "DELETE"])
 @csrf_exempt
+@silk_profile(name='Host Link')
 def HostLinkRest(request, hostpk=None, hostname=None, linkpk=None, tagname=None, url=None):
     result = 'ok'
     hostid = getReferredHost(hostpk, hostname)
@@ -248,6 +267,7 @@ def HostLinkRest(request, hostpk=None, hostname=None, linkpk=None, tagname=None,
 ###############################################################################
 @require_http_methods(["GET", "POST", "DELETE"])
 @csrf_exempt
+@silk_profile(name='Host Alias')
 def HostAliasRest(request, hostpk=None, hostname=None, aliaspk=None, alias=None):
     result = 'ok'
     hostid = getReferredHost(hostpk, hostname)
@@ -283,6 +303,7 @@ def HostAliasRest(request, hostpk=None, hostname=None, aliaspk=None, alias=None)
 
 ###############################################################################
 @require_http_methods(["GET"])
+@silk_profile(name='Host List')
 def HostList(request, *args):
     hosts = get_list_or_404(Host)
     ans = {'result': '%d hosts' % len(hosts), 'hosts': [HostShortSerialize(h, request) for h in hosts]}
@@ -291,6 +312,7 @@ def HostList(request, *args):
 
 ###############################################################################
 @require_http_methods(["GET"])
+@silk_profile(name='Key Detail')
 def KeyDetail(request, akeypk=None, akey=None):
     if akeypk:
         keyid = get_object_or_404(AllowedKey, id=akeypk)
