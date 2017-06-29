@@ -156,9 +156,9 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
             kvs = get_list_or_404(KeyValue, hostid=hostid)
         else:
             if keypk:
-                kvs = get_list_or_404(KeyValue, hostid=hostid, pk=keypk)
+                kvs = get_list_or_404(KeyValue, hostid=hostid, pk=keypk).select_related('keyid')
             else:
-                kvs = get_list_or_404(KeyValue, hostid=hostid, keyid=keyid)
+                kvs = get_list_or_404(KeyValue, hostid=hostid, keyid=keyid).select_related('keyid')
         sha = [KeyValueSerialize(k, request) for k in kvs]
         return JsonResponse({'result': result, 'keyvalues': sha})
     elif request.method == "POST":
@@ -191,7 +191,7 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
             ha.delete()
 
     kvals = []
-    for h in KeyValue.objects.filter(hostid=hostid):
+    for h in KeyValue.objects.filter(hostid=hostid).select_related('keyid').select_related('hostid'):
         kvals.append(KeyValueSerialize(h, request))
     return JsonResponse({'result': result, 'keyvalues': kvals})
 
@@ -303,7 +303,7 @@ def KeyDetail(request, akeypk=None, akey=None):
 ###############################################################################
 @require_http_methods(["GET"])
 def KValDetail(request, pk=None):
-    keyid = get_object_or_404(KeyValue, id=pk)
+    keyid = get_object_or_404(KeyValue, id=pk.select_related('keyid'))
     ans = {'result': 'ok', 'keyvalue': KeyValueSerialize(keyid, request)}
     return JsonResponse(ans)
 
@@ -343,7 +343,7 @@ def HostSerialize(obj, request, **kwargs):
             if '*' in fields['keys'] or ak.key in fields['keys']:
                 keys[ak.id] = ak.key
         keyvals = {}
-        for k in KeyValue.objects.filter(hostid=obj):
+        for k in KeyValue.objects.filter(hostid=obj).select_related('keyid'):
             try:
                 keyname = keys[k.keyid_id]
             except KeyError:
