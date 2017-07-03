@@ -4,6 +4,7 @@ Changelog
 2.0.3
 =====
 * Fixed issue where a difference in numeric value was affecting the valuereport on the web interface - seems to be caused by changing DBs (Iss#58)
+* Massive increase in REST api speed - django-silk is awesome
 
 
 2.0.2
