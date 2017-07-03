@@ -12,8 +12,8 @@ import json
 ###############################################################################
 @require_http_methods(["GET"])
 def AliasList(request, *args):
-    aliases = get_list_or_404(HostAlias)
-    ans = {'result': 'ok', 'aliases': [HostAliasSerialize(a, request) for a in aliases]}
+    aliases = HostAlias.objects.all()
+    ans = {'result': 'ok', 'aliases': [HostAliasSerialize(a, request) for a in aliases.select_related('hostid')]}
     return JsonResponse(ans)
 
 
@@ -44,7 +44,7 @@ def HostQuery(request, query):
     except HostinfoException as exc:    # pragma: no cover
         return JsonResponse({'error': str(exc)}, status=406)
     matches = getMatches(qualifiers)
-    hosts = [Host.objects.get(id=pk) for pk in matches]
+    hosts = Host.objects.filter(pk__in=matches)
     ans = {
         'result': '%d matching hosts' % len(hosts),
         'hosts': [HostSerialize(h, request, **sargs) for h in hosts],
