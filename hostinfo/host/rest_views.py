@@ -79,7 +79,7 @@ def get_origin(request):
 
 ###############################################################################
 @csrf_exempt
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["GET", "POST", "DELETE"])
 def HostDetail(request, hostpk=None, hostname=None):
     if request.method == "GET":
         hostid = getReferredHost(hostpk, hostname)
@@ -94,6 +94,22 @@ def HostDetail(request, hostpk=None, hostname=None):
             ans = {'result': 'ok', 'host': HostSerialize(newhost, request)}
         else:
             ans = {'result': 'failed - duplicate'}
+    elif request.method == "DELETE":
+        hostid = getReferredHost(hostpk, hostname)
+
+        # Delete aliases
+        aliases = HostAlias.objects.filter(hostid=hostid)
+        for alias in aliases:
+            alias.delete()
+
+        # Delete key/values
+        kvs = KeyValue.objects.filter(hostid=hostid)
+        for kv in kvs:
+            kv.delete(readonlychange=True)
+
+        # Delete the host
+        hostid.delete()
+        ans = {'result': 'ok'}
     return JsonResponse(ans)
 
 
