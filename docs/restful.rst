@@ -73,6 +73,16 @@ Note that you can also send the origin through by adding a JSON payload::
         "origin": "fluffy"
     }
 
+Delete a host
+^^^^^^^^^^^^^
+No questions asked, just gone.
+
+``DELETE /api/host/<hostname>``::
+
+    {
+        "result": "ok", 
+    }
+
 
 Add an alias to a host
 ^^^^^^^^^^^^^^^^^^^^^^
