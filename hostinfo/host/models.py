@@ -43,7 +43,7 @@ class HostinfoException(Exception):
         self.retval = retval
 
     def __str__(self):  # pragma: no cover
-        return repr(self.msg)
+        return self.msg
 
 
 ################################################################################
@@ -55,7 +55,7 @@ class ReadonlyValueException(HostinfoException):
         self.retval = retval
 
     def __str__(self):  # pragma: no cover
-        return repr(self.msg)
+        return self.msg
 
 
 ################################################################################
@@ -67,7 +67,7 @@ class RestrictedValueException(HostinfoException):
         self.retval = retval
 
     def __str__(self):  # pragma: no cover
-        return repr(self.msg)
+        return self.msg
 
 
 ################################################################################

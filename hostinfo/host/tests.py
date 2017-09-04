@@ -3584,21 +3584,21 @@ class test_restHost_query(TestCase):
         ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], '1 matching hosts')
         self.assertEquals(ans['hosts'][0]['hostname'], 'hostrhq')
-        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url']))
+        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url', 'keyvalues']))
 
     ###########################################################################
     def test_query_origin(self):
         response = self.client.get('/api/query/rhqkey=val/?origin=True')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
-        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url', 'origin']))
+        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url', 'origin', 'keyvalues']))
 
     ###########################################################################
     def test_query_multi(self):
         response = self.client.get('/api/query/rhqkey=val/?aliases=True&dates=True&links=True')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
-        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url', 'aliases', 'createdate', 'modifieddate', 'links']))
+        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'url', 'hostname', 'keyvalues']))
 
     ###########################################################################
     def test_query_keys(self):
