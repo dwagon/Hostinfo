@@ -198,6 +198,26 @@ E.g.  ``GET /api/query/os=linux/foo=bar/?keys=keya,keyb``
 
 you can also pass 'links', 'aliases', 'origin' and 'dates' with any value to get details about those.
 
+List all keys
+^^^^^^^^^^^^^
+
+``GET /api/key/``::
+
+   {
+   "keys": {
+        [
+            {
+            ...
+            },
+            {
+            ...
+            }
+        ]
+        }
+    "result": "ok",
+    }
+
+
 Details about a key
 ^^^^^^^^^^^^^^^^^^^
 ``GET /api/key/<keyid>/`` or ``GET /api/key/<keyname>/``::
@@ -209,6 +229,8 @@ Details about a key
         "key": "os",
         "url": "http://.../api/key/1",
         "restricted": false,
+        "readonly": false,
+        "numeric": false,
         "createdate": "YYYY-MM-DD",
         "desc": "desc",
         "id": 1,
