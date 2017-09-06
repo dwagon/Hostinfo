@@ -381,6 +381,19 @@ def HostList(request, *args):
 
 
 ###############################################################################
+# /key/
+@require_http_methods(["GET"])
+def KeyList(request):
+    """ Return all keys """
+    allkeys = AllowedKey.objects.all()
+    ans = {'result': 'ok', 'keys': []}
+    for key in allkeys:
+        ans['keys'].append(AllowedKeySerialize(key, request))
+    return JsonResponse(ans)
+
+
+###############################################################################
+# /key/<key>/
 @require_http_methods(["GET"])
 def KeyDetail(request, akeypk=None, akey=None):
     if akeypk:
@@ -462,6 +475,8 @@ def AllowedKeySerialize(obj, request):
         'createdate': obj.createdate,
         'modifieddate': obj.modifieddate,
         'restricted': obj.restrictedFlag,
+        'numeric': obj.numericFlag,
+        'readonly': obj.readonlyFlag,
         'audit': obj.auditFlag
     }
     if obj.restrictedFlag:
