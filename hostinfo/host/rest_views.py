@@ -1,4 +1,5 @@
-from .models import Host, AllowedKey, KeyValue, HostAlias, Links, RestrictedValue, RestrictedValueException
+from .models import Host, AllowedKey, KeyValue, HostAlias, Links
+from .models import RestrictedValue, RestrictedValueException
 from .models import parseQualifiers, getMatches, getHost, HostinfoException
 from .models import addKeytoHost, calcKeylistVals
 from django.http import JsonResponse, Http404
@@ -54,6 +55,24 @@ def getSerializerArgs(request):
         sargs['show_url'] = False
 
     return sargs
+
+
+###############################################################################
+@require_http_methods(["GET"])
+def RestrictedKeyValue(request, rvalpk=None, rval=None):
+    pass
+
+
+###############################################################################
+@require_http_methods(["GET"])
+def RestrictedKeyDetail(request, akeypk=None, akey=None):
+    if akeypk:
+        akey = get_object_or_404(AllowedKey, id=akeypk)
+    elif akey:
+        akey = get_object_or_404(AllowedKey, key=akey)
+    rlist = RestrictedValue.objects.filter(keyid=akey)
+    ans = {'result': 'ok', 'restricted': [RestrictedValueSerialize(r, request) for r in rlist]}
+    return JsonResponse(ans)
 
 
 ###############################################################################

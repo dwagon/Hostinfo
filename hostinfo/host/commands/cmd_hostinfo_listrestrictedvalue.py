@@ -45,4 +45,4 @@ class Command(HostinfoCommand):
             outstr += "%s\n" % rv
         return outstr, 0
 
-#EOF
+# EOF
