@@ -574,16 +574,19 @@ def KeyValueSerialize(obj, request, **kwargs):
 
 
 ###############################################################################
-def HostAliasSerialize(obj, request):
+def HostAliasSerialize(obj, request, **kwargs):
     ans = {
         'id': obj.id,
-        'url': request.build_absolute_uri(reverse('hostaliasrest', args=(obj.hostid.hostname, obj.id,))),
-        'host': HostShortSerialize(obj.hostid, request),
         'alias': obj.alias,
-        'origin': obj.origin,
-        'createdate': obj.createdate,
-        'modifieddate': obj.modifieddate
+        'host': obj.hostid.hostname
         }
+    if kwargs.get('show_url', False):
+        ans['url'] = request.build_absolute_uri(reverse('hostaliasrest', args=(obj.hostid.hostname, obj.id,))),
+    if kwargs.get('show_dates', False):
+        ans['createdate'] = obj.createdate
+        ans['modifieddate'] = obj.modifieddate
+    if kwargs.get('show_origin', False):
+        ans['origin'] = obj.origin
     return ans
 
 # EOF
