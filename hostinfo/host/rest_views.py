@@ -58,20 +58,24 @@ def getSerializerArgs(request):
 
 
 ###############################################################################
-@require_http_methods(["GET"])
-def RestrictedKeyValue(request, rvalpk=None, rval=None):
-    pass
-
-
-###############################################################################
-@require_http_methods(["GET"])
-def RestrictedKeyDetail(request, akeypk=None, akey=None):
+@csrf_exempt
+@require_http_methods(["GET", "POST", "DELETE"])
+def RestrictedValueRest(request, akeypk=None, akey=None, val=None):
     if akeypk:
         akey = get_object_or_404(AllowedKey, id=akeypk)
     elif akey:
         akey = get_object_or_404(AllowedKey, key=akey)
-    rlist = RestrictedValue.objects.filter(keyid=akey)
-    ans = {'result': 'ok', 'restricted': [RestrictedValueSerialize(r, request) for r in rlist]}
+    if request.method == "GET":
+        rlist = RestrictedValue.objects.filter(keyid=akey)
+        ans = {'result': 'ok', 'restricted': [RestrictedValueSerialize(r, request) for r in rlist]}
+    elif request.method == "POST":
+        rval = RestrictedValue(keyid=akey, value=val)
+        rval.save()
+        ans = {'result': 'ok'}
+    elif request.method == "DELETE":
+        rval = RestrictedValue.objects.get(keyid=akey, value=val)
+        rval.delete()
+        ans = {'result': 'ok'}
     return JsonResponse(ans)
 
 
