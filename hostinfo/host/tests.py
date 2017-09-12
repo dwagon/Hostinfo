@@ -3720,7 +3720,7 @@ class test_restHost(TestCase):
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
-        self.assertEquals(ans['aliases'][0]['host']['hostname'], 'hostrh')
+        self.assertEquals(ans['aliases'][0]['host'], 'hostrh')
         self.assertIn(ans['aliases'][0]['alias'], ['rhalias', 'rhalias2'])
 
     ###########################################################################
