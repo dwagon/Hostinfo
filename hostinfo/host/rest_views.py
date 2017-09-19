@@ -417,14 +417,73 @@ def KeyList(request):
 
 ###############################################################################
 # /key/<key>/
-@require_http_methods(["GET"])
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
 def KeyDetail(request, akeypk=None, akey=None):
-    if akeypk:
-        keyid = get_object_or_404(AllowedKey, id=akeypk)
-    elif akey:
-        keyid = get_object_or_404(AllowedKey, key=akey)
-    ans = {'result': 'ok', 'key': AllowedKeySerialize(keyid, request)}
+    if request.method == "GET":
+        if akeypk:
+            keyid = get_object_or_404(AllowedKey, id=akeypk)
+        elif akey:
+            keyid = get_object_or_404(AllowedKey, key=akey)
+        ans = {'result': 'ok', 'key': AllowedKeySerialize(keyid, request)}
+    elif request.method == "POST":
+        ans = addKey(request, akey)
     return JsonResponse(ans)
+
+
+###############################################################################
+def addKey(request, akey):
+    params = {
+        'desc': '',
+        'keytype': 'single',
+        'numeric': False,
+        'restricted': False,
+        'readonly': False,
+        'audit': True
+    }
+    payload = get_payload(request)
+    if 'numeric' in payload:
+        params['numeric'] = True
+    if 'restricted' in payload:
+        params['restricted'] = True
+    if 'readonly' in payload:
+        params['readonly'] = True
+    if 'audit' in payload:
+        params['audit'] = False
+    if 'desc' in payload:
+        params['desc'] = payload['desc']
+    if 'keytype' in payload:
+        params['keytype'] = payload['keytype']
+    try:
+        AllowedKey.objects.get(key=akey)
+        return {'result': 'failed', 'error': 'Key already exists'}
+    except:
+        pass
+    newak = AllowedKey(
+            key=akey,
+            validtype=validateKeytype(params['keytype']),
+            desc=params['desc'],
+            restrictedFlag=params['restricted'],
+            readonlyFlag=params['readonly'],
+            numericFlag=params['numeric'],
+            auditFlag=params['audit'],
+            )
+    newak.save()
+    return {'result': 'ok', 'key': AllowedKeySerialize(newak, request)}
+
+
+###############################################################################
+def validateKeytype(keytype):
+    type_choices = [d for k, d in AllowedKey.TYPE_CHOICES]
+    vt = -1
+    for knum, desc in AllowedKey.TYPE_CHOICES:
+        if keytype == desc:
+            vt = knum
+            break
+    if vt < 0:
+        raise HostinfoException(
+            "Unknown type %s - should be one of %s" % (keytype, ",".join(type_choices)))
+    return vt
 
 
 ###############################################################################

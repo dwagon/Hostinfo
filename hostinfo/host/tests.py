@@ -3896,47 +3896,6 @@ class test_restHost(TestCase):
         self.assertEqual(len(los), 0)
 
     ###########################################################################
-    def test_key_detail(self):
-        """ Details of AllowedKeys through the REST interface """
-        response = self.client.get('/api/key/rhkey')
-        self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content.decode())
-        self.assertEquals(ans['result'], 'ok')
-        self.assertEquals(ans['key']['key'], 'rhkey')
-        self.assertEquals(ans['key']['desc'], 'testkey')
-
-    ###########################################################################
-    def test_key_by_id(self):
-        """ Details of AllowedKeys using key id through the REST interface """
-        response = self.client.get('/api/key/rhkey')
-        self.assertEquals(response.status_code, 200)
-        a = json.loads(response.content.decode())
-        keyid = a['key']['id']
-        response = self.client.get('/api/key/%d' % keyid)
-        ans = json.loads(response.content.decode())
-        self.assertEquals(ans['result'], 'ok')
-        self.assertEquals(ans['key']['key'], 'rhkey')
-        self.assertEquals(ans['key']['desc'], 'testkey')
-
-    ###########################################################################
-    def test_key_restricted(self):
-        """ Details of RestrictedKey through the REST interface """
-        rvals = ['yes', 'no', 'maybe']
-        rk = AllowedKey(key='restr', validtype=1, restrictedFlag=True)
-        rk.save()
-        avs = {}
-        for i in rvals:
-            avs[i] = RestrictedValue(keyid=rk, value=i)
-            avs[i].save()
-        response = self.client.get('/api/key/restr')
-        self.assertEquals(response.status_code, 200)
-        ans = json.loads(response.content.decode())
-        self.assertIn(ans['key']['permitted_values'][0]['value'], rvals)
-        for i in avs:
-            avs[i].delete()
-        rk.delete()
-
-    ###########################################################################
     def test_keyval_details(self):
         """ Show the details of a single keyvalue"""
         response = self.client.get('/api/host/hostrh/')
@@ -4226,6 +4185,122 @@ class test_hostData(TestCase):
         kv2.delete()
         host1.delete()
         host2.delete()
+
+
+###############################################################################
+class test_restKey(TestCase):
+    def setUp(self):
+        clearAKcache()
+        self.client = Client()
+        self.key = AllowedKey(key='rhkey', validtype=1, desc='testkey')
+        self.key.save()
+
+    ###########################################################################
+    def tearDown(self):
+        self.key.delete()
+
+    ###########################################################################
+    def test_create_bare(self):
+        """ Test creating a key with no extra details via REST """
+        response = self.client.post('/api/key/newkey1/')
+        self.assertEquals(response.status_code, 200)
+        key = AllowedKey.objects.get(key='newkey1')
+        self.assertEquals(key.get_validtype_display(), 'single')
+        self.assertEquals(key.readonlyFlag, False)
+        self.assertEquals(key.numericFlag, False)
+        self.assertEquals(key.readonlyFlag, False)
+        self.assertEquals(key.auditFlag, True)
+        key.delete()
+
+    ###########################################################################
+    def test_create_duplicate(self):
+        """ Test creating a duplicate key through REST """
+        response = self.client.post('/api/key/rhkey/')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'failed')
+        self.assertEquals(ans['error'], 'Key already exists')
+
+    ###########################################################################
+    def test_create_list(self):
+        """ Creation of a list key via REST """
+        data = {'keytype': 'list'}
+        response = self.client.post('/api/key/newkey2/', data=json.dumps(data), content_type='application/json')
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(response.status_code, 200)
+        key = AllowedKey.objects.get(key='newkey2')
+        self.assertEquals(key.get_validtype_display(), 'list')
+        key.delete()
+
+    ###########################################################################
+    def test_create_date(self):
+        data = {'keytype': 'date', 'audit': 'false'}
+        response = self.client.post('/api/key/newkey3/', data=json.dumps(data), content_type='application/json')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        key = AllowedKey.objects.get(key='newkey3')
+        self.assertEquals(key.get_validtype_display(), 'date')
+        self.assertEquals(key.auditFlag, False)
+        key.delete()
+
+    ###########################################################################
+    def test_create_numeric(self):
+        """ Test creating numeric / readonly keys via REST """
+        data = {'keytype': 'list', 'readonly': 'true', 'numeric': 'true'}
+        response = self.client.post('/api/key/newkey4/', data=json.dumps(data), content_type='application/json')
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(response.status_code, 200)
+        key = AllowedKey.objects.get(key='newkey4')
+        self.assertEquals(key.get_validtype_display(), 'list')
+        self.assertEquals(key.readonlyFlag, True)
+        self.assertEquals(key.numericFlag, True)
+        key.delete()
+
+    ###########################################################################
+    def test_key_detail(self):
+        """ Details of AllowedKeys through the REST interface """
+        response = self.client.get('/api/key/rhkey')
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key']['key'], 'rhkey')
+        self.assertEquals(ans['key']['desc'], 'testkey')
+
+    ###########################################################################
+    def test_key_by_id(self):
+        """ Details of AllowedKeys using key id through the REST interface """
+        response = self.client.get('/api/key/rhkey')
+        self.assertEquals(response.status_code, 200)
+        a = json.loads(response.content.decode())
+        keyid = a['key']['id']
+        response = self.client.get('/api/key/%d' % keyid)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['key']['key'], 'rhkey')
+        self.assertEquals(ans['key']['desc'], 'testkey')
+
+    ###########################################################################
+    def test_key_restricted(self):
+        """ Details of RestrictedKey through the REST interface """
+        rvals = ['yes', 'no', 'maybe']
+        rk = AllowedKey(key='restr', validtype=1, restrictedFlag=True)
+        rk.save()
+        avs = {}
+        for i in rvals:
+            avs[i] = RestrictedValue(keyid=rk, value=i)
+            avs[i].save()
+        response = self.client.get('/api/key/restr')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertIn(ans['key']['permitted_values'][0]['value'], rvals)
+        for i in avs:
+            avs[i].delete()
+        rk.delete()
 
 
 ###############################################################################

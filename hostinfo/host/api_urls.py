@@ -8,7 +8,7 @@ from .rest_views import RestrictedValueRest
 hostspec = r'((?P<hostpk>[0-9]+?)|(?P<hostname>\S+?))'
 aliasspec = r'((?P<aliaspk>[0-9]+?)|(?P<alias>\S*?))'
 kvalspec = r'((?P<keypk>[0-9]+?)|(?P<key>\S*?))'
-akeyspec = r'((?P<akeypk>[0-9]+?)|(?P<akey>[a-z_\-]+?))'
+akeyspec = r'((?P<akeypk>[0-9]+?)|(?P<akey>[a-z_\-0-9]+?))'
 linkspec = r'((?P<linkpk>[0-9]+?)|(?P<tagname>\S*?))'
 
 urlpatterns = [
@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^host/%s/?$' % hostspec, HostDetail, name='resthost'),
     url(r'^host/$', HostList),
     url(r'^key/?$', KeyList),
-    url(r'^key/%s/?$' % akeyspec, KeyDetail, name='restakey'),
+    url(r'^key/{}/?$'.format(akeyspec), KeyDetail, name='restakey'),
     url(r'^rval/{}/?$'.format(akeyspec), RestrictedValueRest),
     url(r'^rval/{}/(?P<val>\S+?)/?$'.format(akeyspec), RestrictedValueRest),
     url(r'^kval/(?P<pk>[0-9]+?)/?$', KValDetail, name='restkval'),
