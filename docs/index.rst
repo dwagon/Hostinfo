@@ -122,6 +122,7 @@ Contents
     mediawiki
     bareweb
     restful
+    rest_aliases
     version
     changelog
 

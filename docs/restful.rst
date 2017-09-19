@@ -3,6 +3,8 @@ RESTful interface
 
 Hostinfo has a RESTful interface to make it easy to do remote automation and integrate with other systems.
 
+ :doc:`rest_aliases`
+
 List of hosts
 ^^^^^^^^^^^^^
 
@@ -266,30 +268,12 @@ List of all aliases
         u'result': u'ok',
         u'aliases': [
             {
-                u'origin': u'',
-                u'url': u'http://.../api/host/realhost/alias/75',
-                u'createdate': u'YYYY-MM-DD',
                 u'alias': u'alias',
-                u'host': {
-                    u'url': u'http://.../api/host/203',
-                    u'id': 203,
-                    u'hostname': u'realhost'
-                    },
-                u'modifieddate': u'YYYY-MM-DD',
+                u'host': 'hostname',
                 u'id': 75
             },
             {
-                u'origin': u'',
-                u'url': u'http://.../api/host/realhost/alias/76',
-                u'createdate': u'YYYY-MM-DD',
-                u'alias': u'alias2',
-                u'host': {
-                    u'url': u'http://.../api/host/203',
-                    u'id': 203,
-                    u'hostname': u'realhost'
-                    },
-                u'modifieddate': u'YYYY-MM-DD',
-                u'id': 76
+            ...
             }
         ]
     }
