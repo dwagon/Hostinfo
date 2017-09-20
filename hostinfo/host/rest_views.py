@@ -432,24 +432,27 @@ def KeyDetail(request, akeypk=None, akey=None):
 
 
 ###############################################################################
+def determineTruth(payload, key, default=False):
+    if key not in payload:
+        return default
+    if payload[key].strip().lower() in ('true', 'yes', 'on'):
+        return True
+    if payload[key].strip().lower() in ('false', 'no', 'off'):
+        return False
+    return default
+
+
+###############################################################################
 def addKey(request, akey):
     params = {
-        'desc': '',
+        'desc': 'Undescribed',
         'keytype': 'single',
-        'numeric': False,
-        'restricted': False,
-        'readonly': False,
-        'audit': True
     }
     payload = get_payload(request)
-    if 'numeric' in payload:
-        params['numeric'] = True
-    if 'restricted' in payload:
-        params['restricted'] = True
-    if 'readonly' in payload:
-        params['readonly'] = True
-    if 'audit' in payload:
-        params['audit'] = False
+    params['numeric'] = determineTruth(payload, 'numeric', False)
+    params['restricted'] = determineTruth(payload, 'restricted', False)
+    params['readonly'] = determineTruth(payload, 'readonly', False)
+    params['audit'] = determineTruth(payload, 'audit', True)
     if 'desc' in payload:
         params['desc'] = payload['desc']
     if 'keytype' in payload:
@@ -459,7 +462,8 @@ def addKey(request, akey):
         return {'result': 'failed', 'error': 'Key already exists'}
     except:
         pass
-    newak = AllowedKey(
+    try:
+        newak = AllowedKey(
             key=akey,
             validtype=validateKeytype(params['keytype']),
             desc=params['desc'],
@@ -468,7 +472,10 @@ def addKey(request, akey):
             numericFlag=params['numeric'],
             auditFlag=params['audit'],
             )
-    newak.save()
+        newak.save()
+    except HostinfoException as exc:
+        return {'result': 'failed', 'error': str(exc)}
+
     return {'result': 'ok', 'key': AllowedKeySerialize(newak, request)}
 
 

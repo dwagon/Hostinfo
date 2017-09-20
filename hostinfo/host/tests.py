@@ -4222,14 +4222,25 @@ class test_restKey(TestCase):
         self.assertEquals(ans['error'], 'Key already exists')
 
     ###########################################################################
+    def test_badkey(self):
+        """ Test creating a key with a bad type REST """
+        data = {'keytype': 'bad'}
+        response = self.client.post('/api/key/newkey9/', data=json.dumps(data), content_type='application/json')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'failed')
+        self.assertIn('Unknown type bad', ans['error'])
+
+    ###########################################################################
     def test_create_list(self):
         """ Creation of a list key via REST """
-        data = {'keytype': 'list'}
+        data = {'keytype': 'list', 'desc': 'Aardvark'}
         response = self.client.post('/api/key/newkey2/', data=json.dumps(data), content_type='application/json')
         ans = json.loads(response.content.decode())
         self.assertEquals(ans['result'], 'ok')
         self.assertEquals(response.status_code, 200)
         key = AllowedKey.objects.get(key='newkey2')
+        self.assertEquals(key.desc, 'Aardvark')
         self.assertEquals(key.get_validtype_display(), 'list')
         key.delete()
 
