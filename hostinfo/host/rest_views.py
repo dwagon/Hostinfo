@@ -35,6 +35,7 @@ def getSerializerArgs(request):
         sargs['show_dates'] = True
     if 'host' in payload:
         sargs['show_host'] = True
+    # Backward compatible options
 
     # Less ambiguous options
     if 'show_links' in payload:
@@ -435,9 +436,14 @@ def KeyDetail(request, akeypk=None, akey=None):
 def determineTruth(payload, key, default=False):
     if key not in payload:
         return default
-    if payload[key].strip().lower() in ('true', 'yes', 'on'):
+    pv = payload[key]
+    if hasattr(pv, 'strip'):
+        pv = pv.strip()
+    if hasattr(pv, 'lower'):
+        pv = pv.lower()
+    if pv in ('true', 'yes', 'on', True):
         return True
-    if payload[key].strip().lower() in ('false', 'no', 'off'):
+    if pv in ('false', 'no', 'off', False):
         return False
     return default
 
