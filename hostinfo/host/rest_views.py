@@ -517,10 +517,10 @@ def HostSerialize(obj, request, **kwargs):
         'url': request.build_absolute_uri(reverse('resthost', args=(obj.id,)))
         }
 
-    if kwargs.get('origin', False):
+    if kwargs.get('show_origin', False):
         ans['origin'] = obj.origin
 
-    if kwargs.get('dates', False):
+    if kwargs.get('show_dates', False):
         ans['createdate'] = obj.createdate
         ans['modifieddate'] = obj.modifieddate
 
