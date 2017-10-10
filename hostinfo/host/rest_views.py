@@ -407,7 +407,7 @@ def HostList(request, *args):
 ###############################################################################
 # /key/
 @require_http_methods(["GET"])
-def KeyList(request):
+def KeyList(request, *args):
     """ Return all keys """
     allkeys = AllowedKey.objects.all()
     ans = {'result': 'ok', 'keys': []}
