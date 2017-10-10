@@ -13,21 +13,21 @@ linkspec = r'((?P<linkpk>[0-9]+?)|(?P<tagname>\S*?))'
 
 urlpatterns = [
     url(r'^alias/?$', AliasList),
-    url(r'^host/%s/alias/%s/?$' % (hostspec, aliasspec), HostAliasRest, name='hostaliasrest'),
-    url(r'^host/%s/alias/?$' % hostspec, HostAliasRest, name='hostaliasrest'),
-    url(r'^host/%s/key/%s/(?P<value>.*)/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
-    url(r'^host/%s/key/%s/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
-    url(r'^host/%s/link/%s/(?P<url>.*)/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
-    url(r'^host/%s/link/%s/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
-    url(r'^host/%s/?$' % hostspec, HostDetail, name='resthost'),
-    url(r'^host/$', HostList),
-    url(r'^key/?$', KeyList),
+    url(r'^host/{}/alias/{}/?$'.format(hostspec, aliasspec), HostAliasRest, name='hostaliasrest'),
+    url(r'^host/{}/alias/?$'.format(hostspec), HostAliasRest, name='hostaliasrest'),
+    url(r'^host/{}/key/{}/(?P<value>.*)/?$'.format(hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
+    url(r'^host/{}/key/{}/?$'.format(hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
+    url(r'^host/{}/link/{}/(?P<url>.*)/?$'.format(hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
+    url(r'^host/{}/link/{}/?$'.format(hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
+    url(r'^host/{}/?$'.format(hostspec), HostDetail, name='resthost'),
+    url(r'^host/?$', HostList),
     url(r'^key/{}/?$'.format(akeyspec), KeyDetail, name='restakey'),
+    url(r'^key/?$', KeyList),
     url(r'^rval/{}/?$'.format(akeyspec), RestrictedValueRest),
     url(r'^rval/{}/(?P<val>\S+?)/?$'.format(akeyspec), RestrictedValueRest),
     url(r'^kval/(?P<pk>[0-9]+?)/?$', KValDetail, name='restkval'),
     url(r'^query/(?P<query>\S+?)/?$', HostQuery),
-    url(r'^keylist/%s/(?P<query>\S+?)?/?$' % akeyspec, KeyListRest),
+    url(r'^keylist/{}/(?P<query>\S+?)?/?$'.format(akeyspec), KeyListRest),
 ]
 
 # EOF
