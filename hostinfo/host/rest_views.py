@@ -129,6 +129,23 @@ def get_origin(request):
 
 
 ###############################################################################
+@require_http_methods(["POST"])
+def HostRename(request, hostpk=None, hostname=None, newname=None):
+    hostid = getReferredHost(hostpk, hostname)
+    if not hostid:
+        ans = {'result': 'failed', 'error': "Source host doesn't exist", 'status': '404'}
+        return JsonResponse(ans)
+    dsthost = getReferredHost(None, newname)
+    if dsthost:
+        ans = {'result': 'failed', 'error': "Destination host already exists", 'status': '405'}
+        return JsonResponse(ans)
+    hostid.hostname = newname
+    hostid.save()
+    ans = {'result': 'ok', 'status': '200', 'message': "Host {} renamed to {}".format(hostid.name, newname)}
+    return JsonResponse(ans)
+
+
+###############################################################################
 @csrf_exempt
 @require_http_methods(["GET", "POST", "DELETE"])
 def HostDetail(request, hostpk=None, hostname=None):

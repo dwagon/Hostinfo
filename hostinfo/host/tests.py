@@ -3591,14 +3591,14 @@ class test_restHost_query(TestCase):
         response = self.client.get('/api/query/rhqkey=val/?origin=True')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
-        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url', 'origin', 'keyvalues']))
+        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'hostname', 'url', 'keyvalues']))
 
     ###########################################################################
     def test_query_multi(self):
         response = self.client.get('/api/query/rhqkey=val/?aliases=True&dates=True&links=True')
         self.assertEquals(response.status_code, 200)
         ans = json.loads(response.content.decode())
-        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'url', 'hostname', 'keyvalues']))
+        self.assertSequenceEqual(sorted(ans['hosts'][0].keys()), sorted(['id', 'url', 'hostname', 'keyvalues', 'createdate', 'modifieddate']))
 
     ###########################################################################
     def test_query_keys(self):
@@ -3637,7 +3637,7 @@ class test_restHost_query(TestCase):
 class test_restHost(TestCase):
     def setUp(self):
         self.client = Client()
-        self.host = Host(hostname='hostrh')
+        self.host = Host(hostname='hostrh', origin='hostrh origin')
         self.host.save()
         self.key = AllowedKey(key='rhkey', validtype=1, desc='testkey')
         self.key.save()
@@ -3661,6 +3661,20 @@ class test_restHost(TestCase):
         self.key.delete()
         self.listkey.delete()
         self.host.delete()
+
+    ###########################################################################
+    def test_hostrename(self):
+        """ Test renaming a host through the REST interface """
+        response = self.client.post('/api/host/hostrh/hostname/newname')
+        self.assertEquals(response.status_code, 200)
+        ans = json.loads(response.content.decode())
+        self.assertEquals(ans['result'], 'ok')
+        self.assertEquals(ans['host']['hostname'], 'noahsark')
+        host = Host.objects.get(hostname='hostrh')
+        self.assertEqual(host, None)
+        host = Host.objects.get(hostname='newname')
+        self.assertEqual(host.origin, 'hostrh origin')
+        host.delete()
 
     ###########################################################################
     def test_hostcreate(self):
