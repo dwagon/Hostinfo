@@ -129,19 +129,25 @@ def get_origin(request):
 
 
 ###############################################################################
+@csrf_exempt
 @require_http_methods(["POST"])
 def HostRename(request, hostpk=None, hostname=None, newname=None):
     hostid = getReferredHost(hostpk, hostname)
+    sargs = getSerializerArgs(request)
     if not hostid:
         ans = {'result': 'failed', 'error': "Source host doesn't exist", 'status': '404'}
         return JsonResponse(ans)
-    dsthost = getReferredHost(None, newname)
-    if dsthost:
+    try:
+        getReferredHost(None, newname)
+    except Http404:
+        pass    # Check dest host doesn't already exist
+    else:
         ans = {'result': 'failed', 'error': "Destination host already exists", 'status': '405'}
         return JsonResponse(ans)
+    origname = hostid.hostname
     hostid.hostname = newname
     hostid.save()
-    ans = {'result': 'ok', 'status': '200', 'message': "Host {} renamed to {}".format(hostid.name, newname)}
+    ans = {'result': 'ok', 'status': '200', 'message': "Host {} renamed to {}".format(origname, newname), 'host': HostSerialize(hostid, request, **sargs)}
     return JsonResponse(ans)
 
 
