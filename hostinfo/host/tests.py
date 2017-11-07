@@ -3677,6 +3677,14 @@ class test_restHost(TestCase):
         host.delete()
 
     ###########################################################################
+    def test_hostrename_badsrc(self):
+        """ Test renaming a host through the REST interface with a bad source host """
+        response = self.client.post('/api/host/badhost/hostname/newname')
+        self.assertEquals(response.status_code, 404)
+        host = Host.objects.filter(hostname='newname')
+        self.assertFalse(host)
+
+    ###########################################################################
     def test_hostcreate(self):
         data = {"origin": "testorigin"}
         response = self.client.post('/api/host/noahsark', data=json.dumps(data), content_type='application/json')
