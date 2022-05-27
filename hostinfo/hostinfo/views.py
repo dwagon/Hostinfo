@@ -3,9 +3,8 @@ from django.conf import settings
 
 
 def version(request):
-    ans = {
-        'version': settings.VERSION
-        }
+    ans = {"version": settings.VERSION}
     return JsonResponse(ans)
+
 
 # EOF

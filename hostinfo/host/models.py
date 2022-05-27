@@ -48,7 +48,8 @@ class HostinfoException(Exception):
 
 ################################################################################
 class ReadonlyValueException(HostinfoException):
-    """ A change has been attempted on a read only value """
+    """A change has been attempted on a read only value"""
+
     def __init__(self, key=None, msg="", retval=2):
         self.key = key
         self.msg = msg
@@ -60,7 +61,8 @@ class ReadonlyValueException(HostinfoException):
 
 ################################################################################
 class RestrictedValueException(HostinfoException):
-    """ A change has been attempted on a restricted value """
+    """A change has been attempted on a restricted value"""
+
     def __init__(self, msg, key=None, retval=3):
         self.msg = msg
         self.key = key
@@ -71,8 +73,9 @@ class RestrictedValueException(HostinfoException):
 
 
 ################################################################################
-class HostinfoInternalException(HostinfoException):     # pragma: no cover
-    """ Something screwy has gone on that was unexpected in the code"""
+class HostinfoInternalException(HostinfoException):  # pragma: no cover
+    """Something screwy has gone on that was unexpected in the code"""
+
     def __init__(self, key=None, msg="", retval=255):
         self.key = key
         self.msg = msg
@@ -81,14 +84,14 @@ class HostinfoInternalException(HostinfoException):     # pragma: no cover
 
 ################################################################################
 def getUser(instance=None):
-    """ Get the user for the audittrail
-        For command line access use the persons login name
+    """Get the user for the audittrail
+    For command line access use the persons login name
     """
     username = user = None
     try:
         username = os.getlogin()
     except OSError:
-        username = 'unknown'
+        username = "unknown"
     if username and user is None:
         user, created = User.objects.get_or_create(username=username)
     return user.username[:20]
@@ -96,8 +99,7 @@ def getUser(instance=None):
 
 ############################################################################
 def auditedKey(instance):
-    """ Return True if the AllowKey should be audited
-    """
+    """Return True if the AllowKey should be audited"""
     return instance.keyid.auditFlag
 
 
@@ -118,8 +120,10 @@ class Host(models.Model):
         if not user:
             user = getUser()
         self.hostname = self.hostname.lower()
-        if not self.id:                        # Check for update
-            undo = UndoLog(user=user, action='hostinfo_deletehost --lethal %s' % self.hostname)
+        if not self.id:  # Check for update
+            undo = UndoLog(
+                user=user, action="hostinfo_deletehost --lethal %s" % self.hostname
+            )
             undo.save()
         super(Host, self).save(**kwargs)
         _all_hosts = None
@@ -129,7 +133,7 @@ class Host(models.Model):
         global _all_hosts
         if not user:
             user = getUser()
-        undo = UndoLog(user=user, action='hostinfo_addhost %s' % self.hostname)
+        undo = UndoLog(user=user, action="hostinfo_addhost %s" % self.hostname)
         undo.save()
         super(Host, self).delete()
         _all_hosts = None
@@ -140,14 +144,16 @@ class Host(models.Model):
 
     ############################################################################
     class Meta:
-        ordering = ['hostname']
+        ordering = ["hostname"]
 
 
 ################################################################################
 ################################################################################
 ################################################################################
 class HostAlias(models.Model):
-    hostid = models.ForeignKey(Host, db_index=True, related_name='aliases', on_delete=models.CASCADE)
+    hostid = models.ForeignKey(
+        Host, db_index=True, related_name="aliases", on_delete=models.CASCADE
+    )
     alias = models.CharField(max_length=200, unique=True)
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
@@ -168,7 +174,7 @@ class HostAlias(models.Model):
 ################################################################################
 class AllowedKey(models.Model):
     key = models.CharField(max_length=200)
-    TYPE_CHOICES = ((1, 'single'), (2, 'list'), (3, 'date'))
+    TYPE_CHOICES = ((1, "single"), (2, "list"), (3, "date"))
     validtype = models.IntegerField(choices=TYPE_CHOICES, default=1)
     desc = models.CharField(max_length=250, blank=True)
     createdate = models.DateField(auto_now_add=True)
@@ -187,7 +193,7 @@ class AllowedKey(models.Model):
 
     ############################################################################
     class Meta:
-        ordering = ['key']
+        ordering = ["key"]
 
 
 ################################################################################
@@ -218,19 +224,31 @@ class KeyValue(models.Model):
         if self.keyid.restrictedFlag:
             rk = RestrictedValue.objects.filter(keyid=self.keyid, value=self.value)
             if not rk:
-                raise RestrictedValueException(key=self.keyid, msg="%s is a restricted key" % self.keyid)
+                raise RestrictedValueException(
+                    key=self.keyid, msg="%s is a restricted key" % self.keyid
+                )
 
         if self.keyid.readonlyFlag and not readonlychange:
-            raise ReadonlyValueException(key=self.keyid, msg="%s is a readonly key" % self.keyid)
-        if self.keyid.get_validtype_display() == 'date':
+            raise ReadonlyValueException(
+                key=self.keyid, msg="%s is a readonly key" % self.keyid
+            )
+        if self.keyid.get_validtype_display() == "date":
             self.value = validateDate(self.value)
 
-        if self.id:                        # Check for update
+        if self.id:  # Check for update
             oldobj = KeyValue.objects.get(id=self.id)
-            undo = UndoLog(user=user, action='hostinfo_replacevalue %s=%s %s %s' % (self.keyid, self.value, oldobj.value, self.hostid))
+            undo = UndoLog(
+                user=user,
+                action="hostinfo_replacevalue %s=%s %s %s"
+                % (self.keyid, self.value, oldobj.value, self.hostid),
+            )
             undo.save()
-        else:                                # New object
-            undo = UndoLog(user=user, action='hostinfo_deletevalue %s=%s %s' % (self.keyid, self.value, self.hostid))
+        else:  # New object
+            undo = UndoLog(
+                user=user,
+                action="hostinfo_deletevalue %s=%s %s"
+                % (self.keyid, self.value, self.hostid),
+            )
             undo.save()
 
         # Actually do the saves
@@ -243,25 +261,28 @@ class KeyValue(models.Model):
         if not user:
             user = getUser()
         if self.keyid.readonlyFlag and not readonlychange:
-            raise ReadonlyValueException(key=self.keyid, msg="%s is a read only key" % self.keyid)
-        if self.keyid.get_validtype_display() == 'list':
-            undoflag = '--append'
+            raise ReadonlyValueException(
+                key=self.keyid, msg="%s is a read only key" % self.keyid
+            )
+        if self.keyid.get_validtype_display() == "list":
+            undoflag = "--append"
         else:
-            undoflag = ''
+            undoflag = ""
         undo = UndoLog(
             user=user,
-            action='hostinfo_addvalue %s %s=%s %s' % (undoflag, self.keyid, self.value, self.hostid)
-            )
+            action="hostinfo_addvalue %s %s=%s %s"
+            % (undoflag, self.keyid, self.value, self.hostid),
+        )
         undo.save()
         super(KeyValue, self).delete()
 
     ############################################################################
-    def __str__(self):      # pragma: no cover
+    def __str__(self):  # pragma: no cover
         return "%s=%s" % (self.keyid.key, self.value)
 
     ############################################################################
     class Meta:
-        unique_together = (('hostid', 'keyid', 'value'), )
+        unique_together = (("hostid", "keyid", "value"),)
 
 
 ################################################################################
@@ -278,7 +299,7 @@ class UndoLog(models.Model):
 
     ############################################################################
     def save(self, **kwargs):
-        if hasattr(self.user, 'username'):
+        if hasattr(self.user, "username"):
             self.user.username = self.user.username[:200]
         else:
             self.user = self.user[:200]
@@ -290,9 +311,10 @@ class UndoLog(models.Model):
 ################################################################################
 ################################################################################
 class RestrictedValue(models.Model):
-    """ If an AllowedKey is restricted then the value can only be one that appears
+    """If an AllowedKey is restricted then the value can only be one that appears
     in this table
     """
+
     keyid = models.ForeignKey(AllowedKey, db_index=True, on_delete=models.CASCADE)
     value = models.CharField(max_length=200)
     createdate = models.DateField(auto_now_add=True)
@@ -305,14 +327,16 @@ class RestrictedValue(models.Model):
 
     ############################################################################
     class Meta:
-        unique_together = (('keyid', 'value'), )
+        unique_together = (("keyid", "value"),)
 
 
 ################################################################################
 ################################################################################
 ################################################################################
 class Links(models.Model):
-    hostid = models.ForeignKey(Host, db_index=True, related_name='links', on_delete=models.CASCADE)
+    hostid = models.ForeignKey(
+        Host, db_index=True, related_name="links", on_delete=models.CASCADE
+    )
     url = models.CharField(max_length=200)
     tag = models.CharField(max_length=100)
     modifieddate = models.DateField(auto_now=True)
@@ -320,29 +344,29 @@ class Links(models.Model):
 
     ############################################################################
     class Meta:
-        ordering = ['hostid', 'tag']
+        ordering = ["hostid", "tag"]
 
 
 ############################################################################
 def validateDate(datestr):
-    """ Convert the various dates to a single format: YYYY-MM-DD """
+    """Convert the various dates to a single format: YYYY-MM-DD"""
     year = -1
     month = -1
     day = -1
 
     # Check if people are using a shortcut
-    if datestr in ('today', 'now'):
+    if datestr in ("today", "now"):
         year = time.localtime()[0]
         month = time.localtime()[1]
         day = time.localtime()[2]
         return "%04d-%02d-%02d" % (year, month, day)
 
     formats = [
-        '%Y-%m-%d',
-        '%d/%m/%Y',
-        '%d/%m/%y',
-        '%Y/%m/%d',
-        ]
+        "%Y-%m-%d",
+        "%d/%m/%Y",
+        "%d/%m/%y",
+        "%Y/%m/%d",
+    ]
 
     for fmt in formats:
         try:
@@ -355,7 +379,10 @@ def validateDate(datestr):
         break
 
     if year < 0:
-        raise TypeError("%s couldn't be converted to a known date format (e.g. YYYY-MM-DD)" % datestr)
+        raise TypeError(
+            "%s couldn't be converted to a known date format (e.g. YYYY-MM-DD)"
+            % datestr
+        )
 
     return "%04d-%02d-%02d" % (year, month, day)
 
@@ -370,45 +397,45 @@ def parseQualifiers(args):
     # Table of all the operators:
     #    tag of operator, regexp, threepart (ie. has value)?
     optable = [
-        ('unequal', '!=|\.ne\.', {'threeparts': True}),
-        ('equal', '=|\.eq\.', {'threeparts': True}),        # Has to be after !=
-        ('lessthan', '<|\.lt\.', {'threeparts': True}),
-        ('greaterthan', '>|\.gt\.', {'threeparts': True}),
-        ('contains', '~|\.ss\.', {'threeparts': True}),
-        ('notcontains', '%|\.ns\.', {'threeparts': True}),
-        ('approx', '@|\.ap\.', {'threeparts': True}),
-        ('undef', '\.undef|\.undefined|\.unset', {'threeparts': False}),
-        ('def', '\.def|\.defined|\.set', {'threeparts': False}),
-        ('hostre', '\.hostre', {'threeparts': False, 'validkey': False}),
-        ('lenlt', '\.lenlt\.', {'threeparts': True}),
-        ('leneq', '\.leneq\.', {'threeparts': True}),
-        ('lengt', '\.lengt\.', {'threeparts': True}),
-        ]
+        ("unequal", "!=|\.ne\.", {"threeparts": True}),
+        ("equal", "=|\.eq\.", {"threeparts": True}),  # Has to be after !=
+        ("lessthan", "<|\.lt\.", {"threeparts": True}),
+        ("greaterthan", ">|\.gt\.", {"threeparts": True}),
+        ("contains", "~|\.ss\.", {"threeparts": True}),
+        ("notcontains", "%|\.ns\.", {"threeparts": True}),
+        ("approx", "@|\.ap\.", {"threeparts": True}),
+        ("undef", "\.undef|\.undefined|\.unset", {"threeparts": False}),
+        ("def", "\.def|\.defined|\.set", {"threeparts": False}),
+        ("hostre", "\.hostre", {"threeparts": False, "validkey": False}),
+        ("lenlt", "\.lenlt\.", {"threeparts": True}),
+        ("leneq", "\.leneq\.", {"threeparts": True}),
+        ("lengt", "\.lengt\.", {"threeparts": True}),
+    ]
 
     qualifiers = []
     for arg in args:
-        if arg == '':
+        if arg == "":
             continue
         matched = False
         # Check to make sure that the qualifier isn't actually a host with an
         # embedded operator like subdomain - e.g. host.lt.example.com
         ishostname = Host.objects.filter(hostname=arg.lower())
         if ishostname:
-            qualifiers.append(('host', None, arg.lower()))
+            qualifiers.append(("host", None, arg.lower()))
             matched = True
             continue
         for op, reg, opts in optable:
-            if opts['threeparts']:
-                mo = re.match('(?P<key>.+)(%s)(?P<val>.+)' % reg, arg)
+            if opts["threeparts"]:
+                mo = re.match("(?P<key>.+)(%s)(?P<val>.+)" % reg, arg)
             else:
-                mo = re.match('(?P<key>.+)(%s)(?P<val>)' % reg, arg)
+                mo = re.match("(?P<key>.+)(%s)(?P<val>)" % reg, arg)
             if mo:
-                key = mo.group('key').lower()
-                if opts.get('validkey', True):
+                key = mo.group("key").lower()
+                if opts.get("validkey", True):
                     getAK(key)
-                val = mo.group('val').lower()
-                if opts['threeparts']:
-                    if getAK(key).get_validtype_display() == 'date':
+                val = mo.group("val").lower()
+                if opts["threeparts"]:
+                    if getAK(key).get_validtype_display() == "date":
                         val = validateDate(val)
                 qualifiers.append((op, key, val))
                 matched = True
@@ -417,7 +444,7 @@ def parseQualifiers(args):
         if not matched:
             hm = re.match("\w+", arg)
             if hm:
-                qualifiers.append(('host', None, arg.lower()))
+                qualifiers.append(("host", None, arg.lower()))
                 matched = True
 
         if not matched:
@@ -429,9 +456,11 @@ def parseQualifiers(args):
 ################################################################################
 def calcKeylistVals(key, from_hostids=[]):
     keyid = getAK(key)
-    kvlist = KeyValue.objects.filter(keyid__key=key).values_list('hostid', 'value', 'numvalue')
+    kvlist = KeyValue.objects.filter(keyid__key=key).values_list(
+        "hostid", "value", "numvalue"
+    )
     if not from_hostids:
-        from_hostids = [v[0] for v in get_all_hosts().values_list('id')]
+        from_hostids = [v[0] for v in get_all_hosts().values_list("id")]
     total = len(from_hostids)
 
     # Calculate the number of times each value occurs
@@ -462,26 +491,27 @@ def calcKeylistVals(key, from_hostids=[]):
     if not isinstance(key, str):
         key = str(key)
     d = {
-        'key': key,
-        'vallist': [(val, count, pct) for [val, numval, count, pct] in tv],
-        'numvals': len(tmpvalues),
-        'numdef': numdef,
-        'pctdef': 100.0*numdef/total,
-        'numundef': numundef,
-        'pctundef': 100.0*numundef/total,
-        'total': total,
+        "key": key,
+        "vallist": [(val, count, pct) for [val, numval, count, pct] in tv],
+        "numvals": len(tmpvalues),
+        "numdef": numdef,
+        "pctdef": 100.0 * numdef / total,
+        "numundef": numundef,
+        "pctundef": 100.0 * numundef / total,
+        "total": total,
     }
     return d
 
 
 ################################################################################
 def oneoff(val):
-    """ Copied from norvig.com/spell-correct.html
-        A page of true awesomeness
+    """Copied from norvig.com/spell-correct.html
+    A page of true awesomeness
     """
     import string
+
     alphabet = string.ascii_lowercase + string.digits
-    s = [(val[:i], val[i:]) for i in range(len(val)+1)]
+    s = [(val[:i], val[i:]) for i in range(len(val) + 1)]
     deletes = [a + b[1:] for a, b in s if b]
     transposes = [a + b[1] + b[0] + b[2:] for a, b in s if len(b) > 1]
     replaces = [a + c + b[1:] for a, b in s for c in alphabet if b]
@@ -491,7 +521,7 @@ def oneoff(val):
 
 ################################################################################
 def getApproxObjects(keyid, value):
-    """ Return all of the hostids that have a value that is approximately
+    """Return all of the hostids that have a value that is approximately
     value
     """
     vals = KeyValue.objects.filter(keyid=keyid)
@@ -500,7 +530,7 @@ def getApproxObjects(keyid, value):
     for v in vals:
         if v.value in approx:
             approxans.add(v)
-    ans = [{'hostid': v.hostid.id} for v in approxans]
+    ans = [{"hostid": v.hostid.id} for v in approxans]
     return ans
 
 
@@ -528,7 +558,7 @@ def getHostList(criteria):
 
 ################################################################################
 def getMatches(qualifiers):
-    """ Get a list of matching hostids that satisfy the qualifiers
+    """Get a list of matching hostids that satisfy the qualifiers
 
     Create a set of all the hostids and then go through each qualifier
     and create a set of hostids that match that qualifier and then
@@ -539,8 +569,8 @@ def getMatches(qualifiers):
     difference between all hosts and the hosts that have that value set.
     """
     hostids = set([host.id for host in get_all_hosts()])
-    for q, k, v in qualifiers:        # qualifier, key, value
-        if q != 'hostre':   # hostre doesn't put a key into key
+    for q, k, v in qualifiers:  # qualifier, key, value
+        if q != "hostre":  # hostre doesn't put a key into key
             key = getAK(k)
             checknum = False
             # Numeric keys can be queried for non-numeric values
@@ -550,67 +580,89 @@ def getMatches(qualifiers):
                     checknum = True
                 except ValueError:
                     pass
-        mode = 'intersection'
-        queryset = set([])        # Else if no match it won't have a queryset defined
-        if q == 'host':
+        mode = "intersection"
+        queryset = set([])  # Else if no match it won't have a queryset defined
+        if q == "host":
             hostqs = set([h.id for h in Host.objects.filter(hostname=v)])
             aliasqs = set([ha.hostid.id for ha in HostAlias.objects.filter(alias=v)])
             queryset = hostqs | aliasqs
             vals = []
-        elif q == 'equal':
+        elif q == "equal":
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values('hostid')
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values(
+                    "hostid"
+                )
             else:
-                vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')
-        elif q == 'lessthan':
+                vals = KeyValue.objects.filter(keyid=key.id, value=v).values("hostid")
+        elif q == "lessthan":
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue__lt=v).values('hostid')
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue__lt=v).values(
+                    "hostid"
+                )
             else:
-                vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values('hostid')
-        elif q == 'approx':
+                vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values(
+                    "hostid"
+                )
+        elif q == "approx":
             vals = getApproxObjects(keyid=key.id, value=v)
-        elif q == 'greaterthan':
+        elif q == "greaterthan":
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue__gt=v).values('hostid')
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue__gt=v).values(
+                    "hostid"
+                )
             else:
-                vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values('hostid')
-        elif q == 'contains':
-            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values('hostid')
-        elif q == 'notcontains':
-            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values('hostid')
-            mode = 'difference'
-        elif q == 'def':
-            vals = KeyValue.objects.filter(keyid=key.id).values('hostid')
-        elif q == 'unequal':
+                vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values(
+                    "hostid"
+                )
+        elif q == "contains":
+            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values(
+                "hostid"
+            )
+        elif q == "notcontains":
+            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values(
+                "hostid"
+            )
+            mode = "difference"
+        elif q == "def":
+            vals = KeyValue.objects.filter(keyid=key.id).values("hostid")
+        elif q == "unequal":
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values('hostid')
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values(
+                    "hostid"
+                )
             else:
-                vals = KeyValue.objects.filter(keyid=key.id, value=v).values('hostid')
-            mode = 'difference'
-        elif q == 'undef':
-            vals = KeyValue.objects.filter(keyid=key.id).values('hostid')
-            mode = 'difference'
-        if q in ('leneq', 'lengt', 'lenlt'):
+                vals = KeyValue.objects.filter(keyid=key.id, value=v).values("hostid")
+            mode = "difference"
+        elif q == "undef":
+            vals = KeyValue.objects.filter(keyid=key.id).values("hostid")
+            mode = "difference"
+        if q in ("leneq", "lengt", "lenlt"):
             vals = []
-            mode = 'noop'
-        elif q == 'hostre':
-            vals = [{'hostid': h['id']} for h in Host.objects.filter(hostname__contains=k).values('id')]
-            alias = [{'hostid': h['hostid']} for h in HostAlias.objects.filter(alias__contains=k).values('hostid')]
+            mode = "noop"
+        elif q == "hostre":
+            vals = [
+                {"hostid": h["id"]}
+                for h in Host.objects.filter(hostname__contains=k).values("id")
+            ]
+            alias = [
+                {"hostid": h["hostid"]}
+                for h in HostAlias.objects.filter(alias__contains=k).values("hostid")
+            ]
             vals.extend(alias)
 
         if vals:
-            queryset = set([e['hostid'] for e in vals])
-        if mode == 'intersection':
+            queryset = set([e["hostid"] for e in vals])
+        if mode == "intersection":
             hostids = hostids & queryset
-        elif mode == 'difference':
-            hostids = hostids-queryset
-        elif mode == 'noop':
+        elif mode == "difference":
+            hostids = hostids - queryset
+        elif mode == "noop":
             pass
 
     # Some queries require post processing
     # Note that these are much slower to process so do them after
-    for q, k, v in qualifiers:        # qualifier, key, value
-        if q in ('leneq', 'lengt', 'lenlt'):
+    for q, k, v in qualifiers:  # qualifier, key, value
+        if q in ("leneq", "lengt", "lenlt"):
             key = getAK(k)
             try:
                 lngth = int(v)
@@ -620,13 +672,13 @@ def getMatches(qualifiers):
                 if h.id not in hostids:
                     continue
                 vals = KeyValue.objects.filter(hostid=h.id, keyid=key.id)
-                if q == 'leneq':
+                if q == "leneq":
                     if len(vals) != lngth:
                         hostids.remove(h.id)
-                elif q == 'lengt':
+                elif q == "lengt":
                     if len(vals) < lngth:
                         hostids.remove(h.id)
-                elif q == 'lenlt':
+                elif q == "lenlt":
                     if len(vals) > lngth:
                         hostids.remove(h.id)
 
@@ -635,15 +687,14 @@ def getMatches(qualifiers):
 
 ################################################################################
 def getAliases(hostname):
-    """ Return the list of aliases that this host has
-    """
+    """Return the list of aliases that this host has"""
     aliaslist = HostAlias.objects.filter(hostid__hostname=hostname)
     return [a.alias for a in aliaslist]
 
 
 ################################################################################
 def getHost(hostname):
-    """ Return the host object based on the hostname either from the Host or the
+    """Return the host object based on the hostname either from the Host or the
     HostAlias. Return None if not found
     """
     try:
@@ -666,7 +717,7 @@ def getHost(hostname):
 
 ################################################################################
 def getOrigin(origin):
-    """ Standard 'origin' getter
+    """Standard 'origin' getter
     Use the origin variable if provided otherwise try and determine who
     is making the change
     """
@@ -674,9 +725,9 @@ def getOrigin(origin):
         return origin
     try:
         origin = os.getlogin()
-    except OSError:        # pragma: no cover
+    except OSError:  # pragma: no cover
         # Web interface can't do os.getlogin calls
-        for e in ('REMOTE_USER', 'REMOTE_ADDR', 'USER'):
+        for e in ("REMOTE_USER", "REMOTE_ADDR", "USER"):
             try:
                 origin = os.environ[e]
             except KeyError:
@@ -690,8 +741,7 @@ def getOrigin(origin):
 
 ################################################################################
 def checkHost(host):
-    """ Check to make sure that a host exists
-    """
+    """Check to make sure that a host exists"""
     h = Host.objects.filter(hostname=host)
     if h:
         return True
@@ -701,16 +751,15 @@ def checkHost(host):
 
 ################################################################################
 def clearAKcache():
-    """ Remove the contents of the allowedkey cache - mostly for test purposes
-    """
+    """Remove the contents of the allowedkey cache - mostly for test purposes"""
     global _akcache
     _akcache = {None: None}
 
 
 ################################################################################
 def getAK(key):
-    """ Lookup AllowedKeys. This is a oft repeated expensive activity so
-        cache it """
+    """Lookup AllowedKeys. This is a oft repeated expensive activity so
+    cache it"""
     global _akcache
     if key not in _akcache:
         try:
@@ -722,9 +771,16 @@ def getAK(key):
 
 ################################################################################
 def addKeytoHost(
-        host=None, hostid=None, key=None, keyid=None,
-        value='', origin=None, updateFlag=False, readonlyFlag=False, appendFlag=False
-        ):
+    host=None,
+    hostid=None,
+    key=None,
+    keyid=None,
+    value="",
+    origin=None,
+    updateFlag=False,
+    readonlyFlag=False,
+    appendFlag=False,
+):
     retval = 0
     if not keyid:
         keyid = getAK(key)
@@ -737,7 +793,7 @@ def addKeytoHost(
     if keytype != "list" and appendFlag:
         raise HostinfoException("Can only append to list type keys")
     kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
-    if kv:                # Key already exists
+    if kv:  # Key already exists
         if updateFlag:
             kv[0].value = value
             kv[0].origin = origin
@@ -750,7 +806,9 @@ def addKeytoHost(
                 retval = 0
         else:
             if kv[0].value != value:
-                raise HostinfoException("%s:%s already has a value %s" % (host, key, kv[0].value))
+                raise HostinfoException(
+                    "%s:%s already has a value %s" % (host, key, kv[0].value)
+                )
             else:
                 retval = 1
     else:
@@ -765,7 +823,9 @@ class HostinfoCommand(object):
     epilog = None
 
     def over_parseArgs(self):
-        parser = argparse.ArgumentParser(description=self.description, epilog=self.epilog)
+        parser = argparse.ArgumentParser(
+            description=self.description, epilog=self.epilog
+        )
         self.parseArgs(parser)
         self.namespace = parser.parse_args(sys.argv[1:])
 
@@ -776,6 +836,7 @@ class HostinfoCommand(object):
 ###############################################################################
 def run_from_cmdline():
     import importlib
+
     start_time = time.time()
     cmdname = "host.commands.cmd_%s" % os.path.basename(sys.argv[0])
     try:
@@ -794,9 +855,13 @@ def run_from_cmdline():
         return exc.retval
     if settings.DEBUG:  # pragma: no cover
         end_time = time.time()
-        db_query_time = sum([float(x['time']) for x in connection.queries])
-        sys.stderr.write("DB Queries: %d queries in %f secs.\n" % (len(connection.queries), db_query_time))
+        db_query_time = sum([float(x["time"]) for x in connection.queries])
+        sys.stderr.write(
+            "DB Queries: %d queries in %f secs.\n"
+            % (len(connection.queries), db_query_time)
+        )
         sys.stderr.write("Total time %f secs\n" % (end_time - start_time))
     return retval
+
 
 # EOF

@@ -22,13 +22,13 @@
 import os
 import sys
 
-f = os.popen('/app/hostinfo/bin/hostinfo')
+f = os.popen("/app/hostinfo/bin/hostinfo")
 for line in f:
     host = line.strip()
-    if os.path.exists('/app/explorer/output/%s.html' % host):
-        print "%s http://opscmdb/explorers/%s.html HostView" % (host, host)
+    if os.path.exists("/app/explorer/output/%s.html" % host):
+        print("%s http://opscmdb/explorers/%s.html HostView" % (host, host))
 f.close()
 
 sys.exit(0)
 
-#EOF
+# EOF

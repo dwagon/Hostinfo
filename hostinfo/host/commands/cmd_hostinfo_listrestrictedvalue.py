@@ -23,11 +23,11 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'List all allowable values of a restricted key'
+    description = "List all allowable values of a restricted key"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('key', help='Name of the key to list')
+        parser.add_argument("key", help="Name of the key to list")
 
     ###########################################################################
     def handle(self, namespace):
@@ -45,4 +45,5 @@ class Command(HostinfoCommand):
             outstr += "%s\n" % rv
         return outstr, 0
 
-#EOF
+
+# EOF

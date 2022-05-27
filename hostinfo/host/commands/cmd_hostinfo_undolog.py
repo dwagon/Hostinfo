@@ -23,18 +23,26 @@ import datetime
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Display the undolog'
+    description = "Display the undolog"
 
     ###########################################################################
     def parseArgs(self, parser):
         parser.add_argument(
-            '--user', help='Print the undolog for the specified user', nargs=1)
+            "--user", help="Print the undolog for the specified user", nargs=1
+        )
         parser.add_argument(
-            '--week', help='Print the undolog the the last week',
-            dest='days', const=[7], action='store_const')
+            "--week",
+            help="Print the undolog the the last week",
+            dest="days",
+            const=[7],
+            action="store_const",
+        )
         parser.add_argument(
-            '--days', help='Print the undo log for the specified number of days',
-            nargs=1, type=int)
+            "--days",
+            help="Print the undo log for the specified number of days",
+            nargs=1,
+            type=int,
+        )
 
     ###########################################################################
     def handle(self, namespace):
@@ -42,17 +50,18 @@ class Command(HostinfoCommand):
         now = datetime.datetime.now()
         if not namespace.days:
             namespace.days = [1]
-        then = now-datetime.timedelta(days=namespace.days[0])
+        then = now - datetime.timedelta(days=namespace.days[0])
         if namespace.user:
             user = namespace.user[0]
         else:
             try:
                 user = os.getlogin()
-            except OSError:     # pragma: no cover
+            except OSError:  # pragma: no cover
                 user = "unknown"
         ulog = UndoLog.objects.filter(user=user, actiondate__gte=then)
         for undoact in ulog:
             outstr += "%-55s # %s\n" % (undoact.action, undoact.actiondate)
         return outstr, 0
+
 
 # EOF

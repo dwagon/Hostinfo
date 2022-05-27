@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import template
+
 register = template.Library()
 
 
@@ -30,8 +31,9 @@ def getnextelem(value):
         try:
             return value.pop(0)
         except AttributeError:
-            return ''
+            return ""
     else:
-        return ''
+        return ""
 
-#EOF
+
+# EOF

@@ -8,36 +8,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('host', '0003_django_ten'),
+        ("host", "0003_django_ten"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='allowedkey',
-            name='reservedFlag1',
+            model_name="allowedkey",
+            name="reservedFlag1",
         ),
         migrations.RemoveField(
-            model_name='historicalallowedkey',
-            name='reservedFlag1',
+            model_name="historicalallowedkey",
+            name="reservedFlag1",
         ),
         migrations.AddField(
-            model_name='allowedkey',
-            name='numericFlag',
+            model_name="allowedkey",
+            name="numericFlag",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='historicalallowedkey',
-            name='numericFlag',
+            model_name="historicalallowedkey",
+            name="numericFlag",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='historicalkeyvalue',
-            name='numvalue',
+            model_name="historicalkeyvalue",
+            name="numvalue",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='keyvalue',
-            name='numvalue',
+            model_name="keyvalue",
+            name="numvalue",
             field=models.FloatField(null=True),
         ),
     ]

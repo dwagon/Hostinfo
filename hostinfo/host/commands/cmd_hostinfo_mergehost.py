@@ -24,22 +24,25 @@ from django.core.exceptions import ObjectDoesNotExist
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Merge two hosts'
+    description = "Merge two hosts"
 
     ###########################################################################
     def parseArgs(self, parser):
         parser.add_argument(
-            '-f', '--force',
-            help="Force the merge", action='store_true', default=False)
+            "-f", "--force", help="Force the merge", action="store_true", default=False
+        )
         parser.add_argument(
-            '-k', '--kidding',
-            help="Don't actually make any changes", action='store_true')
+            "-k",
+            "--kidding",
+            help="Don't actually make any changes",
+            action="store_true",
+        )
         parser.add_argument(
-            '--src',
-            help='The source host', nargs=1, required=True, dest='srchost')
+            "--src", help="The source host", nargs=1, required=True, dest="srchost"
+        )
         parser.add_argument(
-            '--dst',
-            help='The destination host', nargs=1, required=True, dest='dsthost')
+            "--dst", help="The destination host", nargs=1, required=True, dest="dsthost"
+        )
 
     ###########################################################################
     def handle(self, namespace):
@@ -47,10 +50,14 @@ class Command(HostinfoCommand):
         self.force = namespace.force
         srchostobj = getHost(namespace.srchost[0])
         if not srchostobj:
-            raise HostinfoException("Source host %s doesn't exist" % namespace.srchost[0])
+            raise HostinfoException(
+                "Source host %s doesn't exist" % namespace.srchost[0]
+            )
         dsthostobj = getHost(namespace.dsthost[0])
         if not dsthostobj:
-            raise HostinfoException("Destination host %s doesn't exist" % namespace.dsthost[0])
+            raise HostinfoException(
+                "Destination host %s doesn't exist" % namespace.dsthost[0]
+            )
 
         ok = True
 
@@ -69,8 +76,7 @@ class Command(HostinfoCommand):
 
     ###############################################################################
     def transferKey(self, srckey, srchostobj, dsthostobj):
-        """ Transfer the key from the source host to the dest host
-        """
+        """Transfer the key from the source host to the dest host"""
         keytype = srckey.keyid.get_validtype_display()
         if keytype == "list":
             return self.transferListKey(srckey, srchostobj, dsthostobj)
@@ -79,8 +85,7 @@ class Command(HostinfoCommand):
 
     ###############################################################################
     def transferListKey(self, srckey, srchostobj, dsthostobj):
-        """ Transfer a list key from srchost to dsthost
-        """
+        """Transfer a list key from srchost to dsthost"""
         dstkeys = KeyValue.objects.filter(hostid=dsthostobj, keyid=srckey.keyid)
         dstvals = [k.value for k in dstkeys]
         if srckey.value in dstvals:
@@ -94,8 +99,7 @@ class Command(HostinfoCommand):
 
     ###############################################################################
     def transferSingleKey(self, srckey, srchostobj, dsthostobj):
-        """ Transfer a single or date key from srchost to dsthost
-        """
+        """Transfer a single or date key from srchost to dsthost"""
         try:
             dstkey = KeyValue.objects.get(hostid=dsthostobj, keyid=srckey.keyid)
         except ObjectDoesNotExist:
@@ -111,9 +115,30 @@ class Command(HostinfoCommand):
                 if not self.kidding:
                     srckey.delete(readonlychange=True)
             else:
-                sys.stderr.write("Collision: %s src=%s dst=%s\n" % (srckey.keyid.key, srckey.value, dstkey.value))
-                sys.stderr.write("To keep dst %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (dsthostobj.hostname, dstkey.value, dstkey.keyid.key, dstkey.value, srchostobj.hostname))
-                sys.stderr.write("To keep src %s value %s: hostinfo_addvalue --update %s='%s' %s\n" % (srchostobj.hostname, srckey.value, srckey.keyid.key, srckey.value, dsthostobj.hostname))
+                sys.stderr.write(
+                    "Collision: %s src=%s dst=%s\n"
+                    % (srckey.keyid.key, srckey.value, dstkey.value)
+                )
+                sys.stderr.write(
+                    "To keep dst %s value %s: hostinfo_addvalue --update %s='%s' %s\n"
+                    % (
+                        dsthostobj.hostname,
+                        dstkey.value,
+                        dstkey.keyid.key,
+                        dstkey.value,
+                        srchostobj.hostname,
+                    )
+                )
+                sys.stderr.write(
+                    "To keep src %s value %s: hostinfo_addvalue --update %s='%s' %s\n"
+                    % (
+                        srchostobj.hostname,
+                        srckey.value,
+                        srckey.keyid.key,
+                        srckey.value,
+                        dsthostobj.hostname,
+                    )
+                )
                 return False
         else:
             if not self.kidding:
@@ -121,4 +146,5 @@ class Command(HostinfoCommand):
                 srckey.delete(readonlychange=True)
         return True
 
-#EOF
+
+# EOF

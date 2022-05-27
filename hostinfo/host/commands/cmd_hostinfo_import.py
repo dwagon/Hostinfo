@@ -1,4 +1,3 @@
-
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
 #    Copyright (C) 2012 Dougal Scott
@@ -28,13 +27,25 @@ _akcache = {}
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Import data from XML file'
+    description = "Import data from XML file"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('-k', dest='kiddingFlag', help="Don't actually do the import", action='store_true', default=False)
-        parser.add_argument('-v', dest='verboseFlag', help="Say what is happening", action='store_true', default=False)
-        parser.add_argument('xmlfile', help='The file to import from')
+        parser.add_argument(
+            "-k",
+            dest="kiddingFlag",
+            help="Don't actually do the import",
+            action="store_true",
+            default=False,
+        )
+        parser.add_argument(
+            "-v",
+            dest="verboseFlag",
+            help="Say what is happening",
+            action="store_true",
+            default=False,
+        )
+        parser.add_argument("xmlfile", help="The file to import from")
 
     ###########################################################################
     def handle(self, namespace):
@@ -45,11 +56,13 @@ class Command(HostinfoCommand):
             if exc.errno == 2:
                 raise HostinfoException("File %s doesn't exist" % namespace.xmlfile)
             else:
-                raise HostinfoException("File %s not readable (errno=%d)" % (namespace.xmlfile, exc.errno))
+                raise HostinfoException(
+                    "File %s not readable (errno=%d)" % (namespace.xmlfile, exc.errno)
+                )
 
-        for key in xmltree.findall('key'):
+        for key in xmltree.findall("key"):
             self.handleKey(key)
-        for host in xmltree.findall('host'):
+        for host in xmltree.findall("host"):
             self.handleHost(host)
         return None, 0
 
@@ -73,7 +86,10 @@ class Command(HostinfoCommand):
                 vt = knum
                 break
         if vt < 0:
-            raise HostinfoException("Unknown type %s - should be one of %s" % (keytype, ",".join([d for k, d in AllowedKey.TYPE_CHOICES])))
+            raise HostinfoException(
+                "Unknown type %s - should be one of %s"
+                % (keytype, ",".join([d for k, d in AllowedKey.TYPE_CHOICES]))
+            )
         return vt
 
     ###########################################################################
@@ -91,48 +107,48 @@ class Command(HostinfoCommand):
     ###########################################################################
     def handleKey(self, key):
         """
-          <key>
-            <name>appsla</name>
-            <type>single</type>
-            <readonlyFlag>True</readonlyFlag>
-            <auditFlag>False</auditFlag>
-            <restricted>
-                <value>Foo</value>
-            </restricted>
-            <docpage>None</docpage>
-            <desc>Application SLA</desc>
-          </key>
+        <key>
+          <name>appsla</name>
+          <type>single</type>
+          <readonlyFlag>True</readonlyFlag>
+          <auditFlag>False</auditFlag>
+          <restricted>
+              <value>Foo</value>
+          </restricted>
+          <docpage>None</docpage>
+          <desc>Application SLA</desc>
+        </key>
         """
 
-        name = ''
-        keytype = ''
+        name = ""
+        keytype = ""
         restrictedKid = None
         restrictedFlag = False
         readonlyFlag = False
         auditFlag = True
         numericFlag = False
-        docpage = ''
-        desc = ''
+        docpage = ""
+        desc = ""
         for kid in key.getchildren():
-            if kid.tag == 'name':
+            if kid.tag == "name":
                 name = kid.text
-            if kid.tag == 'type':
+            if kid.tag == "type":
                 keytype = self.validateKeytype(kid.text)
-            if kid.tag == 'restricted':
+            if kid.tag == "restricted":
                 restrictedKid = kid
                 restrictedFlag = True
-            if kid.tag == 'readonlyFlag':
-                readonlyFlag = (kid.text == 'True')
-            if kid.tag == 'auditFlag':
-                auditFlag = (kid.text == 'True')
-            if kid.tag == 'numericFlag':
-                numericFlag = (kid.text == 'True')
-            if kid.tag == 'docpage':
+            if kid.tag == "readonlyFlag":
+                readonlyFlag = kid.text == "True"
+            if kid.tag == "auditFlag":
+                auditFlag = kid.text == "True"
+            if kid.tag == "numericFlag":
+                numericFlag = kid.text == "True"
+            if kid.tag == "docpage":
                 if kid.text:
                     docpage = kid.text.strip()
-                if docpage == 'None':
+                if docpage == "None":
                     docpage = None
-            if kid.tag == 'desc':
+            if kid.tag == "desc":
                 if kid.text:
                     desc = kid.text.strip()
         if not name:
@@ -142,36 +158,57 @@ class Command(HostinfoCommand):
             ak = AllowedKey.objects.get(key=name)
         except ObjectDoesNotExist:
             ak = AllowedKey(
-                key=name, validtype=keytype, restrictedFlag=restrictedFlag,
-                readonlyFlag=readonlyFlag, auditFlag=auditFlag,
+                key=name,
+                validtype=keytype,
+                restrictedFlag=restrictedFlag,
+                readonlyFlag=readonlyFlag,
+                auditFlag=auditFlag,
                 numericFlag=numericFlag,
-                docpage=docpage, desc=desc)
+                docpage=docpage,
+                desc=desc,
+            )
             self.verbose("New key %s" % repr(ak))
             if not self.namespace.kiddingFlag:
                 ak.save()
         else:
             change = False
             if ak.validtype != keytype:
-                sys.stderr.write("Changing key types currently unsupported: %s\n" % name)
+                sys.stderr.write(
+                    "Changing key types currently unsupported: %s\n" % name
+                )
                 sys.exit(1)
             if ak.restrictedFlag != restrictedFlag:
-                self.verbose("Changing %s: restrictedFlag from %s to %s" % (name, ak.restrictedFlag, restrictedFlag))
+                self.verbose(
+                    "Changing %s: restrictedFlag from %s to %s"
+                    % (name, ak.restrictedFlag, restrictedFlag)
+                )
                 ak.restrictedFlag = restrictedFlag
                 change = True
             if ak.readonlyFlag != readonlyFlag:
-                self.verbose("Changing %s: readonlyFlag from %s to %s" % (name, ak.readonlyFlag, readonlyFlag))
+                self.verbose(
+                    "Changing %s: readonlyFlag from %s to %s"
+                    % (name, ak.readonlyFlag, readonlyFlag)
+                )
                 ak.readonlyFlag = readonlyFlag
                 change = True
             if ak.auditFlag != auditFlag:
-                self.verbose("Changing %s: auditFlag from %s to %s" % (name, ak.auditFlag, auditFlag))
+                self.verbose(
+                    "Changing %s: auditFlag from %s to %s"
+                    % (name, ak.auditFlag, auditFlag)
+                )
                 ak.auditFlag = auditFlag
                 change = True
             if ak.docpage != docpage:
-                self.verbose("Changing %s: docpage from '%s' to '%s'" % (name, ak.docpage, docpage))
+                self.verbose(
+                    "Changing %s: docpage from '%s' to '%s'"
+                    % (name, ak.docpage, docpage)
+                )
                 ak.docpage = docpage
                 change = True
             if ak.desc != desc:
-                self.verbose("Changing %s: desc from '%s' to '%s'" % (name, ak.desc, desc))
+                self.verbose(
+                    "Changing %s: desc from '%s' to '%s'" % (name, ak.desc, desc)
+                )
                 ak.desc = desc
                 change = True
             if change and not self.namespace.kiddingFlag:
@@ -196,31 +233,34 @@ class Command(HostinfoCommand):
             </data>
           </host>
         """
-        hostname = hosttree.find('hostname').text
+        hostname = hosttree.find("hostname").text
         self.verbose(hostname)
         try:
             host = Host.objects.get(hostname=hostname)
         except ObjectDoesNotExist:
             host = Host(
                 hostname=hostname,
-                docpage=hosttree.attrib.get('docpage', None),
-                origin=hosttree.attrib.get('origin', 'unknown - import')
-                )
+                docpage=hosttree.attrib.get("docpage", None),
+                origin=hosttree.attrib.get("origin", "unknown - import"),
+            )
             self.verbose("New host %s" % repr(host))
             if not self.namespace.kiddingFlag:
                 host.save()
 
-        for data in hosttree.find('data').findall('confitem'):
-            key = data.attrib['key']
-            if 'origin' in data.attrib:
-                origin = data.attrib['origin']
+        for data in hosttree.find("data").findall("confitem"):
+            key = data.attrib["key"]
+            if "origin" in data.attrib:
+                origin = data.attrib["origin"]
             else:
-                origin = 'unknown'
+                origin = "unknown"
             value = data.text
             try:
                 self.handleValue(host, key, origin, value)
             except RestrictedValueException:
-                sys.stderr.write("Trying to change a restricted value: %s:%s=%s - ignoring\n" % (hostname, key, value))
+                sys.stderr.write(
+                    "Trying to change a restricted value: %s:%s=%s - ignoring\n"
+                    % (hostname, key, value)
+                )
 
     ###########################################################################
     def getAllowedKey(self, key):
@@ -233,7 +273,7 @@ class Command(HostinfoCommand):
     def handleValue(self, host, key, origin, value):
         # We allow changes to readonly keys as that is the whole point
         ak = self.getAllowedKey(key)
-        if ak.get_validtype_display() == 'list':
+        if ak.get_validtype_display() == "list":
             try:
                 kv = KeyValue.objects.get(hostid=host.id, keyid__key=key, value=value)
             except ObjectDoesNotExist:
@@ -257,5 +297,6 @@ class Command(HostinfoCommand):
                 self.verbose("Replacing %s: %s=%s" % (host.hostname, key, value))
                 if not self.namespace.kiddingFlag:
                     kv.save(readonlychange=True)
+
 
 # EOF

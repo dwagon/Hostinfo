@@ -33,9 +33,7 @@ urlpatterns = [
         HostLinkRest,
         name="hostlinkrest",
     ),
-    path(
-        "host/%s/link/%s/" % (hostspec, linkspec), HostLinkRest, name="hostlinkrest"
-    ),
+    path("host/%s/link/%s/" % (hostspec, linkspec), HostLinkRest, name="hostlinkrest"),
     path("host/%s/" % hostspec, HostDetail, name="resthost"),
     path("host/", HostList),
     path("key/%s" % akeyspec, KeyDetail, name="restakey"),

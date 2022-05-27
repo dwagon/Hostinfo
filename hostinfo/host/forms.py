@@ -26,8 +26,8 @@ from .models import Host
 ################################################################################
 ################################################################################
 class existingHostField(forms.CharField):
-    """ A field for a host that is meant to already exist
-    """
+    """A field for a host that is meant to already exist"""
+
     def clean(self, value):
         if not value:
             raise forms.ValidationError("Supply a valid host name")
@@ -42,8 +42,8 @@ class existingHostField(forms.CharField):
 ################################################################################
 ################################################################################
 class newHostField(forms.CharField):
-    """ A field for a host that should not already exist
-    """
+    """A field for a host that should not already exist"""
+
     def clean(self, value):
         if not value:
             raise forms.ValidationError("Supply a valid host name")
@@ -82,4 +82,5 @@ class hostEditForm(forms.Form):
 class XimportUploadForm(forms.Form):
     fname = forms.FileField()
 
-#EOF
+
+# EOF

@@ -40,8 +40,8 @@ def get_rev_akcache():
 
 ################################################################################
 def hostviewrepr(host, printers=[], revcache={}):
-    """ Return a list of KeyValue objects per key for a host
-        E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
+    """Return a list of KeyValue objects per key for a host
+    E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
     """
     if not revcache:
         revcache = get_rev_akcache()
@@ -65,27 +65,29 @@ def hostviewrepr(host, printers=[], revcache={}):
 
 ################################################################################
 def handlePost(request):
-    if 'hostname' in request.POST:
-        return HttpResponseRedirect('/hostinfo/host/%s' % request.POST['hostname'])
-    elif 'hostre' in request.POST:
-        return HttpResponseRedirect('/hostinfo/hostlist/%s.hostre' % request.POST['hostre'].strip())
-    elif 'key0' in request.POST:
+    if "hostname" in request.POST:
+        return HttpResponseRedirect("/hostinfo/host/%s" % request.POST["hostname"])
+    elif "hostre" in request.POST:
+        return HttpResponseRedirect(
+            "/hostinfo/hostlist/%s.hostre" % request.POST["hostre"].strip()
+        )
+    elif "key0" in request.POST:
         expr = ""
         for key in request.POST:
-            if key.startswith('key'):
-                num = key.replace('key', '')
+            if key.startswith("key"):
+                num = key.replace("key", "")
                 expr += "%s.%s.%s/" % (
-                    request.POST['key%s' % num].strip(),
-                    request.POST['op%s' % num].strip(),
-                    request.POST['value%s' % num].strip().replace('/', '.slash.'))
+                    request.POST["key%s" % num].strip(),
+                    request.POST["op%s" % num].strip(),
+                    request.POST["value%s" % num].strip().replace("/", ".slash."),
+                )
         expr = expr[:-1]
-        return HttpResponseRedirect('/hostinfo/hostlist/%s' % (expr))
+        return HttpResponseRedirect("/hostinfo/hostlist/%s" % (expr))
 
 
 ################################################################################
 def getLinks(hostid=None, hostname=None):
-    """ Take either a hostname or a hostid and return the links for that host
-    """
+    """Take either a hostname or a hostid and return the links for that host"""
     if hostid:
         return [(l.url, l.tag) for l in Links.objects.filter(hostid=hostid)]
     if hostname:
@@ -103,134 +105,139 @@ def getWebLinks(hostid=None, hostname=None):
 
 ################################################################################
 def doHostSummary(request, hostname):
-    """ Display a single host """
+    """Display a single host"""
     d = hostData(request.user, [hostname], linker=getWebLinks)
-    return render(request, 'host/hostpage.template', d)
+    return render(request, "host/hostpage.template", d)
 
 
 ################################################################################
 def doHost(request, hostname):
-    """ Display a single host """
+    """Display a single host"""
     d = hostData(request.user, [hostname], linker=getWebLinks)
-    return render(request, 'host/host.template', d)
+    return render(request, "host/host.template", d)
 
 
 ################################################################################
 def hostCount(user, criteria=[]):
-    """ Count number of matching hosts """
+    """Count number of matching hosts"""
     starttime = time.time()
     hl = getHostList(criteria)
-    elapsed = time.time()-starttime
+    elapsed = time.time() - starttime
 
     d = {
-        'elapsed': "%0.4f" % elapsed,
-        'title': " AND ".join(criteria),
-        'criteria': criteriaToWeb(criteria),
-        'user': user,
-        'count': len(hl),
-        }
+        "elapsed": "%0.4f" % elapsed,
+        "title": " AND ".join(criteria),
+        "criteria": criteriaToWeb(criteria),
+        "user": user,
+        "count": len(hl),
+    }
     return d
 
 
 ################################################################################
-def hostData(user, criteria=[], options='', printers=[], order=None, linker=None):
-    """ Convert criteria and other options into a consistent data format
-    for consumption in the templates """
+def hostData(user, criteria=[], options="", printers=[], order=None, linker=None):
+    """Convert criteria and other options into a consistent data format
+    for consumption in the templates"""
     starttime = time.time()
     hl = getHostList(criteria)
     if order:
         hl = orderHostList(hl, order)
     else:
-        hl = sorted(hl, key=operator.attrgetter('hostname'))
+        hl = sorted(hl, key=operator.attrgetter("hostname"))
     data = []
     revcache = get_rev_akcache()
 
     for host in hl:
         tmp = {
-            'hostname': host.hostname,
-            'hostview': hostviewrepr(host.hostname, printers=printers, revcache=revcache),
-            'aliases': getAliases(host.hostname)
-            }
+            "hostname": host.hostname,
+            "hostview": hostviewrepr(
+                host.hostname, printers=printers, revcache=revcache
+            ),
+            "aliases": getAliases(host.hostname),
+        }
         if linker:
-            tmp['links'] = linker(hostid=host.id)
+            tmp["links"] = linker(hostid=host.id)
         data.append(tmp)
 
-    elapsed = time.time()-starttime
+    elapsed = time.time() - starttime
 
     d = {
-        'hostlist': data,
-        'elapsed': "%0.4f" % elapsed,
-        'csvavailable': '/hostinfo/csv/%s' % criteriaToWeb(criteria),
-        'title': " AND ".join(criteria),
-        'criteria': criteriaToWeb(criteria),
-        'user': user,
-        'count': len(data),
-        'printers': printers,
-        'order': order,
-        'options': options,
-        }
-    if options and 'dates' in options:
-        d['dates'] = True
-    if options and 'origin' in options:
-        d['origin'] = True
+        "hostlist": data,
+        "elapsed": "%0.4f" % elapsed,
+        "csvavailable": "/hostinfo/csv/%s" % criteriaToWeb(criteria),
+        "title": " AND ".join(criteria),
+        "criteria": criteriaToWeb(criteria),
+        "user": user,
+        "count": len(data),
+        "printers": printers,
+        "order": order,
+        "options": options,
+    }
+    if options and "dates" in options:
+        d["dates"] = True
+    if options and "origin" in options:
+        d["origin"] = True
     return d
 
 
 ################################################################################
-def doHostlist(request, criturl='', options=''):
-    """ Display a list of matching hosts by name only"""
+def doHostlist(request, criturl="", options=""):
+    """Display a list of matching hosts by name only"""
     try:
         starttime = time.time()
         criteria = criteriaFromWeb(criturl)
         hl = getHostList(criteria)
-        hl = sorted(hl, key=operator.attrgetter('hostname'))
+        hl = sorted(hl, key=operator.attrgetter("hostname"))
         data = []
         for host in hl:
-            data.append({'hostname': host.hostname})
+            data.append({"hostname": host.hostname})
 
         d = {
-            'hostlist': data,
-            'elapsed': "%0.4f" % (time.time() - starttime),
-            'csvavailable': '/hostinfo/csv/%s' % criteriaToWeb(criteria),
-            'title': " AND ".join(criteria),
-            'criteria': criteriaToWeb(criteria),
-            'user': request.user,
-            'count': len(data),
-            'options': options,
-            }
-        if options and 'dates' in options:
-            d['dates'] = True
-        if options and 'origin' in options:
-            d['origin'] = True
-        return render(request, 'host/hostlist.template', d)
+            "hostlist": data,
+            "elapsed": "%0.4f" % (time.time() - starttime),
+            "csvavailable": "/hostinfo/csv/%s" % criteriaToWeb(criteria),
+            "title": " AND ".join(criteria),
+            "criteria": criteriaToWeb(criteria),
+            "user": request.user,
+            "count": len(data),
+            "options": options,
+        }
+        if options and "dates" in options:
+            d["dates"] = True
+        if options and "origin" in options:
+            d["origin"] = True
+        return render(request, "host/hostlist.template", d)
     except HostinfoException as err:
-        return render(request, 'host/hostlist.template', {'error': err})
+        return render(request, "host/hostlist.template", {"error": err})
 
 
 ################################################################################
-def doHostcmp(request, criturl='', options=''):
-    """ Display a list of matching hosts with their details"""
+def doHostcmp(request, criturl="", options=""):
+    """Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)
-    if request.method == 'POST' and 'options' in request.POST:
-        options = 'opts='
-        if 'dates' in request.POST.getlist('options'):
-            options += 'dates,'
-        if 'origin' in request.POST.getlist('options'):
-            options += 'origin,'
-        return HttpResponseRedirect('/hostinfo/hostcmp/%s/%s' % (criturl, options[:-1]))
+    if request.method == "POST" and "options" in request.POST:
+        options = "opts="
+        if "dates" in request.POST.getlist("options"):
+            options += "dates,"
+        if "origin" in request.POST.getlist("options"):
+            options += "origin,"
+        return HttpResponseRedirect("/hostinfo/hostcmp/%s/%s" % (criturl, options[:-1]))
     try:
-        return render(request, 'host/multihost.template', hostData(request.user, criteria, options))
+        return render(
+            request,
+            "host/multihost.template",
+            hostData(request.user, criteria, options),
+        )
     except HostinfoException as err:
-        return render(request, 'host/multihost.template', {'error': err})
+        return render(request, "host/multihost.template", {"error": err})
 
 
 ################################################################################
 def orderHostList(hostlist, order):
-    """ Order a hostlist by the order specified
-    """
+    """Order a hostlist by the order specified"""
     NEGATIVE = -1
     direct = 0
-    if order.startswith('-'):
+    if order.startswith("-"):
         direct = NEGATIVE
         order = order[1:]
 
@@ -259,56 +266,58 @@ def orderHostList(hostlist, order):
 
 
 ################################################################################
-def doCsvreport(request, criturl=''):
+def doCsvreport(request, criturl=""):
     criteria = criteriaFromWeb(criturl)
     hl = getHostList(criteria)
     if not criturl:
-        criturl = 'allhosts'
-    return csvDump(hl, '%s.csv' % criturl)
+        criturl = "allhosts"
+    return csvDump(hl, "%s.csv" % criturl)
 
 
 ################################################################################
 def criteriaToWeb(criteria):
-    """ Convert a criteria list to a URL format """
-    crit = "/".join([c.replace('/', '.slash.') for c in criteria])
+    """Convert a criteria list to a URL format"""
+    crit = "/".join([c.replace("/", ".slash.") for c in criteria])
     return crit
 
 
 ################################################################################
 def criteriaFromWeb(criteria):
-    """ Covert a URL formatted criteria to a list """
-    crit = [c.replace(".slash.", '/') for c in criteria.split('/') if c]
+    """Covert a URL formatted criteria to a list"""
+    crit = [c.replace(".slash.", "/") for c in criteria.split("/") if c]
     return crit
 
 
 ################################################################################
 def csvDump(hostlist, filename):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=%s" % filename
 
     # Convert list of hosts into all required data
     revcache = get_rev_akcache()
     data = []
     for host in hostlist:
-        data.append((host.hostname, hostviewrepr(host.hostname, revcache=revcache), None))
+        data.append(
+            (host.hostname, hostviewrepr(host.hostname, revcache=revcache), None)
+        )
     data.sort(key=lambda x: x[0])
 
     # Grab all the headings
     hdrs = []
-    hdrdict = {'hostname': 'hostname'}    # Need this for the first row of headers
+    hdrdict = {"hostname": "hostname"}  # Need this for the first row of headers
     for host, details, link in data:
         for t, val in details:
             if t not in hdrs:
                 hdrs.append(t)
             hdrdict[t] = t
     hdrs.sort()
-    hdrs.insert(0, 'hostname')
+    hdrs.insert(0, "hostname")
     writer = csv.DictWriter(response, hdrs)
     writer.writerow(hdrdict)
 
     # Finally write the data
     for host, details, link in data:
-        d = {'hostname': host}
+        d = {"hostname": host}
         for t, val in details:
             d[t] = ",".join([k.value for k in val])
         writer.writerow(d)
@@ -318,28 +327,25 @@ def csvDump(hostlist, filename):
 ################################################################################
 def index(request):
     d = {
-        'numhosts': Host.objects.count(),
-        'keys': AllowedKey.objects.all(),
-        'csvavailable': '/hostinfo/csv',
-        'user': request.user,
+        "numhosts": Host.objects.count(),
+        "keys": AllowedKey.objects.all(),
+        "csvavailable": "/hostinfo/csv",
+        "user": request.user,
     }
-    return render(request, 'host/index.template', d)
+    return render(request, "host/index.template", d)
 
 
 ################################################################################
 def doRestrValList(request, key):
-    """ Return the list of restricted values for the key"""
+    """Return the list of restricted values for the key"""
     rvlist = RestrictedValue.objects.filter(keyid__key=key)
-    d = {
-        'key': key,
-        'rvlist': rvlist
-    }
-    return render(request, 'host/restrval.template', d)
+    d = {"key": key, "rvlist": rvlist}
+    return render(request, "host/restrval.template", d)
 
 
 ################################################################################
 def doKeylist(request, key):
-    """ Return all values for the specified key
+    """Return all values for the specified key
     Need to count the number of different hosts, not different values to work out
     percentages otherwise you get wierd values for list keys.
     Also do other key funkiness
@@ -349,9 +355,10 @@ def doKeylist(request, key):
     try:
         d = calcKeylistVals(key)
     except HostinfoException as exc:
-        d['error'] = exc
-    d['elapsed'] = "%0.4f" % (time.time() - starttime)
-    d['user'] = request.user
-    return render(request, 'host/keylist.template', d)
+        d["error"] = exc
+    d["elapsed"] = "%0.4f" % (time.time() - starttime)
+    d["user"] = request.user
+    return render(request, "host/keylist.template", d)
+
 
 # EOF

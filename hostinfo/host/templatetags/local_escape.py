@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import template
+
 register = template.Library()
 
 
@@ -27,8 +28,9 @@ def local_escape(value):
     Go through a list and everytime it is called return the first element or return
     """
     if value:
-        if hasattr(value, 'replace'):
-            value = value.replace('/', '.slash.')
+        if hasattr(value, "replace"):
+            value = value.replace("/", ".slash.")
     return value
 
-#EOF
+
+# EOF

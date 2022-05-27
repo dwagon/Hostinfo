@@ -22,16 +22,16 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Rename a host'
+    description = "Rename a host"
 
     ###########################################################################
     def parseArgs(self, parser):
         parser.add_argument(
-            '--src',
-            help="The current name of the host", nargs=1, dest='srchost')
+            "--src", help="The current name of the host", nargs=1, dest="srchost"
+        )
         parser.add_argument(
-            '--dst',
-            help="The new name of the host", nargs=1, dest='dsthost')
+            "--dst", help="The new name of the host", nargs=1, dest="dsthost"
+        )
 
     ###########################################################################
     def handle(self, namespace):
@@ -40,9 +40,12 @@ class Command(HostinfoCommand):
             raise HostinfoException("There is no host called %s" % namespace.srchost[0])
         dsthostobj = getHost(namespace.dsthost[0])
         if dsthostobj:
-            raise HostinfoException("A host already exists with the name %s" % namespace.dsthost[0])
+            raise HostinfoException(
+                "A host already exists with the name %s" % namespace.dsthost[0]
+            )
         hostobj.hostname = namespace.dsthost[0]
         hostobj.save()
         return None, 0
+
 
 # EOF
