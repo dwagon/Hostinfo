@@ -17,17 +17,21 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.urls import path
+from django.urls import path, re_path
 from .mediawiki_views import (
-    hosttable, hostlist, displayHost, displaySummary, doRestrValList
-    )
+    hosttable,
+    hostlist,
+    displayHost,
+    displaySummary,
+    doRestrValList,
+)
 
 urlpatterns = [
-    path(r'^hosttable/(?P<criturl>.*?)(?P<options>/(?:order=|print=).*)?$', hosttable),
-    path(r'^hostlist/(?P<criturl>.*)/$', hostlist),
-    path(r'^host/(?P<hostname>\S+)$', displayHost),
-    path(r'^host_summary/(?P<hostname>.*)$', displaySummary),
-    path(r'^rvlist/(?P<key>\S+)/$', doRestrValList),
-    ]
+    re_path("hosttable/<str:criturl>(?P<options>/(?:order=|print=).*)?$", hosttable),
+    path("hostlist/<str:criturl>", hostlist),
+    path("host/<str:hostname>", displayHost),
+    path("host_summary/<str:hostname>", displaySummary),
+    path("rvlist/<str:key>)/", doRestrValList),
+]
 
 # EOF

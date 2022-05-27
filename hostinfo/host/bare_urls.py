@@ -17,18 +17,16 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.urls import path
-from .bare_views import (
-    displayHost, doHostCount, doHostList, doHostcmp, doKeylist
-    )
+from django.urls import path, re_path
+from .bare_views import displayHost, doHostCount, doHostList, doHostcmp, doKeylist
 
 urlpatterns = [
-    path(r'^hostlist/(?P<criturl>.*)/?$', doHostList),
-    path(r'^count/(?P<criturl>.*)/?$', doHostCount),
-    path(r'^host/(?P<hostname>\S+)/?$', displayHost),
-    path(r'^keylist/(?P<key>\S+?)/(?P<criturl>.*)?/?$', doKeylist),
-    path(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$', doHostcmp),
-    path(r'^hostcmp/?$', doHostcmp),
-    ]
+    path("hostlist/<str:criturl>", doHostList),
+    path("count/<str:criturl>", doHostCount),
+    path("host/<str:hostname>", displayHost),
+    path("keylist/<int:key>/<str:criturl>", doKeylist),
+    re_path("hostcmp/<str:criturl>/(?P<options>opts=.*)?/?$", doHostcmp),
+    path("hostcmp/", doHostcmp),
+]
 
 # EOF

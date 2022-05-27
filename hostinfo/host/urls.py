@@ -1,4 +1,4 @@
-# Local URL handler for hostinfo
+"""Local URL handler for hostinfo"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -17,42 +17,47 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.urls import path
+from django.urls import path, re_path
 from .views import index, doHostlist, doHost, doKeylist, handlePost
-from .views import handlePost, doHostcmp, doHostSummary, doCsvreport, doRestrValList
+from .views import doHostcmp, doHostSummary, doCsvreport, doRestrValList
 from .edits import (
-    doHostMerge, doHostMergeChoose, doHostRenameChoose, doHostEditChoose,
-    doHostCreateChoose, doHostEdit, doHostCreate, doHostRename
-    )
+    doHostMerge,
+    doHostMergeChoose,
+    doHostRenameChoose,
+    doHostEditChoose,
+    doHostCreateChoose,
+    doHostEdit,
+    doHostCreate,
+    doHostRename,
+)
 
 
 urlpatterns = [
-    path(r'^$', index, name='index'),
-    path(r'^handlePost/$', handlePost, name='formhandler'),
-
-    path(r'^hostedit/$', doHostEditChoose, name='hostEditChoose'),
-    path(r'^hostedit/(?P<hostname>\S+)/$', doHostEdit, name='hostEdit'),
-
-    path(r'^hostcreate/$', doHostCreateChoose, name='hostCreateChoose'),
-    path(r'^hostcreate/(?P<hostname>\S+)/$', doHostCreate, name='hostCreate'),
-
-    path(r'^hostmerge/$', doHostMergeChoose, name='hostMergeChoose'),
-    path(r'^hostmerge/(?P<srchost>\S+)/(?P<dsthost>\S+)$', doHostMerge, name='hostMerge'),
-
-    path(r'^hostrename/$', doHostRenameChoose, name='hostRenameChoose'),
-    path(r'^hostrename/(?P<srchost>\S+)/(?P<dsthost>\S+)$', doHostRename, name='hostRename'),
-
-    path(r'^hostlist/(?P<criturl>.*)/(?P<options>opts=.*)?$', doHostlist),
-    path(r'^hostlist/$', doHostlist, name='hostlist'),
-    path(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?$', doHostcmp),
-    path(r'^hostcmp/$', doHostcmp),
-    path(r'^host/(?P<hostname>\S+)/$', doHost, name='host'),
-    path(r'^host/$', doHostlist),
-    path(r'^host_summary/(?P<hostname>.*)$', doHostSummary),
-    path(r'^csv/$', doCsvreport),
-    path(r'^csv/(?P<criturl>.*)/$', doCsvreport),
-    path(r'^keylist/(?P<key>\S+)/$', doKeylist, name='keylist'),
-    path(r'^rvlist/(?P<key>\S+)/$', doRestrValList),
-    ]
+    path("", index, name="index"),
+    path("handlePost/", handlePost, name="formhandler"),
+    path("hostedit/", doHostEditChoose, name="hostEditChoose"),
+    path("hostedit/<str:hostname>/", doHostEdit, name="hostEdit"),
+    path("hostcreate/", doHostCreateChoose, name="hostCreateChoose"),
+    path("hostcreate/<str:hostname>/", doHostCreate, name="hostCreate"),
+    path("hostmerge/", doHostMergeChoose, name="hostMergeChoose"),
+    path("hostmerge/<str:srchost>/<str:dsthost>", doHostMerge, name="hostMerge"),
+    path("hostrename/", doHostRenameChoose, name="hostRenameChoose"),
+    path(
+        "hostrename/<str:srchost>/<str:dsthost>",
+        doHostRename,
+        name="hostRename",
+    ),
+    re_path("hostlist/(?P<criturl>.*)/(?P<options>opts=.*)?$", doHostlist),
+    path("hostlist/", doHostlist, name="hostlist"),
+    re_path("hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?$", doHostcmp),
+    path("hostcmp/", doHostcmp),
+    path("host/<str:hostname>/", doHost, name="host"),
+    path("host/", doHostlist),
+    path("host_summary/<str:hostname>", doHostSummary),
+    path("csv/", doCsvreport),
+    path("csv/<str:criturl>/", doCsvreport),
+    path("keylist/<str:key>/", doKeylist, name="keylist"),
+    path("rvlist/<str:key>/", doRestrValList),
+]
 
 # EOF

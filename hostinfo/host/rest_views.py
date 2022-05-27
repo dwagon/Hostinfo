@@ -1,9 +1,10 @@
+""" Views for the REST interface """
 from .models import Host, AllowedKey, KeyValue, HostAlias, Links, RestrictedValue
 from .models import parseQualifiers, getMatches, getHost, HostinfoException
 from .models import addKeytoHost, calcKeylistVals
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
