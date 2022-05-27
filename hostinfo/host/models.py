@@ -147,7 +147,7 @@ class Host(models.Model):
 ################################################################################
 ################################################################################
 class HostAlias(models.Model):
-    hostid = models.ForeignKey(Host, db_index=True, related_name='aliases')
+    hostid = models.ForeignKey(Host, db_index=True, related_name='aliases', on_delete=models.CASCADE)
     alias = models.CharField(max_length=200, unique=True)
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
@@ -194,8 +194,8 @@ class AllowedKey(models.Model):
 ################################################################################
 ################################################################################
 class KeyValue(models.Model):
-    hostid = models.ForeignKey(Host, db_index=True)
-    keyid = models.ForeignKey(AllowedKey, db_index=True)
+    hostid = models.ForeignKey(Host, db_index=True, on_delete=models.CASCADE)
+    keyid = models.ForeignKey(AllowedKey, db_index=True, on_delete=models.CASCADE)
     value = models.CharField(max_length=200, blank=True)
     numvalue = models.FloatField(null=True)
     origin = models.CharField(max_length=200, blank=True)
@@ -293,7 +293,7 @@ class RestrictedValue(models.Model):
     """ If an AllowedKey is restricted then the value can only be one that appears
     in this table
     """
-    keyid = models.ForeignKey(AllowedKey, db_index=True)
+    keyid = models.ForeignKey(AllowedKey, db_index=True, on_delete=models.CASCADE)
     value = models.CharField(max_length=200)
     createdate = models.DateField(auto_now_add=True)
     modifieddate = models.DateField(auto_now=True)
@@ -312,7 +312,7 @@ class RestrictedValue(models.Model):
 ################################################################################
 ################################################################################
 class Links(models.Model):
-    hostid = models.ForeignKey(Host, db_index=True, related_name='links')
+    hostid = models.ForeignKey(Host, db_index=True, related_name='links', on_delete=models.CASCADE)
     url = models.CharField(max_length=200)
     tag = models.CharField(max_length=100)
     modifieddate = models.DateField(auto_now=True)
