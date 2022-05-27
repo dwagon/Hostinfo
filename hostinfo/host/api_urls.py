@@ -1,4 +1,5 @@
-from django.conf.urls import url
+""" API Url handler """
+from django.urls import path
 
 from .rest_views import HostAliasRest, HostKeyRest, HostLinkRest, HostDetail, KeyListRest
 from .rest_views import HostQuery, HostList, KeyDetail, KValDetail, AliasList
@@ -10,19 +11,19 @@ akeyspec = r'((?P<akeypk>[0-9]+?)|(?P<akey>\S*?))'
 linkspec = r'((?P<linkpk>[0-9]+?)|(?P<tagname>\S*?))'
 
 urlpatterns = [
-    url(r'^alias/?$', AliasList),
-    url(r'^host/%s/alias/%s/?$' % (hostspec, aliasspec), HostAliasRest, name='hostaliasrest'),
-    url(r'^host/%s/alias/?$' % hostspec, HostAliasRest, name='hostaliasrest'),
-    url(r'^host/%s/key/%s/(?P<value>.*)/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
-    url(r'^host/%s/key/%s/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
-    url(r'^host/%s/link/%s/(?P<url>.*)/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
-    url(r'^host/%s/link/%s/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
-    url(r'^host/%s/?$' % hostspec, HostDetail, name='resthost'),
-    url(r'^host/$', HostList),
-    url(r'^key/%s/?$' % akeyspec, KeyDetail, name='restakey'),
-    url(r'^kval/(?P<pk>[0-9]+?)/$', KValDetail, name='restkval'),
-    url(r'^query/(?P<query>\S+?)/$', HostQuery),
-    url(r'^keylist/%s/(?P<query>\S+?)?/?$' % akeyspec, KeyListRest),
+    path(r'^alias/?$', AliasList),
+    path(r'^host/%s/alias/%s/?$' % (hostspec, aliasspec), HostAliasRest, name='hostaliasrest'),
+    path(r'^host/%s/alias/?$' % hostspec, HostAliasRest, name='hostaliasrest'),
+    path(r'^host/%s/key/%s/(?P<value>.*)/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
+    path(r'^host/%s/key/%s/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
+    path(r'^host/%s/link/%s/(?P<url>.*)/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
+    path(r'^host/%s/link/%s/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
+    path(r'^host/%s/?$' % hostspec, HostDetail, name='resthost'),
+    path(r'^host/$', HostList),
+    path(r'^key/%s/?$' % akeyspec, KeyDetail, name='restakey'),
+    path(r'^kval/(?P<pk>[0-9]+?)/$', KValDetail, name='restkval'),
+    path(r'^query/(?P<query>\S+?)/$', HostQuery),
+    path(r'^keylist/%s/(?P<query>\S+?)?/?$' % akeyspec, KeyListRest),
 ]
 
 # EOF

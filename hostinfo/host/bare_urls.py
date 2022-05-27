@@ -1,4 +1,4 @@
-# Local URL handler for hostinfo bare interface
+"""Local URL handler for hostinfo bare interface"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -17,18 +17,18 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.urls import path
 from .bare_views import (
     displayHost, doHostCount, doHostList, doHostcmp, doKeylist
     )
 
 urlpatterns = [
-    url(r'^hostlist/(?P<criturl>.*)/?$', doHostList),
-    url(r'^count/(?P<criturl>.*)/?$', doHostCount),
-    url(r'^host/(?P<hostname>\S+)/?$', displayHost),
-    url(r'^keylist/(?P<key>\S+?)/(?P<criturl>.*)?/?$', doKeylist),
-    url(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$', doHostcmp),
-    url(r'^hostcmp/?$', doHostcmp),
+    path(r'^hostlist/(?P<criturl>.*)/?$', doHostList),
+    path(r'^count/(?P<criturl>.*)/?$', doHostCount),
+    path(r'^host/(?P<hostname>\S+)/?$', displayHost),
+    path(r'^keylist/(?P<key>\S+?)/(?P<criturl>.*)?/?$', doKeylist),
+    path(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$', doHostcmp),
+    path(r'^hostcmp/?$', doHostcmp),
     ]
 
 # EOF
