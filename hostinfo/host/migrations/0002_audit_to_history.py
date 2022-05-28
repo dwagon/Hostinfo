@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "history_user",
-                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True),
+                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
                 ),
             ],
             options={
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "history_user",
-                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True),
+                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
                 ),
             ],
             options={
@@ -120,7 +120,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "history_user",
-                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True),
+                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
                 ),
             ],
             options={
@@ -158,7 +158,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "history_user",
-                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True),
+                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
                 ),
             ],
             options={
@@ -194,7 +194,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "history_user",
-                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True),
+                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
                 ),
             ],
             options={
@@ -227,7 +227,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "history_user",
-                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True),
+                    models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
                 ),
             ],
             options={
