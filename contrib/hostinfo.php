@@ -29,7 +29,7 @@
  *
  * @package extensions
  * @version 6
- * @copyright Copyright 2012 @author Dougal Scott
+ * @copyright Copyright 2022 @author Dougal Scott
  * @license public domain -- free of any licenses and restrictions
  *
  * $Id: hostinfo.php 124 2012-12-05 21:17:22Z dougal.scott@gmail.com $
