@@ -1,9 +1,8 @@
 """ URL handler for hostinfo """
 from django.urls import include, path
-
-# from django.contrib.auth.views import login, logout
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.auth.views import LoginView, LogoutView
 
 from .views import version
 
@@ -19,10 +18,16 @@ urlpatterns = [
     path("hostinfo-admin/", admin.site.urls),
 ]
 
-# urlpatterns += [
-#     path(r'^accounts/login/', login, {'template_name': 'registration/login.html'}, name='login'),
-#     path(r'^accounts/logout/', logout, {'next_page': '/hostinfo/'}, name='logoff'),
-# ]
+urlpatterns += [
+    path(
+        "accounts/login/",
+        LoginView.as_view(
+            template_name="registration/login.html",
+        ),
+        name="login",
+    ),
+    path("accounts/logout/", LogoutView.as_view(next_page="/hostinfo/"), name="logoff"),
+]
 
 if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
