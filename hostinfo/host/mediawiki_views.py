@@ -1,4 +1,4 @@
-# hostinfo views for mediawiki interface
+""" hostinfo views for mediawiki interface"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -29,9 +29,10 @@ from .views import orderHostList, hostData, getLinks
 
 ################################################################################
 def getWikiLinks(hostid=None, hostname=None):
+    """ Links """
     wikilinks = []
     for url, tag in getLinks(hostid, hostname):
-        wikilinks.append("[%s %s]" % (url, tag))
+        wikilinks.append(f"[{url} {tag}]")
     return wikilinks
 
 
@@ -78,10 +79,10 @@ def hosttable(request, criturl, options=None):
         hl.sort()  # Sort by hostname
     output += "!Hostname\n"
     for p in printers:
-        output += "!%s\n" % p.title()
+        output += f"!{p.title()}\n"
     for host in hl:
         output += "|-\n"
-    output += "| [[Host:%s|%s]]\n" % (host.hostname, host.hostname)
+        output += f"| [[Host:{host.hostname}|{host.hostname}]]\n"
     for p in printers:
         kv = KeyValue.objects.filter(keyid__key=p, hostid=host.id)
         if len(kv) == 0:
@@ -90,7 +91,7 @@ def hosttable(request, criturl, options=None):
             val = kv[0].value
         else:
             val = ",".join([key.value for key in kv])
-        output += "| %s\n" % val
+        output += f"| {val}\n"
     output += "|}\n"
     return HttpResponse(output)
 

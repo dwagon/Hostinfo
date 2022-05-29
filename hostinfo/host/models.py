@@ -37,6 +37,7 @@ _all_hosts_cache_time = None
 
 ################################################################################
 class HostinfoException(Exception):
+    """ Generic Hostinfo Exception """
     def __init__(self, msg="", retval=1):
         self.msg = msg
         self.retval = retval
@@ -857,10 +858,9 @@ def run_from_cmdline():
         end_time = time.time()
         db_query_time = sum([float(x["time"]) for x in connection.queries])
         sys.stderr.write(
-            "DB Queries: %d queries in %f secs.\n"
-            % (len(connection.queries), db_query_time)
+            f"DB Queries: {len(connection.queries)} queries in {db_query_time} secs.\n"
         )
-        sys.stderr.write("Total time %f secs\n" % (end_time - start_time))
+        sys.stderr.write(f"Total time {end_time-start_time} secs\n")
     return retval
 
 

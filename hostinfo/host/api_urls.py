@@ -19,27 +19,27 @@ linkspec = "(<int:linkpk>|<str:tagname>)"
 urlpatterns = [
     path("alias/", AliasList),
     path(
-        "host/%s/alias/%s/" % (hostspec, aliasspec), HostAliasRest, name="hostaliasrest"
+        f"host/{hostspec}/alias/{aliasspec}/", HostAliasRest, name="hostaliasrest"
     ),
-    path("host/%s/alias/" % hostspec, HostAliasRest, name="hostaliasrest"),
+    path(f"host/{hostspec}/alias/", HostAliasRest, name="hostaliasrest"),
     path(
-        "host/%s/key/%s/<str:value>/" % (hostspec, kvalspec),
+        f"host/{hostspec}/key/{kvalspec}/<str:value>/",
         HostKeyRest,
         name="hostkeyrest",
     ),
-    path("host/%s/key/%s/" % (hostspec, kvalspec), HostKeyRest, name="hostkeyrest"),
+    path(f"host/{hostspec}/key/{kvalspec}/", HostKeyRest, name="hostkeyrest"),
     path(
-        "host/%s/link/%s/<str:url>" % (hostspec, linkspec),
+        f"host/{hostspec}/link/{linkspec}/<str:url>",
         HostLinkRest,
         name="hostlinkrest",
     ),
-    path("host/%s/link/%s/" % (hostspec, linkspec), HostLinkRest, name="hostlinkrest"),
-    path("host/%s/" % hostspec, HostDetail, name="resthost"),
+    path(f"host/{hostspec}/link/{linkspec}/", HostLinkRest, name="hostlinkrest"),
+    path(f"host/{hostspec}/", HostDetail, name="resthost"),
     path("host/", HostList),
-    path("key/%s" % akeyspec, KeyDetail, name="restakey"),
+    path(f"key/{akeyspec}", KeyDetail, name="restakey"),
     path("kval/<int:pk>/", KValDetail, name="restkval"),
     path("query/<str:query>/", HostQuery),
-    path("keylist/%s/<str:query>" % akeyspec, KeyListRest),
+    path(f"keylist/{akeyspec}/<str:query>", KeyListRest),
 ]
 
 # EOF

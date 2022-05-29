@@ -1,4 +1,4 @@
-# hostinfo views for bare interface
+""" hostinfo views for bare interface """
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -26,7 +26,8 @@ from .views import hostData, hostCount
 
 
 ################################################################################
-def getConfLinks(hostid=None, hostname=None):
+def getConfLinks(hostid=None, hostname=None):  # pylint: disable=unused-argument
+    """Linker"""
     return []
 
 
@@ -64,15 +65,16 @@ def doHostList(request, criturl):
 
 ################################################################################
 def doKeylist(request, key, criturl=None):
+    """Return list of keys"""
     data = {}
     if criturl:
         criteria = criteriaFromWeb(criturl)
         qualifiers = parseQualifiers(criteria)
         hostids = getMatches(qualifiers)
-        data["title"] = "Valuereport for %s: %s" % (key, " AND ".join(criteria))
+        data["title"] = f"Valuereport for {key}: {' AND '.join(criteria)}"
     else:
         hostids = []
-        data["title"] = "Valuereport for %s" % key
+        data["title"] = f"Valuereport for {key}"
     data.update(calcKeylistVals(key, hostids))
 
     return render(request, "bare/keylist.html", data)

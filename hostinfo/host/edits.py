@@ -1,4 +1,4 @@
-# hostinfo edit code
+""" hostinfo edit code"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -16,6 +16,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# pylint: disable=no-member
 
 import re
 import time
@@ -41,9 +43,10 @@ _convertercache = None
 
 ################################################################################
 def getHostMergeKeyData(srchost, dsthost):
-    # Get the list of all keys that either or both of the hosts have
-    # Force everything to be a list as it is easier than trying
-    # to do type differentiation in the template
+    """Get the list of all keys that either or both of the hosts have
+    Force everything to be a list as it is easier than trying
+    to do type differentiation in the template
+    """
     keydata = {}
     srckeys = KeyValue.objects.filter(hostid=srchost)
     dstkeys = KeyValue.objects.filter(hostid=dsthost)
@@ -70,6 +73,7 @@ def getHostMergeKeyData(srchost, dsthost):
 
 ################################################################################
 def mergeKey(request, srchostobj, dsthostobj, key):
+    """ Merge keys """
     keyobj = AllowedKey.objects.get(key=key)
     if keyobj.get_validtype_display() == "list":
         srckeys = KeyValue.objects.filter(hostid=srchostobj, keyid=keyobj)
@@ -119,7 +123,7 @@ def doHostMergeChoose(request):
             srchost = form.cleaned_data["srchost"]
             dsthost = form.cleaned_data["dsthost"]
             return HttpResponseRedirect(
-                "/hostinfo/hostmerge/%s/%s" % (srchost, dsthost)
+                f"/hostinfo/hostmerge/{srchost}/{dsthost}"
             )
     else:
         d["form"] = hostMergeForm()
@@ -195,7 +199,7 @@ def doHostCreateChoose(request):
         d["form"] = form
         if form.is_valid():
             hostname = form.cleaned_data["newhost"]
-            return HttpResponseRedirect("/hostinfo/hostcreate/%s" % hostname)
+            return HttpResponseRedirect(f"/hostinfo/hostcreate/{hostname}")
     else:
         d["form"] = hostCreateForm()
     d["elapsed"] = time.time() - starttime
@@ -226,7 +230,7 @@ def doHostEditChoose(request):
         d["form"] = form
         if form.is_valid():
             hostname = form.cleaned_data["hostname"]
-            return HttpResponseRedirect("/hostinfo/hostedit/%s" % hostname)
+            return HttpResponseRedirect(f"/hostinfo/hostedit/{hostname}")
     else:
         d["form"] = hostEditForm()
     d["elapsed"] = time.time() - starttime
@@ -236,6 +240,7 @@ def doHostEditChoose(request):
 ################################################################################
 @login_required
 def doHostEdit(request, hostname):
+    """ Something to do with host editing """
     starttime = time.time()
     d = {}
     if "_hostediting" in request.POST:
@@ -251,9 +256,9 @@ def doHostEdit(request, hostname):
             ]
             reserr = ", ".join(reslist)
             d["errorbig"] = err
-            d["errorsmall"] = "Please pick one of: %s" % reserr
+            d["errorsmall"] = f"Please pick one of: {reserr}"
         else:
-            return HttpResponseRedirect("/hostinfo/host/%s" % hostname)
+            return HttpResponseRedirect(f"/hostinfo/host/{hostname}")
 
     # User has selected which host to change
     keyvals = hostviewrepr(hostname)
@@ -287,6 +292,7 @@ def doHostEdit(request, hostname):
 ################################################################################
 @login_required
 def doHostEditChanges(request, hostname):
+    """ Make the actual changes """
     hostobj = Host.objects.get(hostname=hostname)
     listdata = {}
     newkey = None
@@ -306,7 +312,7 @@ def doHostEditChanges(request, hostname):
         if k.startswith("_"):
             continue
         # An existing key is being edited
-        m = re.match("(?P<key>\w+)\.(?P<instance>[\d+|new])", k)
+        m = re.match(r"(?P<key>\w+)\.(?P<instance>[\d+|new])", k)
         if not m:
             continue
         key = m.group("key")

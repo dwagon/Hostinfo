@@ -1,4 +1,4 @@
-# hostinfo forms
+""" hostinfo forms"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=no-member
+
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Host
@@ -34,7 +36,7 @@ class existingHostField(forms.CharField):
         try:
             hostobj = Host.objects.get(hostname=value)
         except ObjectDoesNotExist:
-            raise forms.ValidationError("Host doesn't exist with name %s" % value)
+            raise forms.ValidationError(f"Host doesn't exist with name {value}")
         return hostobj
 
 
@@ -52,34 +54,45 @@ class newHostField(forms.CharField):
         except ObjectDoesNotExist:
             pass
         else:
-            raise forms.ValidationError("Host already exists with name %s" % value)
+            raise forms.ValidationError(f"Host already exists with name {value}")
         return value
 
 
 ################################################################################
 class hostMergeForm(forms.Form):
+    """Form for merging hosts"""
+
     srchost = existingHostField()
     dsthost = existingHostField()
 
 
 ################################################################################
 class hostRenameForm(forms.Form):
+    """Form for renaming hosts"""
+
     srchost = existingHostField()
     dsthost = newHostField()
 
 
 ################################################################################
 class hostCreateForm(forms.Form):
+    """Form for creating a new host"""
+
     newhost = newHostField()
 
 
 ################################################################################
 class hostEditForm(forms.Form):
+    """Form for editing a host"""
+
     hostname = existingHostField()
 
 
 ################################################################################
 class XimportUploadForm(forms.Form):
+    """Form for importing a host
+    Not Implemented Yet"""
+
     fname = forms.FileField()
 
 
