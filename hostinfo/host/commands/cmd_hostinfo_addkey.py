@@ -1,4 +1,4 @@
-#
+""" Add a new key """
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
 #    Copyright (C) 2022 Dougal Scott
@@ -16,17 +16,20 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.core.exceptions import ObjectDoesNotExist
 from host.models import AllowedKey, HostinfoException
 from host.models import HostinfoCommand
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """ Command to add a new key """
     description = "Add a new key"
-    type_choices = [d for k, d in AllowedKey.TYPE_CHOICES]
+    type_choices = [d for _, d in AllowedKey.TYPE_CHOICES]
 
     ###########################################################################
     def parseArgs(self, parser):
+        """ The args """
         parser.add_argument(
             "--restricted",
             help="The key is resricted - can only take specific values",
@@ -64,6 +67,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """ Base Command line handler """
         desc = ""
         if namespace.keytype:
             keytype = namespace.keytype
@@ -78,7 +82,7 @@ class Command(HostinfoCommand):
         keytype = self.validateKeytype(keytype)
         try:
             AllowedKey.objects.get(key=key)
-        except:
+        except ObjectDoesNotExist:
             newak = AllowedKey(
                 key=key,
                 validtype=keytype,
@@ -90,12 +94,12 @@ class Command(HostinfoCommand):
             )
             newak.save()
         else:
-            raise HostinfoException("Key already exists with that name: %s" % key)
+            raise HostinfoException(f"Key already exists with that name: {key}")
         return None, 0
 
     ###########################################################################
     def validateKeytype(self, keytype):
-        # Work out which type it should be
+        """ Work out which type it should be"""
         vt = -1
         for knum, desc in AllowedKey.TYPE_CHOICES:
             if keytype == desc:
@@ -103,8 +107,7 @@ class Command(HostinfoCommand):
                 break
         if vt < 0:
             raise HostinfoException(
-                "Unknown type %s - should be one of %s"
-                % (keytype, ",".join(self.type_choices))
+                f"Unknown type {keytype} - should be one of {','.join(self.type_choices)}"
             )
         return vt
 
