@@ -1,6 +1,7 @@
 -r requirements.txt
 flake8
 pylint
+pylint-django
 pytest
 pytest-django
 sphinx

@@ -1,4 +1,4 @@
-#!/opt/hostinfo/bin/python
+#!/usr/bin/env python
 
 import os
 import sys

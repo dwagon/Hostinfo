@@ -1,5 +1,4 @@
-#
-# Django models definition for hostinfo CMDB
+""" Django models definition for hostinfo CMDB"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -18,6 +17,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
+import os
+import re
+import sys
+import time
 from collections import defaultdict
 from operator import itemgetter
 from django.db import models, connection
@@ -25,11 +29,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from simple_history.models import HistoricalRecords
-import argparse
-import os
-import re
-import sys
-import time
 
 _akcache = {None: None}
 _all_hosts = None
@@ -93,7 +92,7 @@ def getUser(instance=None):
     except OSError:
         username = "unknown"
     if username and user is None:
-        user, created = User.objects.get_or_create(username=username)
+        user, _ = User.objects.get_or_create(username=username)
     return user.username[:20]
 
 
@@ -107,6 +106,7 @@ def auditedKey(instance):
 ################################################################################
 ################################################################################
 class Host(models.Model):
+    """ Host / Server / Whatever core model """
     hostname = models.CharField(max_length=200, unique=True)
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
@@ -122,10 +122,10 @@ class Host(models.Model):
         self.hostname = self.hostname.lower()
         if not self.id:  # Check for update
             undo = UndoLog(
-                user=user, action="hostinfo_deletehost --lethal %s" % self.hostname
+                user=user, action=f"hostinfo_deletehost --lethal {self.hostname}"
             )
             undo.save()
-        super(Host, self).save(**kwargs)
+        super().save(**kwargs)
         _all_hosts = None
 
     ############################################################################
@@ -397,19 +397,19 @@ def parseQualifiers(args):
     # Table of all the operators:
     #    tag of operator, regexp, threepart (ie. has value)?
     optable = [
-        ("unequal", "!=|\.ne\.", {"threeparts": True}),
-        ("equal", "=|\.eq\.", {"threeparts": True}),  # Has to be after !=
-        ("lessthan", "<|\.lt\.", {"threeparts": True}),
-        ("greaterthan", ">|\.gt\.", {"threeparts": True}),
-        ("contains", "~|\.ss\.", {"threeparts": True}),
-        ("notcontains", "%|\.ns\.", {"threeparts": True}),
-        ("approx", "@|\.ap\.", {"threeparts": True}),
-        ("undef", "\.undef|\.undefined|\.unset", {"threeparts": False}),
-        ("def", "\.def|\.defined|\.set", {"threeparts": False}),
-        ("hostre", "\.hostre", {"threeparts": False, "validkey": False}),
-        ("lenlt", "\.lenlt\.", {"threeparts": True}),
-        ("leneq", "\.leneq\.", {"threeparts": True}),
-        ("lengt", "\.lengt\.", {"threeparts": True}),
+        ("unequal", r"!=|\.ne\.", {"threeparts": True}),
+        ("equal", r"=|\.eq\.", {"threeparts": True}),  # Has to be after !=
+        ("lessthan", r"<|\.lt\.", {"threeparts": True}),
+        ("greaterthan", r">|\.gt\.", {"threeparts": True}),
+        ("contains", r"~|\.ss\.", {"threeparts": True}),
+        ("notcontains", r"%|\.ns\.", {"threeparts": True}),
+        ("approx", r"@|\.ap\.", {"threeparts": True}),
+        ("undef", r"\.undef|\.undefined|\.unset", {"threeparts": False}),
+        ("def", r"\.def|\.defined|\.set", {"threeparts": False}),
+        ("hostre", r"\.hostre", {"threeparts": False, "validkey": False}),
+        ("lenlt", r"\.lenlt\.", {"threeparts": True}),
+        ("leneq", r"\.leneq\.", {"threeparts": True}),
+        ("lengt", r"\.lengt\.", {"threeparts": True}),
     ]
 
     qualifiers = []
@@ -442,7 +442,7 @@ def parseQualifiers(args):
                 break
 
         if not matched:
-            hm = re.match("\w+", arg)
+            hm = re.match(r"\w+", arg)
             if hm:
                 qualifiers.append(("host", None, arg.lower()))
                 matched = True
