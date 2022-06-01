@@ -1,3 +1,4 @@
+""" Command to import hostinfo data """
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
 #    Copyright (C) 2022 Dougal Scott
@@ -27,10 +28,12 @@ _akcache = {}
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """ Base Class"""
     description = "Import data from XML file"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """ Parse command line arguments """
         parser.add_argument(
             "-k",
             dest="kiddingFlag",
@@ -49,6 +52,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """ handle the call """
         self.namespace = namespace
         try:
             xmltree = xml.etree.ElementTree.parse(namespace.xmlfile)
@@ -94,13 +98,13 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handleRestrictedKey(self, xmlbit, key):
-        for kid in xmlbit.getchildren():
+        for kid in list(xmlbit):
             value = kid.text
             try:
                 rv = RestrictedValue.objects.get(keyid=key, value=value)
             except ObjectDoesNotExist:
                 rv = RestrictedValue(keyid=key, value=value)
-                self.verbose("Adding %s=%s to restricted key" % (key.key, value))
+                self.verbose(f"Adding {key.key}={value} to restricted key")
                 if not self.namespace.kiddingFlag:
                     rv.save()
 
@@ -129,7 +133,7 @@ class Command(HostinfoCommand):
         numericFlag = False
         docpage = ""
         desc = ""
-        for kid in key.getchildren():
+        for kid in list(key):
             if kid.tag == "name":
                 name = kid.text
             if kid.tag == "type":
@@ -224,13 +228,13 @@ class Command(HostinfoCommand):
         set automatically by Django
 
           <host docpage="None"  origin="explorer2hostinfo.py by w86765"  modified="2008-03-20" created="2008-03-20" >
-            <hostname>zone_161.117.101.190</hostname>
-            <data>
-              <confitem key="os" origin="w86765" modified="2008-08-19" created="2008-08-19">solaris</confitem>
-              <confitem key="type" origin="..." modified="2008-07-02" created="2008-03-20">virtual</confitem>
-              <confitem key="virtualmaster" origin="..." modified="2008-03-20" created="2008-03-20">idmsvrqv01d</confitem>
-              <confitem key="zonename" origin="..." modified="2008-03-20" created="2008-03-20">app04</confitem>
-            </data>
+           <hostname>zone_161.117.101.190</hostname>
+           <data>
+            <confitem key="os" origin="w86765" modified="2008-08-19" created="2008-08-19">solaris</confitem>
+            <confitem key="type" origin="..." modified="2008-07-02" created="2008-03-20">virtual</confitem>
+            <confitem key="virtualmaster" origin="..." modified="2008-03-20" created="2008-03-20">idmsvrqv01d</confitem>
+            <confitem key="zonename" origin="..." modified="2008-03-20" created="2008-03-20">app04</confitem>
+           </data>
           </host>
         """
         hostname = hosttree.find("hostname").text

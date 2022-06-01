@@ -10,39 +10,38 @@ from .rest_views import (
 )
 from .rest_views import HostQuery, HostList, KeyDetail, KValDetail, AliasList
 
-hostspec = "(<int:hostpk>|<str:hostname>)"
-aliasspec = "(<int:aliaspk>|<str:alias>)"
-kvalspec = "(<int:keypk>|<str:key>)"
-akeyspec = "(<int:akeypk>|<str:akey>)"
-linkspec = "(<int:linkpk>|<str:tagname>)"
+hostspec = r'((?P<hostpk>[0-9]+?)|(?P<hostname>\S+?))'
+aliasspec = r'((?P<aliaspk>[0-9]+?)|(?P<alias>\S*?))'
+kvalspec = r'((?P<keypk>[0-9]+?)|(?P<key>\S*?))'
+akeyspec = r'((?P<akeypk>[0-9]+?)|(?P<akey>\S*?))'
+linkspec = r'((?P<linkpk>[0-9]+?)|(?P<tagname>\S*?))'
 
 urlpatterns = [
     path("alias/", AliasList),
+    re_path(f"host/{hostspec}/alias/{aliasspec}/$", HostAliasRest, name='hostaliasrest'),
+    re_path(f"host/{hostspec}/alias/$", HostAliasRest, name="hostaliasrest"),
     re_path(
-        f"host/{hostspec}/alias/{aliasspec}/", HostAliasRest, name="hostaliasrest"
-    ),
-    re_path(f"host/{hostspec}/alias/", HostAliasRest, name="hostaliasrest"),
-    re_path(
-        f"host/{hostspec}/key/{kvalspec}/<str:value>/",
+        rf"host/{hostspec}/key/{kvalspec}/(?P<value>[^/]+)/$",
         HostKeyRest,
         name="hostkeyrest",
     ),
     re_path(f"host/{hostspec}/key/{kvalspec}/", HostKeyRest, name="hostkeyrest"),
+    re_path(f"host/{hostspec}/key/", HostKeyRest, name="hostkeyrest"),
     re_path(
-        f"host/{hostspec}/link/{linkspec}/<str:url>",
+        f"host/{hostspec}/link/{linkspec}/(?P<url>.*)/$",
         HostLinkRest,
         name="hostlinkrest",
     ),
-    re_path(f"host/{hostspec}/link/{linkspec}/", HostLinkRest, name="hostlinkrest"),
+    re_path(f"host/{hostspec}/link/{linkspec}/$", HostLinkRest, name="hostlinkrest"),
+    re_path(f"host/{hostspec}/link/$", HostLinkRest, name="hostlinkrest"),
     path("host/<int:hostpk>/", HostDetail, name="resthost"),
     path("host/<str:hostname>/", HostDetail, name="resthost"),
     path("host/", HostList),
-    path("key/<int:akeypk>", KeyDetail, name="restakey"),
-    path("key/<str:akey>", KeyDetail, name="restakey"),
+
+    re_path(f"key/{akeyspec}/$", KeyDetail, name="restakey"),
     path("kval/<int:pk>/", KValDetail, name="restkval"),
-    path("query/<str:query>/", HostQuery),
-    path("keylist/<int:akeypk>/<str:query>", KeyListRest),
-    path("keylist/<str:akey>/<str:query>", KeyListRest),
+    re_path(r"query/(?P<query>\S+?)/$", HostQuery),
+    re_path(rf"keylist/{akeyspec}/(?P<query>\S+?/)?$", KeyListRest),
 ]
 
 # EOF

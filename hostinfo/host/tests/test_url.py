@@ -27,6 +27,7 @@ from host.models import clearAKcache, AllowedKey
 
 ###############################################################################
 class test_url_hostmerge(TestCase):
+    """ Test /hostmerge API """
     ###########################################################################
     def setUp(self):
         clearAKcache()

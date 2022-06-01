@@ -199,7 +199,7 @@ class test_cmd_hostinfo(TestCase):
         self.assertEquals(
             output,
             (
-                f"h1\t[Created: {t} Modified: {t}]\tak1=kv1[Created: {t}, Modified: {t}]\nh2\t[Created: {t} Modified: {t}]\tak1=kv2[Created: {t}, Modified: %s]\n",
+                f"h1\t[Created: {t} Modified: {t}]\tak1=kv1[Created: {t}, Modified: {t}]\nh2\t[Created: {t} Modified: {t}]\tak1=kv2[Created: {t}, Modified: {t}]\n",
                 0,
             ),
         )
