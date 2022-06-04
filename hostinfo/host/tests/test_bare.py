@@ -66,7 +66,7 @@ class test_bare(TestCase):
     ###########################################################################
     def test_hosttable(self):
         """Show host table"""
-        response = self.client.get("/bare/hostlist/hostcn/?print=cnkey")
+        response = self.client.get("/bare/hostlist/hostcn/?print=cnkey/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             [t.name for t in response.templates],
@@ -77,7 +77,7 @@ class test_bare(TestCase):
     ###########################################################################
     def test_host(self):
         """Show a specific host"""
-        response = self.client.get("/bare/host/hostcn")
+        response = self.client.get("/bare/host/hostcn/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             [t.name for t in response.templates], ["bare/host.html", "bare/base.html"]
@@ -89,7 +89,7 @@ class test_bare(TestCase):
         response = self.client.get("/bare/keylist/cnkey/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            [t.name for t in response.templates],
+            [_.name for _ in response.templates],
             ["bare/keylist.html", "bare/base.html"],
         )
 

@@ -72,9 +72,9 @@ class test_url_hostmerge(TestCase):
         self.assertEqual(
             sorted(
                 [
-                    t.name
-                    for t in response.templates
-                    if "django/forms/widgets" not in t.name
+                    _.name
+                    for _ in response.templates
+                    if "django/forms" not in _.name
                 ]
             ),
             sorted(["host/hostmerge.template", "host/base.html"]),
@@ -138,6 +138,7 @@ class test_url_hostmerge(TestCase):
 
 ###############################################################################
 class test_url_hostrename(TestCase):
+    """ Rename a host """
     ###########################################################################
     def setUp(self):
         clearAKcache()
@@ -167,10 +168,8 @@ class test_url_hostrename(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            [t.name for t in response.templates],
-            ["host/hostrename.template", "host/base.html"],
-        )
+        self.assertIn("host/hostrename.template", [_.name for _ in response.templates])
+        self.assertIn("host/base.html", [_.name for _ in response.templates])
         host = Host.objects.filter(hostname="urenamehost1")
         self.assertEqual(len(host), 0)
         host = Host.objects.filter(hostname="urenamed")
@@ -185,9 +184,9 @@ class test_url_hostrename(TestCase):
         self.assertEqual(
             sorted(
                 [
-                    t.name
-                    for t in response.templates
-                    if "django/forms/widgets" not in t.name
+                    _.name
+                    for _ in response.templates
+                    if "django/forms" not in _.name
                 ]
             ),
             sorted(["host/hostrename.template", "host/base.html"]),
@@ -196,6 +195,7 @@ class test_url_hostrename(TestCase):
 
 ###############################################################################
 class test_url_index(TestCase):
+    """ Test index """
     ###########################################################################
     def setUp(self):
         clearAKcache()
@@ -207,6 +207,7 @@ class test_url_index(TestCase):
 
     ###########################################################################
     def test_base(self):
+        """ Test index """
         response = self.client.get("/hostinfo/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -217,6 +218,7 @@ class test_url_index(TestCase):
 
 ###############################################################################
 class test_url_handlePost(TestCase):
+    """ handle Post"""
     ###########################################################################
     def setUp(self):
         clearAKcache()
@@ -276,6 +278,7 @@ class test_url_keylist(TestCase):
 
     ###########################################################################
     def test_withkey(self):
+        """ Test with key """
         response = self.client.get("/hostinfo/keylist/urlkey/")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("error" not in response.context)
@@ -296,6 +299,7 @@ class test_url_keylist(TestCase):
 
     ###########################################################################
     def test_badkey(self):
+        """ Test with a bad key """
         response = self.client.get("/hostinfo/keylist/badkey/")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("error" in response.context)
@@ -334,6 +338,7 @@ class test_url_rvlist(TestCase):
 
     ###########################################################################
     def test_rvlist(self):
+        """ Test rvlist with a key """
         response = self.client.get("/hostinfo/rvlist/rvlkey/")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("error" not in response.context)
@@ -348,6 +353,7 @@ class test_url_rvlist(TestCase):
 
     ###########################################################################
     def test_rvlist_wiki(self):
+        """ Test rvlist in mediawiki format """
         response = self.client.get("/mediawiki/rvlist/rvlkey/")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("error" not in response.context)
@@ -363,7 +369,7 @@ class test_url_rvlist(TestCase):
 
 ###############################################################################
 class test_url_host_summary(TestCase):
-    # (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),
+    """ (r'^host_summary/(?P<hostname>.*)$', 'doHostSummary'),"""
     ###########################################################################
     def setUp(self):
         clearAKcache()
@@ -394,6 +400,7 @@ class test_url_host_summary(TestCase):
 
     ###########################################################################
     def test_rvlist(self):
+        """ Test host summary with rvlsit """
         response = self.client.get("/hostinfo/host_summary/hosths")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("error" not in response.context)
@@ -414,6 +421,7 @@ class test_url_host_summary(TestCase):
 
     ###########################################################################
     def test_rvlist_wiki(self):
+        """ Test host summary with rvlist in wiki format """
         response = self.client.get("/mediawiki/host_summary/hosths")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("error" not in response.context)
@@ -467,6 +475,7 @@ class test_url_host_create(TestCase):
 
 ###############################################################################
 class test_url_host_edit(TestCase):
+    """ Editing a host """
     ###########################################################################
     def setUp(self):
         clearAKcache()
@@ -505,15 +514,16 @@ class test_url_host_edit(TestCase):
 
     ###########################################################################
     def test_hostselect(self):
+        """ Test selecting the host to edit """
         response = self.client.get("/hostinfo/hostedit/")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("error" not in response.context)
         self.assertEqual(
             sorted(
                 [
-                    t.name
-                    for t in response.templates
-                    if "django/forms/widgets" not in t.name
+                    _.name
+                    for _ in response.templates
+                    if "django/forms" not in _.name
                 ]
             ),
             sorted(["host/hostedit.template", "host/base.html"]),
@@ -521,6 +531,7 @@ class test_url_host_edit(TestCase):
 
     ###########################################################################
     def test_hostpicked(self):
+        """ We've picked a host - next"""
         response = self.client.post(
             "/hostinfo/hostedit/hosteh/", {"hostname": "hosteh"}, follow=True
         )
@@ -795,7 +806,8 @@ class test_url_hostwikitable(TestCase):
 
     ###########################################################################
     def test_wikitable(self):
-        response = self.client.get("/mediawiki/hosttable/hwtkey.ne.val")
+        """ Test a wiki table with query """
+        response = self.client.get("/mediawiki/hosttable/hwtkey.ne.val/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "text/html; charset=utf-8")
         self.assertEqual(
@@ -805,8 +817,9 @@ class test_url_hostwikitable(TestCase):
 
     ###########################################################################
     def test_wikitable_print(self):
+        """ Test a wiki table but with selective printing """
         response = self.client.get(
-            "/mediawiki/hosttable/hwtkey.def/print=hwtkey/order=hwtkey"
+            "/mediawiki/hosttable/hwtkey.def/print=hwtkey/order=hwtkey/"
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "text/html; charset=utf-8")

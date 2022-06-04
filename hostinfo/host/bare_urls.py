@@ -21,11 +21,12 @@ from django.urls import path, re_path
 from .bare_views import displayHost, doHostCount, doHostList, doHostcmp, doKeylist
 
 urlpatterns = [
-    path("hostlist/<str:criturl>", doHostList),
-    path("count/<str:criturl>", doHostCount),
-    path("host/<str:hostname>", displayHost),
-    path("keylist/<int:key>/<str:criturl>", doKeylist),
-    re_path("hostcmp/<str:criturl>/(?P<options>opts=.*)?/?$", doHostcmp),
+    path("hostlist/<str:criturl>/", doHostList),
+    path("count/<str:criturl>/", doHostCount),
+    path("host/<str:hostname>/", displayHost),
+    re_path(r"keylist/(?P<key>\S+?)/(?P<criturl>.*)?/$", doKeylist),
+    re_path(r"keylist/(?P<key>\S+?)/$", doKeylist),
+    re_path(r"hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$", doHostcmp),
     path("hostcmp/", doHostcmp),
 ]
 
