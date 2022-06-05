@@ -32,6 +32,7 @@ from .models import Links, getHostList, getAliases, getAK
 
 ################################################################################
 def get_rev_akcache():
+    """ Reverse AllowedKey Cache """
     revcache = {}
     for aks in AllowedKey.objects.all():
         revcache[aks.id] = aks.key
@@ -39,10 +40,14 @@ def get_rev_akcache():
 
 
 ################################################################################
-def hostviewrepr(host, printers=[], revcache={}):
+def hostviewrepr(host, printers=None, revcache=None):
     """Return a list of KeyValue objects per key for a host
     E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
     """
+    if printers is None:
+        printers = []
+    if revcache is None:
+        revcache = {}
     if not revcache:
         revcache = get_rev_akcache()
 
@@ -65,6 +70,7 @@ def hostviewrepr(host, printers=[], revcache={}):
 
 ################################################################################
 def handlePost(request):
+    """ POST call handling """
     if "hostname" in request.POST:
         return HttpResponseRedirect("/hostinfo/host/%s" % request.POST["hostname"])
     elif "hostre" in request.POST:
@@ -77,21 +83,21 @@ def handlePost(request):
             if key.startswith("key"):
                 num = key.replace("key", "")
                 expr += "%s.%s.%s/" % (
-                    request.POST["key%s" % num].strip(),
-                    request.POST["op%s" % num].strip(),
-                    request.POST["value%s" % num].strip().replace("/", ".slash."),
+                    request.POST[f"key{num}"].strip(),
+                    request.POST[f"op{num}"].strip(),
+                    request.POST[f"value{num}"].strip().replace("/", ".slash."),
                 )
         expr = expr[:-1]
-        return HttpResponseRedirect("/hostinfo/hostlist/%s" % (expr))
+        return HttpResponseRedirect(f"/hostinfo/hostlist/{expr}")
 
 
 ################################################################################
 def getLinks(hostid=None, hostname=None):
     """Take either a hostname or a hostid and return the links for that host"""
     if hostid:
-        return [(l.url, l.tag) for l in Links.objects.filter(hostid=hostid)]
+        return [(_.url, _.tag) for _ in Links.objects.filter(hostid=hostid)]
     if hostname:
-        return [(l.url, l.tag) for l in Links.objects.filter(hostid__hostname=hostname)]
+        return [(_.url, _.tag) for _ in Links.objects.filter(hostid__hostname=hostname)]
     return []
 
 
@@ -99,7 +105,7 @@ def getLinks(hostid=None, hostname=None):
 def getWebLinks(hostid=None, hostname=None):
     weblinks = []
     for url, tag in getLinks(hostid, hostname):
-        weblinks.append('<a class="foreignlink" href="%s">%s</a>' % (url, tag))
+        weblinks.append(f'<a class="foreignlink" href="{url}">{tag}</a>')
     return weblinks
 
 
@@ -118,14 +124,16 @@ def doHost(request, hostname):
 
 
 ################################################################################
-def hostCount(user, criteria=[]):
+def hostCount(user, criteria=None):
     """Count number of matching hosts"""
     starttime = time.time()
+    if criteria is None:
+        criteria = []
     hl = getHostList(criteria)
     elapsed = time.time() - starttime
 
     d = {
-        "elapsed": "%0.4f" % elapsed,
+        "elapsed": f"{elapsed:0.4f}",
         "title": " AND ".join(criteria),
         "criteria": criteriaToWeb(criteria),
         "user": user,
@@ -135,18 +143,22 @@ def hostCount(user, criteria=[]):
 
 
 ################################################################################
-def hostData(user, criteria=[], options="", printers=[], order=None, linker=None):
+def hostData(user, criteria=None, options="", printers=None, order=None, linker=None):
     """Convert criteria and other options into a consistent data format
     for consumption in the templates"""
     starttime = time.time()
+    if criteria is None:
+        criteria = []
+    if printers is None:
+        printers = []
     hl = getHostList(criteria)
     if order:
         hl = orderHostList(hl, order)
     else:
         hl = sorted(hl, key=operator.attrgetter("hostname"))
-    data = []
     revcache = get_rev_akcache()
 
+    data = []
     for host in hl:
         tmp = {
             "hostname": host.hostname,
@@ -159,12 +171,10 @@ def hostData(user, criteria=[], options="", printers=[], order=None, linker=None
             tmp["links"] = linker(hostid=host.id)
         data.append(tmp)
 
-    elapsed = time.time() - starttime
-
     d = {
         "hostlist": data,
-        "elapsed": "%0.4f" % elapsed,
-        "csvavailable": "/hostinfo/csv/%s" % criteriaToWeb(criteria),
+        "elapsed": "%0.4f" % (time.time() - starttime),
+        "csvavailable": f"/hostinfo/csv/{criteriaToWeb(criteria)}",
         "title": " AND ".join(criteria),
         "criteria": criteriaToWeb(criteria),
         "user": user,
@@ -195,7 +205,7 @@ def doHostlist(request, criturl="", options=""):
         d = {
             "hostlist": data,
             "elapsed": "%0.4f" % (time.time() - starttime),
-            "csvavailable": "/hostinfo/csv/%s" % criteriaToWeb(criteria),
+            "csvavailable": f"/hostinfo/csv/{criteriaToWeb(criteria)}",
             "title": " AND ".join(criteria),
             "criteria": criteriaToWeb(criteria),
             "user": request.user,
@@ -266,12 +276,13 @@ def orderHostList(hostlist, order):
 
 
 ################################################################################
-def doCsvreport(request, criturl=""):
+def doCsvreport(_, criturl=""):
+    """ CSV report"""
     criteria = criteriaFromWeb(criturl)
     hl = getHostList(criteria)
     if not criturl:
         criturl = "allhosts"
-    return csvDump(hl, "%s.csv" % criturl)
+    return csvDump(hl, f"{criturl}.csv")
 
 
 ################################################################################
@@ -290,8 +301,9 @@ def criteriaFromWeb(criteria):
 
 ################################################################################
 def csvDump(hostlist, filename):
+    """ Dump output in CSV format """
     response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=%s" % filename
+    response["Content-Disposition"] = f"attachment; filename={filename}"
 
     # Convert list of hosts into all required data
     revcache = get_rev_akcache()
@@ -305,7 +317,7 @@ def csvDump(hostlist, filename):
     # Grab all the headings
     hdrs = []
     hdrdict = {"hostname": "hostname"}  # Need this for the first row of headers
-    for host, details, link in data:
+    for host, details, _ in data:
         for t, val in details:
             if t not in hdrs:
                 hdrs.append(t)
@@ -316,7 +328,7 @@ def csvDump(hostlist, filename):
     writer.writerow(hdrdict)
 
     # Finally write the data
-    for host, details, link in data:
+    for host, details, _ in data:
         d = {"hostname": host}
         for t, val in details:
             d[t] = ",".join([k.value for k in val])
@@ -326,6 +338,7 @@ def csvDump(hostlist, filename):
 
 ################################################################################
 def index(request):
+    """ URL = /"""
     d = {
         "numhosts": Host.objects.count(),
         "keys": AllowedKey.objects.all(),
