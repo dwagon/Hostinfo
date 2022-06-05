@@ -42,6 +42,7 @@ class test_DateValidator(TestCase):
 
     ###########################################################################
     def test_formats(self):
+        """ Test different date formats """
         self.assertEqual(validateDate("2012-12-31"), "2012-12-31")
         self.assertEqual(validateDate("31/12/2012"), "2012-12-31")
         self.assertEqual(validateDate("31/12/12"), "2012-12-31")
@@ -49,6 +50,7 @@ class test_DateValidator(TestCase):
 
     ###########################################################################
     def test_today(self):
+        """ Does today equal now """
         now = time.strftime("%Y-%m-%d")
         self.assertEqual(validateDate("now"), now)
         self.assertEqual(validateDate("today"), now)
