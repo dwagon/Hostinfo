@@ -59,7 +59,6 @@ def hosttable(request, criturl, options=None):
     options=/print=a,b,c/order=d
     """
     criteria = criteriaFromWeb(criturl)
-    print(f"DBG {criteria=}")
     printers = []
     order = None
     if options:

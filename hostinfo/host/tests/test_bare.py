@@ -45,7 +45,7 @@ class test_bare(TestCase):
     ###########################################################################
     def test_hostcount(self):
         """Show in bare the count of hosts that match a criteria"""
-        response = self.client.get("/bare/count/cnkey.defined/")
+        response = self.client.get("/bare/count/cnkey.defined", follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             [t.name for t in response.templates],
@@ -56,7 +56,7 @@ class test_bare(TestCase):
     ###########################################################################
     def test_hostlist(self):
         """Show in bare the hosts that match a criteria"""
-        response = self.client.get("/bare/hostlist/cnkey.defined/")
+        response = self.client.get("/bare/hostlist/cnkey.defined", follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             [t.name for t in response.templates],
@@ -66,7 +66,7 @@ class test_bare(TestCase):
     ###########################################################################
     def test_hosttable(self):
         """Show host table"""
-        response = self.client.get("/bare/hostlist/hostcn/?print=cnkey/")
+        response = self.client.get("/bare/hostlist/hostcn?print=cnkey", follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             [t.name for t in response.templates],
@@ -77,7 +77,7 @@ class test_bare(TestCase):
     ###########################################################################
     def test_host(self):
         """Show a specific host"""
-        response = self.client.get("/bare/host/hostcn/")
+        response = self.client.get("/bare/host/hostcn", follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             [t.name for t in response.templates], ["bare/host.html", "bare/base.html"]
@@ -86,7 +86,7 @@ class test_bare(TestCase):
     ###########################################################################
     def test_keylist(self):
         """Show in bare details about a key"""
-        response = self.client.get("/bare/keylist/cnkey/")
+        response = self.client.get("/bare/keylist/cnkey", follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             [_.name for _ in response.templates],
@@ -96,7 +96,7 @@ class test_bare(TestCase):
     ###########################################################################
     def test_keylist_with_crit(self):
         """Show in bare details about a key with criteria"""
-        response = self.client.get("/bare/keylist/cnkey/cnkey.defined/")
+        response = self.client.get("/bare/keylist/cnkey/cnkey.defined", follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn("tbval", str(response.content))
         self.assertEqual(
@@ -107,7 +107,7 @@ class test_bare(TestCase):
     ###########################################################################
     def test_hostcmp(self):
         """Show in bare details about all hosts that match a criteria"""
-        response = self.client.get("/bare/hostcmp/cnkey.defin/")
+        response = self.client.get("/bare/hostcmp/cnkey.defin", follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             sorted([str(t.name) for t in response.templates]),

@@ -21,7 +21,7 @@ from django.urls import path, re_path
 from .bare_views import displayHost, doHostCount, doHostList, doHostcmp, doKeylist
 
 urlpatterns = [
-    path("hostlist/<str:criturl>/", doHostList),
+    path("hostlist/<criturl>/", doHostList),
     path("count/<str:criturl>/", doHostCount),
     path("host/<str:hostname>/", displayHost),
     re_path(r"keylist/(?P<key>\S+?)/(?P<criturl>.*)?/$", doKeylist),

@@ -1,4 +1,4 @@
-# hostinfo views
+""" hostinfo views"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -72,7 +72,7 @@ def hostviewrepr(host, printers=None, revcache=None):
 def handlePost(request):
     """ POST call handling """
     if "hostname" in request.POST:
-        return HttpResponseRedirect("/hostinfo/host/%s" % request.POST["hostname"])
+        return HttpResponseRedirect(f"/hostinfo/host/{request.POST['hostname']}")
     elif "hostre" in request.POST:
         return HttpResponseRedirect(
             "/hostinfo/hostlist/%s.hostre" % request.POST["hostre"].strip()
@@ -201,10 +201,11 @@ def doHostlist(request, criturl="", options=""):
         data = []
         for host in hl:
             data.append({"hostname": host.hostname})
+        elapsed = time.time() - starttime
 
         d = {
             "hostlist": data,
-            "elapsed": "%0.4f" % (time.time() - starttime),
+            "elapsed": f"{elapsed:0.4f}",
             "csvavailable": f"/hostinfo/csv/{criteriaToWeb(criteria)}",
             "title": " AND ".join(criteria),
             "criteria": criteriaToWeb(criteria),
@@ -295,7 +296,7 @@ def criteriaToWeb(criteria):
 ################################################################################
 def criteriaFromWeb(criteria):
     """Covert a URL formatted criteria to a list"""
-    crit = [c.replace(".slash.", "/") for c in criteria.split("/") if c]
+    crit = [_.replace(".slash.", "/") for _ in criteria.split("/") if _]
     return crit
 
 
@@ -369,7 +370,8 @@ def doKeylist(request, key):
         d = calcKeylistVals(key)
     except HostinfoException as exc:
         d["error"] = exc
-    d["elapsed"] = "%0.4f" % (time.time() - starttime)
+    elapsed = time.time() - starttime
+    d["elapsed"] = f"{elapsed:0.4f}"
     d["user"] = request.user
     return render(request, "host/keylist.template", d)
 

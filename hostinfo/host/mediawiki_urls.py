@@ -28,7 +28,7 @@ from .mediawiki_views import (
 
 urlpatterns = [
     re_path("hosttable/(?P<criturl>.*?)(?P<options>/(?:order=|print=).*)?/$", hosttable),
-    path("hostlist/<str:criturl>", hostlist),
+    path("hostlist/<criturl>", hostlist),
     path("host/<str:hostname>", displayHost),
     path("host_summary/<str:hostname>", displaySummary),
     path("rvlist/<str:key>/", doRestrValList),

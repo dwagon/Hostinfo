@@ -238,6 +238,7 @@ class test_url_handlePost(TestCase):
 
     ###########################################################################
     def test_hostname(self):
+        """ Test POSTing hostname """
         response = self.client.post(
             "/hostinfo/handlePost/", data={"hostname": "posthost"}
         )
@@ -439,6 +440,7 @@ class test_url_host_summary(TestCase):
 
 ###############################################################################
 class test_url_host_create(TestCase):
+    """ Create host creation """
     ###########################################################################
     def setUp(self):
         self.user = User.objects.create_user("fred", "fred@example.com", "secret")
@@ -448,12 +450,14 @@ class test_url_host_create(TestCase):
 
     ###########################################################################
     def test_create_choose(self):
+        """ Choose the host to create """
         response = self.client.get("/hostinfo/hostcreate/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed("host/hostcreate.template")
 
     ###########################################################################
     def test_create_choose_submit(self):
+        """ Submit the choice """
         response = self.client.post(
             "/hostinfo/hostcreate/", {"newhost": "noob"}, follow=True
         )
@@ -465,6 +469,7 @@ class test_url_host_create(TestCase):
 
     ###########################################################################
     def test_creation(self):
+        """ Test the creation """
         response = self.client.post("/hostinfo/hostcreate/darwin/", follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed("host/hostcreate.template")
@@ -631,6 +636,7 @@ class test_url_hostlist(TestCase):
 
     ###########################################################################
     def test_badkey(self):
+        """ Ask for host list with bad criteria """
         response = self.client.get("/hostinfo/hostlist/badkey=foo/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -643,6 +649,7 @@ class test_url_hostlist(TestCase):
 
     ###########################################################################
     def test_withcriteria(self):
+        """ Ask for host list with criteria """
         response = self.client.get("/hostinfo/hostlist/urlkey=foo/")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("error" not in response.context)
@@ -653,6 +660,7 @@ class test_url_hostlist(TestCase):
 
     ###########################################################################
     def test_withoptions(self):
+        """ Ask for host list with options """
         response = self.client.get("/hostinfo/hostlist/urlkey=foo/dates")
         self.assertEqual(response.status_code, 301)
         response = self.client.get("/hostinfo/hostlist/urlkey=foo/dates", follow=True)
@@ -665,6 +673,7 @@ class test_url_hostlist(TestCase):
 
     ###########################################################################
     def test_nohosts(self):
+        """ Specify no hosts to get all hosts """
         response = self.client.get("/hostinfo/host/")
         self.assertTrue(response.status_code, 200)
         self.assertTrue("error" not in response.context)
@@ -679,7 +688,8 @@ class test_url_hostlist(TestCase):
 
     ###########################################################################
     def test_hostcriteria(self):
-        response = self.client.get("/hostinfo/hostlist/z_hosthl2/")
+        """ Test hostcriteria """
+        response = self.client.get("/hostinfo/hostlist/z_hosthl2", follow=True)
         self.assertTrue(response.status_code, 200)
         self.assertTrue("error" not in response.context)
         self.assertEqual(
@@ -692,6 +702,7 @@ class test_url_hostlist(TestCase):
 
     ###########################################################################
     def test_multihostcriteria(self):
+        """ Test multihostcriteria """
         response = self.client.get("/hostinfo/hostlist/urlkey.eq.val/")
         self.assertTrue(response.status_code, 200)
         self.assertTrue("error" not in response.context)
@@ -706,7 +717,8 @@ class test_url_hostlist(TestCase):
 
     ###########################################################################
     def test_host_origin_option(self):
-        response = self.client.get("/hostinfo/hostlist/urlkey.ne.bar/opts=origin")
+        """ Test origin """
+        response = self.client.get("/hostinfo/hostlist/urlkey.ne.bar/opts=origin", follow=True)
         self.assertTrue(response.status_code, 200)
         self.assertTrue("error" not in response.context)
         self.assertEqual(
@@ -718,6 +730,7 @@ class test_url_hostlist(TestCase):
 
     ###########################################################################
     def test_host_both_option(self):
+        """ Test dates and origins """
         response = self.client.get("/hostinfo/hostlist/urlkey.ne.bar/opts=dates,origin")
         self.assertTrue(response.status_code, 200)
         self.assertTrue("error" not in response.context)
