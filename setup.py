@@ -38,7 +38,7 @@ setup(
     author_email='dougal.scott@gmail.com',
     url='https://github.com/dwagon/Hostinfo',
     scripts=glob('bin/*'),
-    requires=['Django (>=1.7)'],
+    requires=['Django (>=4.0)'],
     packages=[
         'hostinfo',
         'hostinfo.host',
@@ -55,4 +55,4 @@ setup(
     classifiers=setup_classifiers,
     )
 
-#EOF
+# EOF

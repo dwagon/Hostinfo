@@ -3,8 +3,8 @@ Prerequisites
 
 Hostinfo is built on top of the shoulders of the work of many other people:
 
-* Python (http://www.python.org) 
-* Django (http://www.djangoproject.com) Version >= 1.7
+* Python (http://www.python.org)
+* Django (http://www.djangoproject.com) Version >= 4.0
 * A Django supported database (I have only used MySQL and PostgreSQL but the others should work):
 
     * MySQL (http://www.mysql.com)

@@ -13,9 +13,13 @@ For CentOS::
     yum install mysql-server
     yum install mysql-devel
 
+For MacOS::
+
+    brew install mariadb
+
 Python Requirements::
 
-    pip install MySQL-python
+    pip install mysqlclient
 
 To setup the database use the mysql client (mysql -u root -p)::
 
