@@ -19,9 +19,9 @@ For Ubuntu::
 For CentOS (You will need the epel repo for nginx)::
 
     yum install nginx
-    yum install python-virtualenv
+    yum install python3
     yum install python-devel
-    yum install libyaml-devel
+    # yum install libyaml-devel
     ... and appropriate database packages
 
 Make the hostinfo user and installation directory::
@@ -44,7 +44,7 @@ or::
 
 Now create the virtual environment::
 
-    virtualenv /opt/hostinfo
+    python3 -m venv /opt/hostinfo
     source /opt/hostinfo/bin/activate
     cd /opt/hostinfo/Hostinfo && pip install -r requirements.txt
     pip install gunicorn
@@ -71,16 +71,20 @@ Link the executables to somewhere findable, or put ``/opt/hostinfo/Hostinfo/bin`
             ln -s /opt/hostinfo/Hostinfo/bin/$i /usr/local/bin/$i
         done
 
+You may need to allow local web connections::
+
+    sudo firewall-cmd --zone=public --permanent --add-service=http
+
 Configure the web server::
 
     cd /opt/hostinfo/Hostinfo/contrib
     cp hostinfo_nginx.conf /etc/nginx/sites-enabled/hostinfo.conf
-    /etc/init.d/nginx reload
+    systemctl restart nginx
 
 Configure the startup script::
 
     cd /opt/hostinfo/Hostinfo/contrib
-    cp hostinfo_init.conf /etc/init/hostinfo.conf
-    initctl reload-configuration
-    start hostinfo
+    cp hostinfo_systemd.conf /etc/systemd/system/hostinfo.service
+    systemctl daemon-reload
+    systectl start hostinfo
 

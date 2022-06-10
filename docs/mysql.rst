@@ -13,6 +13,11 @@ For CentOS::
     yum install mysql-server
     yum install mysql-devel
 
+or::
+
+    yum install mariadb-server
+    yum install mariadb-devel
+
 For MacOS::
 
     brew install mariadb
