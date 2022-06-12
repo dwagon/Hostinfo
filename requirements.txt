@@ -1,3 +1,4 @@
 Django
 mysqlclient
 django-simple-history
+gunicorn
