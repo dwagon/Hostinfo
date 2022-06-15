@@ -87,5 +87,5 @@ Configure the startup script::
     cd /opt/hostinfo/Hostinfo/contrib
     cp hostinfo_systemd.conf /etc/systemd/system/hostinfo.service
     systemctl daemon-reload
-    systectl start hostinfo
+    systemctl start hostinfo
 
