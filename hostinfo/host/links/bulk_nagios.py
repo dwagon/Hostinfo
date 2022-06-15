@@ -4,7 +4,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,13 +22,16 @@
 import os
 import sys
 
-f = os.popen('/app/hostinfo/bin/hostinfo -p monitored monitored.defined')
+f = os.popen("/app/hostinfo/bin/hostinfo -p monitored monitored.defined")
 for line in f:
-    line = line.strip().replace('monitored=', '')
+    line = line.strip().replace("monitored=", "")
     host, naghost = line.split()
-    print "%s http://%s/nagios.cgi-bin/extinfo.cgi?type=1&host=%s Nagios" % (host, naghost, host)
+    print(
+        "%s http://%s/nagios.cgi-bin/extinfo.cgi?type=1&host=%s Nagios"
+        % (host, naghost, host)
+    )
 f.close()
 
 sys.exit(0)
 
-#EOF
+# EOF

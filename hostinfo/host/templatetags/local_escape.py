@@ -2,7 +2,7 @@
 # Provide a new template to make URLs safe by escaping naughty characters
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import template
+
 register = template.Library()
 
 
@@ -27,8 +28,9 @@ def local_escape(value):
     Go through a list and everytime it is called return the first element or return
     """
     if value:
-        if hasattr(value, 'replace'):
-            value = value.replace('/', '.slash.')
+        if hasattr(value, "replace"):
+            value = value.replace("/", ".slash.")
     return value
 
-#EOF
+
+# EOF

@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2015 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@ from host.models import HostinfoCommand, HostinfoException
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Add alias to a host'
+    description = "Add alias to a host"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('host', help='The host to add the alias for')
-        parser.add_argument('alias', help='The alias for the host')
-        parser.add_argument('--origin', help='The origin of this alias')
+        parser.add_argument("host", help="The host to add the alias for")
+        parser.add_argument("alias", help="The alias for the host")
+        parser.add_argument("--origin", help="The origin of this alias")
 
     ###########################################################################
     def handle(self, namespace):
@@ -40,10 +40,9 @@ class Command(HostinfoCommand):
             raise HostinfoException("Host %s doesn't exist" % host)
         if getHost(alias):
             raise HostinfoException("Host %s already exists" % alias)
-        haobj = HostAlias(
-            hostid=targhost,
-            alias=alias, origin=origin)
+        haobj = HostAlias(hostid=targhost, alias=alias, origin=origin)
         haobj.save()
         return None, 0
+
 
 # EOF

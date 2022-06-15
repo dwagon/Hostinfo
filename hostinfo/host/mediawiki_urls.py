@@ -1,8 +1,8 @@
-# Local URL handler for hostinfo mediawiki interface
+"""Local URL handler for hostinfo mediawiki interface"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,17 +17,21 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.urls import path, re_path
 from .mediawiki_views import (
-    hosttable, hostlist, displayHost, displaySummary, doRestrValList
-    )
+    hosttable,
+    hostlist,
+    displayHost,
+    displaySummary,
+    doRestrValList,
+)
 
 urlpatterns = [
-    url(r'^hosttable/(?P<criturl>.*?)(?P<options>/(?:order=|print=).*)?$', hosttable),
-    url(r'^hostlist/(?P<criturl>.*)/$', hostlist),
-    url(r'^host/(?P<hostname>\S+)$', displayHost),
-    url(r'^host_summary/(?P<hostname>.*)$', displaySummary),
-    url(r'^rvlist/(?P<key>\S+)/$', doRestrValList),
-    ]
+    re_path("hosttable/(?P<criturl>.*?)(?P<options>/(?:order=|print=).*)?/$", hosttable),
+    path("hostlist/<criturl>", hostlist),
+    path("host/<str:hostname>", displayHost),
+    path("host_summary/<str:hostname>", displaySummary),
+    path("rvlist/<str:key>/", doRestrValList),
+]
 
 # EOF

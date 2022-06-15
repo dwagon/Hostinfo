@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,16 +22,14 @@ from host.models import HostinfoCommand, HostinfoException
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Delete a host'
+    description = "Delete a host"
 
     ###########################################################################
     def parseArgs(self, parser):
         parser.add_argument(
-            '--lethal',
-            help='Actually do the delete - NO UNDO', action='store_true')
-        parser.add_argument(
-            'host',
-            help='Name of host to delete')
+            "--lethal", help="Actually do the delete - NO UNDO", action="store_true"
+        )
+        parser.add_argument("host", help="Name of host to delete")
 
     ###########################################################################
     def handle(self, namespace):
@@ -60,4 +58,5 @@ class Command(HostinfoCommand):
             h.delete()
         return None, 0
 
-#EOF
+
+# EOF

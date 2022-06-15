@@ -4,7 +4,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2008 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,18 +22,21 @@
 import os
 import sys
 
-f = os.popen('/app/hostinfo/bin/hostinfo measured=orcallator')
+f = os.popen("/app/hostinfo/bin/hostinfo measured=orcallator")
 for line in f:
     host = line.strip()
-    print "%s http://orcallator/orcallator/o_%s-all.html Orcallator" % (host, host)
+    print("%s http://orcallator/orcallator/o_%s-all.html Orcallator" % (host, host))
 f.close()
 
-f = os.popen('/app/hostinfo/bin/hostinfo measured=procallator')
+f = os.popen("/app/hostinfo/bin/hostinfo measured=procallator")
 for line in f:
     host = line.strip()
-    print "%s http://procallator/procallator/procallator_%s-all.html Procallator" % (host, host)
+    print(
+        "%s http://procallator/procallator/procallator_%s-all.html Procallator"
+        % (host, host)
+    )
 f.close()
 
 sys.exit(0)
 
-#EOF
+# EOF

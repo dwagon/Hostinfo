@@ -1,8 +1,8 @@
-# hostinfo views for bare interface
+""" hostinfo views for bare interface """
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2015 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -26,65 +26,70 @@ from .views import hostData, hostCount
 
 
 ################################################################################
-def getConfLinks(hostid=None, hostname=None):
+def getConfLinks(hostid=None, hostname=None):  # pylint: disable=unused-argument
+    """Linker"""
     return []
 
 
 ################################################################################
 def displayHost(request, hostname):
-    """ Display a single host """
+    """Display a single host"""
     d = hostData(request.user, [hostname], linker=getConfLinks)
-    return render(request, 'bare/host.html', d)
+    return render(request, "bare/host.html", d)
 
 
 ################################################################################
 def doHostCount(request, criturl):
-    """ Display the count of matching hosts """
+    """Display the count of matching hosts"""
     criteria = criteriaFromWeb(criturl)
     data = hostCount(request, criteria)
     try:
-        return render(request, 'bare/hostcount.html', data)
-    except HostinfoException as err:    # pragma: no cover
-        return render(request, 'bare/hostcount.html', {'error': err})
+        return render(request, "bare/hostcount.html", data)
+    except HostinfoException as err:  # pragma: no cover
+        return render(request, "bare/hostcount.html", {"error": err})
 
 
 ################################################################################
 def doHostList(request, criturl):
-    """ Display a list of matching hosts with their details"""
+    """Display a list of matching hosts with their details"""
     qd = request.GET
     criteria = criteriaFromWeb(criturl)
-    printers = qd.getlist('print', [])
-    order = qd.get('order', None)
+    printers = qd.getlist("print", [])
+    order = qd.get("order", None)
     data = hostData(request, criteria, printers=printers, order=order)
     try:
-        return render(request, 'bare/hostlist.html', data)
-    except HostinfoException as err:    # pragma: no cover
-        return render(request, 'bare/hostlist.html', {'error': err})
+        return render(request, "bare/hostlist.html", data)
+    except HostinfoException as err:  # pragma: no cover
+        return render(request, "bare/hostlist.html", {"error": err})
 
 
 ################################################################################
 def doKeylist(request, key, criturl=None):
+    """Return list of keys"""
     data = {}
     if criturl:
         criteria = criteriaFromWeb(criturl)
         qualifiers = parseQualifiers(criteria)
         hostids = getMatches(qualifiers)
-        data['title'] = "Valuereport for %s: %s" % (key, " AND ".join(criteria))
+        data["title"] = f"Valuereport for {key}: {' AND '.join(criteria)}"
     else:
         hostids = []
-        data['title'] = "Valuereport for %s" % key
+        data["title"] = f"Valuereport for {key}"
     data.update(calcKeylistVals(key, hostids))
 
-    return render(request, 'bare/keylist.html', data)
+    return render(request, "bare/keylist.html", data)
 
 
 ################################################################################
-def doHostcmp(request, criturl='', options=''):
-    """ Display a list of matching hosts with their details"""
+def doHostcmp(request, criturl="", options=""):
+    """Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)
     try:
-        return render(request, 'bare/multihost.html', hostData(request, criteria, options))
-    except HostinfoException as err:    # pragma: no cover
-        return render(request, 'bare/multihost.html', {'error': err})
+        return render(
+            request, "bare/multihost.html", hostData(request, criteria, options)
+        )
+    except HostinfoException as err:  # pragma: no cover
+        return render(request, "bare/multihost.html", {"error": err})
+
 
 # EOF

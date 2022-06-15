@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2012 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,11 +22,11 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Delete an alias from a host'
+    description = "Delete an alias from a host"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('alias', help='The alias to delete')
+        parser.add_argument("alias", help="The alias to delete")
 
     ###########################################################################
     def handle(self, namespace):
@@ -37,4 +37,5 @@ class Command(HostinfoCommand):
         aliases[0].delete()
         return None, 0
 
-#EOF
+
+# EOF

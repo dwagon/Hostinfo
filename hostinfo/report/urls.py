@@ -1,8 +1,8 @@
-# Local URL handled for reports
+"""Local URL handled for reports"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.urls import path
 from .views import index, doReport
 
 urlpatterns = [
-    url(r'^$', index, name='reportIndex'),
-    url(r'^(?P<report>\w+)/(?P<args>.*)', doReport, name='report'),
-    ]
+    path("", index, name="reportIndex"),
+    path("<str:report>/<str:args>", doReport, name="report"),
+]
 
 # EOF

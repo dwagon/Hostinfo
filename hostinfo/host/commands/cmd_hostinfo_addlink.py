@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2017 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,15 +22,24 @@ from host.models import HostinfoCommand, HostinfoException, Links
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Associate a link with a host'
+    description = "Associate a link with a host"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('tag', help='The link tag')
-        parser.add_argument('url', help='The url for the link')
-        parser.add_argument('host', help='The host to add the link to')
-        parser.add_argument('-f', '--force', help='Force add the link with no checking', action='store_true')
-        parser.add_argument('--update', help='Overwrite existing url for the same tag', action='store_true')
+        parser.add_argument("tag", help="The link tag")
+        parser.add_argument("url", help="The url for the link")
+        parser.add_argument("host", help="The host to add the link to")
+        parser.add_argument(
+            "-f",
+            "--force",
+            help="Force add the link with no checking",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--update",
+            help="Overwrite existing url for the same tag",
+            action="store_true",
+        )
 
     ###########################################################################
     def handle(self, namespace):
@@ -52,5 +61,6 @@ class Command(HostinfoCommand):
         link = Links(hostid=targhost, tag=tag, url=url)
         link.save()
         return None, 0
+
 
 # EOF

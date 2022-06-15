@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2012 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,20 +22,22 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'List aliases'
+    description = "List aliases"
 
     ###########################################################################
     def parseArgs(self, parser):
         parser.add_argument(
-            '-a', '--all', help='List aliases for all hosts', action='store_true')
+            "-a", "--all", help="List aliases for all hosts", action="store_true"
+        )
         parser.add_argument(
-            'host', help='List the aliases for this host only', nargs='?')
+            "host", help="List the aliases for this host only", nargs="?"
+        )
 
     ###########################################################################
     def handle(self, namespace):
         outstr = ""
         if namespace.all or not namespace.host:
-            aliases = HostAlias.objects.all().order_by('alias').select_related('hostid')
+            aliases = HostAlias.objects.all().order_by("alias").select_related("hostid")
             for alias in aliases:
                 outstr += "%s %s\n" % (alias.alias, alias.hostid.hostname)
             return outstr, 0
@@ -43,12 +45,13 @@ class Command(HostinfoCommand):
         if not hid:
             raise HostinfoException("Host %s doesn't exist" % namespace.host)
         outstr += "%s\n" % hid.hostname
-        aliases = HostAlias.objects.filter(hostid=hid).order_by('alias')
+        aliases = HostAlias.objects.filter(hostid=hid).order_by("alias")
         if not aliases:
             return outstr, 1
         for alias in aliases:
             outstr += "%s\n" % alias.alias
 
         return outstr, 0
+
 
 # EOF

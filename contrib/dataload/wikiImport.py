@@ -6,7 +6,7 @@
 # $Id: wikiImport.py 124 2012-12-05 21:17:22Z dougal.scott@gmail.com $
 # $HeadURL: https://hostinfo.googlecode.com/svn/trunk/contrib/dataload/wikiImport.py $
 #
-#    Copyright (C) 2008 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

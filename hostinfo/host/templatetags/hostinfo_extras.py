@@ -2,7 +2,7 @@
 # Provide a new template to pop elements of a list
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import template
+
 register = template.Library()
 
 
@@ -30,8 +31,9 @@ def getnextelem(value):
         try:
             return value.pop(0)
         except AttributeError:
-            return ''
+            return ""
     else:
-        return ''
+        return ""
 
-#EOF
+
+# EOF

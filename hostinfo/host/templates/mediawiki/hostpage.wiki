@@ -1,6 +1,6 @@
 {% spaceless %}
 {#										#}
-{#    Copyright (C) 2012 Dougal Scott						#}
+{#    Copyright (C) 2022 Dougal Scott						#}
 {#										#}
 {#    This program is free software: you can redistribute it and/or modify	#}
 {#    it under the terms of the GNU General Public License as published by	#}
@@ -18,7 +18,7 @@
 {# $HeadURL: https://hostinfo.googlecode.com/svn/trunk/hostinfo/hostinfo/templates/hostpage.wiki $ #}
 
 {% for host in hostlist %}
-{% templatetag openvariable %}{% for key,vallist in host.hostview %}{% ifequal key "type" %}{{vallist.0.value}}{% endifequal %}{% endfor %}
+{% templatetag openvariable %}{% for key,vallist in host.hostview %}{% if key == "type" %}{{vallist.0.value}}{% endif %}{% endfor %}
 |hostname={{host}}
 {% for key,vallist in host.hostview %}
 |{{key}}={% for val in vallist %}{{val.value}} {% endfor %}

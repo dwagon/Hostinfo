@@ -7,7 +7,7 @@
 # $Id: genericReport.py 126 2012-12-05 21:19:03Z dougal.scott@gmail.com $
 # $HeadURL: svn+ssh://localhost/Library/Subversion/Repository/hostinfo/trunk/reports/genericReport.py $
 #
-#    Copyright (C) 2008 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

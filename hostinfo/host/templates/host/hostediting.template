@@ -14,14 +14,14 @@
     	{% if rvals %}
 	    	<select name={{key}}.{{forloop.counter0}} >
 		    {% for rv in rvals %}
-			<option {% ifequal rv val.value %}selected{% endifequal %} value={{rv}}> {{rv}} </option>
+			<option {% if rv == val.value %}selected{% endif %} value={{rv}}> {{rv}} </option>
 		    {% endfor %}
 		</select>
 	{% else %}
 	    <input  type=text name={{ key }}.{{ forloop.counter0 }} value={{val.value}}>
 	{% endif %}
     {% endfor %}
-    {% ifequal typ "list" %}
+    {% if typ == "list" %}
     	{% if rvals %}
 	    <select name={{key}}.new >
 		{% for rv in rvals %}
@@ -31,7 +31,7 @@
 	{% else %}
 	    <input  type=text name={{ key }}.new>
 	{% endif %}
-    {% endifequal %}
+    {% endif %}
     </td></tr>
 {% endfor %}
 <tr><td>Enter new key</td><td>New Value</td></tr>

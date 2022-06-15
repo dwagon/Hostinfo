@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -23,11 +23,11 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'List all allowable values of a restricted key'
+    description = "List all allowable values of a restricted key"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('key', help='Name of the key to list')
+        parser.add_argument("key", help="Name of the key to list")
 
     ###########################################################################
     def handle(self, namespace):
@@ -45,4 +45,5 @@ class Command(HostinfoCommand):
             outstr += "%s\n" % rv
         return outstr, 0
 
-#EOF
+
+# EOF

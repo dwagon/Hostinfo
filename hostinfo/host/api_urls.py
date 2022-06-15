@@ -1,6 +1,13 @@
-from django.conf.urls import url
+""" API Url handler """
+from django.urls import path, re_path
 
-from .rest_views import HostAliasRest, HostKeyRest, HostLinkRest, HostDetail, KeyListRest
+from .rest_views import (
+    HostAliasRest,
+    HostKeyRest,
+    HostLinkRest,
+    HostDetail,
+    KeyListRest,
+)
 from .rest_views import HostQuery, HostList, KeyDetail, KValDetail, AliasList
 
 hostspec = r'((?P<hostpk>[0-9]+?)|(?P<hostname>\S+?))'
@@ -10,19 +17,31 @@ akeyspec = r'((?P<akeypk>[0-9]+?)|(?P<akey>\S*?))'
 linkspec = r'((?P<linkpk>[0-9]+?)|(?P<tagname>\S*?))'
 
 urlpatterns = [
-    url(r'^alias/?$', AliasList),
-    url(r'^host/%s/alias/%s/?$' % (hostspec, aliasspec), HostAliasRest, name='hostaliasrest'),
-    url(r'^host/%s/alias/?$' % hostspec, HostAliasRest, name='hostaliasrest'),
-    url(r'^host/%s/key/%s/(?P<value>.*)/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
-    url(r'^host/%s/key/%s/?$' % (hostspec, kvalspec), HostKeyRest, name='hostkeyrest'),
-    url(r'^host/%s/link/%s/(?P<url>.*)/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
-    url(r'^host/%s/link/%s/?$' % (hostspec, linkspec), HostLinkRest, name='hostlinkrest'),
-    url(r'^host/%s/?$' % hostspec, HostDetail, name='resthost'),
-    url(r'^host/$', HostList),
-    url(r'^key/%s/?$' % akeyspec, KeyDetail, name='restakey'),
-    url(r'^kval/(?P<pk>[0-9]+?)/$', KValDetail, name='restkval'),
-    url(r'^query/(?P<query>\S+?)/$', HostQuery),
-    url(r'^keylist/%s/(?P<query>\S+?)?/?$' % akeyspec, KeyListRest),
+    path("alias/", AliasList),
+    re_path(f"host/{hostspec}/alias/{aliasspec}/$", HostAliasRest, name='hostaliasrest'),
+    re_path(f"host/{hostspec}/alias/$", HostAliasRest, name="hostaliasrest"),
+    re_path(
+        rf"host/{hostspec}/key/{kvalspec}/(?P<value>[^/]+)/$",
+        HostKeyRest,
+        name="hostkeyrest",
+    ),
+    re_path(f"host/{hostspec}/key/{kvalspec}/", HostKeyRest, name="hostkeyrest"),
+    re_path(f"host/{hostspec}/key/", HostKeyRest, name="hostkeyrest"),
+    re_path(
+        f"host/{hostspec}/link/{linkspec}/(?P<url>.*)/$",
+        HostLinkRest,
+        name="hostlinkrest",
+    ),
+    re_path(f"host/{hostspec}/link/{linkspec}/$", HostLinkRest, name="hostlinkrest"),
+    re_path(f"host/{hostspec}/link/$", HostLinkRest, name="hostlinkrest"),
+    path("host/<int:hostpk>/", HostDetail, name="resthost"),
+    path("host/<str:hostname>/", HostDetail, name="resthost"),
+    path("host/", HostList),
+
+    re_path(f"key/{akeyspec}/$", KeyDetail, name="restakey"),
+    path("kval/<int:pk>/", KValDetail, name="restkval"),
+    re_path(r"query/(?P<query>\S+?)/$", HostQuery),
+    re_path(rf"keylist/{akeyspec}/(?P<query>\S+?/)?$", KeyListRest),
 ]
 
 # EOF

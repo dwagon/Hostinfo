@@ -1,8 +1,8 @@
-# Local URL handler for hostinfo bare interface
+"""Local URL handler for hostinfo bare interface"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2015 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,18 +17,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
-from .bare_views import (
-    displayHost, doHostCount, doHostList, doHostcmp, doKeylist
-    )
+from django.urls import path, re_path
+from .bare_views import displayHost, doHostCount, doHostList, doHostcmp, doKeylist
 
 urlpatterns = [
-    url(r'^hostlist/(?P<criturl>.*)/?$', doHostList),
-    url(r'^count/(?P<criturl>.*)/?$', doHostCount),
-    url(r'^host/(?P<hostname>\S+)/?$', displayHost),
-    url(r'^keylist/(?P<key>\S+?)/(?P<criturl>.*)?/?$', doKeylist),
-    url(r'^hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$', doHostcmp),
-    url(r'^hostcmp/?$', doHostcmp),
-    ]
+    path("hostlist/<criturl>/", doHostList),
+    path("count/<str:criturl>/", doHostCount),
+    path("host/<str:hostname>/", displayHost),
+    re_path(r"keylist/(?P<key>\S+?)/(?P<criturl>.*)?/$", doKeylist),
+    re_path(r"keylist/(?P<key>\S+?)/$", doKeylist),
+    re_path(r"hostcmp/(?P<criturl>.*)/(?P<options>opts=.*)?/?$", doHostcmp),
+    path("hostcmp/", doHostcmp),
+]
 
 # EOF

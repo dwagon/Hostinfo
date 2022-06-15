@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2014 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -27,20 +27,23 @@ from host.models import HostinfoCommand, Host
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Add alias to a host'
+    description = "Add alias to a host"
     _keycache = {}
 
     ###########################################################################
     def parseArgs(self, parser):
         parser.add_argument(
-            '-o', '--origin',
-            help='Show the origin of the change', action='store_true',
-            dest='originFlag')
-#        parser.add_argument(
-#            '-a', '--actor',
-#            help='Show the actor of the change', action='store_true',
-#            dest='actorFlag')
-        parser.add_argument('host', help='Host to show the history of')
+            "-o",
+            "--origin",
+            help="Show the origin of the change",
+            action="store_true",
+            dest="originFlag",
+        )
+        #        parser.add_argument(
+        #            '-a', '--actor',
+        #            help='Show the actor of the change', action='store_true',
+        #            dest='actorFlag')
+        parser.add_argument("host", help="Host to show the history of")
 
     ###########################################################################
     def handle(self, namespace):
@@ -48,26 +51,41 @@ class Command(HostinfoCommand):
         host = getHost(namespace.host)
         if not host:
             return outstr, 1
-        hostchanges = Host.history.filter(id=host.id).order_by('history_date')
+        hostchanges = Host.history.filter(id=host.id).order_by("history_date")
         for hc in hostchanges:
-            if hc.history_type == '+':
+            if hc.history_type == "+":
                 msg = "Host:%s added on %s" % (host.hostname, hc.history_date)
-# simple_history currently can't handle deleted hosts
-#            elif hc.history_type == '-':
-#                msg = "Host:%s deleted on %s" % (host.hostname, hc.history_date)
+            # simple_history currently can't handle deleted hosts
+            #            elif hc.history_type == '-':
+            #                msg = "Host:%s deleted on %s" % (host.hostname, hc.history_date)
             if namespace.originFlag:
                 msg = "%s %s" % (msg, hc.origin)
             outstr += "%s\n" % msg
 
-        kvchanges = KeyValue.history.filter(hostid_id=host.id).order_by('history_date')
+        kvchanges = KeyValue.history.filter(hostid_id=host.id).order_by("history_date")
         for kv in kvchanges:
             key = self.getKeyName(kv.keyid_id)
-            if kv.history_type == '+':
-                msg = "added %s:%s=%s on %s" % (host.hostname, key, kv.value, kv.history_date)
-            elif kv.history_type == '-':
-                msg = "deleted %s:%s=%s on %s" % (host.hostname, key, kv.value, kv.history_date)
-            elif kv.history_type == '~':
-                msg = "changed %s:%s=%s on %s" % (host.hostname, key, kv.value, kv.history_date)
+            if kv.history_type == "+":
+                msg = "added %s:%s=%s on %s" % (
+                    host.hostname,
+                    key,
+                    kv.value,
+                    kv.history_date,
+                )
+            elif kv.history_type == "-":
+                msg = "deleted %s:%s=%s on %s" % (
+                    host.hostname,
+                    key,
+                    kv.value,
+                    kv.history_date,
+                )
+            elif kv.history_type == "~":
+                msg = "changed %s:%s=%s on %s" % (
+                    host.hostname,
+                    key,
+                    kv.value,
+                    kv.history_date,
+                )
             if namespace.originFlag:
                 msg = "%s %s" % (msg, kv.origin)
             outstr += "%s\n" % msg
@@ -83,5 +101,6 @@ class Command(HostinfoCommand):
             key = "<deleted>"
         self._keycache[keyid] = key
         return key
+
 
 # EOF

@@ -10,8 +10,8 @@ export NAME="hostinfo"
 export USER="${NAME}"
 export GROUP="${NAME}"
 
-export PIDFILE="/var/run/$NAME/$NAME.pid"
-export LOGFILE="/var/log/$NAME/$NAME.log"
+export PIDFILE="/var/run/$NAME.pid"
+export LOGFILE="/var/log/$NAME.log"
 export LOGLEVEL="info"
 export DEBUG=True
 export PORT=8000

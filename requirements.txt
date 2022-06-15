@@ -1,3 +1,4 @@
 Django
-psycopg2
+mysqlclient
 django-simple-history
+gunicorn

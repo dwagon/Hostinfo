@@ -4,7 +4,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2008 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,12 +22,12 @@
 import os
 import sys
 
-f = os.popen('/app/hostinfo/bin/hostinfo')
+f = os.popen("/app/hostinfo/bin/hostinfo")
 for line in f:
     host = line.strip()
-    print "%s http://opscmdb/hostinfo/host/%s/ HostDetails" % (host, host)
+    print("%s http://opscmdb/hostinfo/host/%s/ HostDetails" % (host, host))
 f.close()
 
 sys.exit(0)
 
-#EOF
+# EOF

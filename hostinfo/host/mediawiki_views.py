@@ -1,8 +1,8 @@
-# hostinfo views for mediawiki interface
+""" hostinfo views for mediawiki interface"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2015 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -29,29 +29,30 @@ from .views import orderHostList, hostData, getLinks
 
 ################################################################################
 def getWikiLinks(hostid=None, hostname=None):
+    """ Links """
     wikilinks = []
     for url, tag in getLinks(hostid, hostname):
-        wikilinks.append('[%s %s]' % (url, tag))
+        wikilinks.append(f"[{url} {tag}]")
     return wikilinks
 
 
 ################################################################################
 def displaySummary(request, hostname):
-    """ Display a single host """
+    """Display a single host"""
     d = hostData(request.user, [hostname], linker=getWikiLinks)
-    return render(request, 'mediawiki/hostpage.wiki', d)
+    return render(request, "mediawiki/hostpage.wiki", d)
 
 
 ################################################################################
 def displayHost(request, hostname):
-    """ Display a single host """
+    """Display a single host"""
     d = hostData(request.user, [hostname], linker=getWikiLinks)
-    return render(request, 'mediawiki/host.wiki', d)
+    return render(request, "mediawiki/host.wiki", d)
 
 
 ################################################################################
 def hosttable(request, criturl, options=None):
-    """ Generate a table in wiki format - we can't (well, I can't)
+    """Generate a table in wiki format - we can't (well, I can't)
     template this as the contents of the formatting are specified
     in the url
 
@@ -61,12 +62,12 @@ def hosttable(request, criturl, options=None):
     printers = []
     order = None
     if options:
-        optlist = options[1:].split('/')
+        optlist = options[1:].split("/")
         for opt in optlist:
-            if opt.startswith('print='):
-                printers = opt.replace('print=', '').split(',')
-            if opt.startswith('order='):
-                order = opt.replace('order=', '')
+            if opt.startswith("print="):
+                printers = opt.replace("print=", "").split(",")
+            if opt.startswith("order="):
+                order = opt.replace("order=", "")
 
     output = "{| border=1\n"
     output += "|-\n"
@@ -75,13 +76,13 @@ def hosttable(request, criturl, options=None):
     if order:
         hl = orderHostList(hl, order)
     else:
-        hl.sort()     # Sort by hostname
+        hl.sort()  # Sort by hostname
     output += "!Hostname\n"
     for p in printers:
-        output += "!%s\n" % p.title()
+        output += f"!{p.title()}\n"
     for host in hl:
         output += "|-\n"
-    output += "| [[Host:%s|%s]]\n" % (host.hostname, host.hostname)
+        output += f"| [[Host:{host.hostname}|{host.hostname}]]\n"
     for p in printers:
         kv = KeyValue.objects.filter(keyid__key=p, hostid=host.id)
         if len(kv) == 0:
@@ -90,30 +91,27 @@ def hosttable(request, criturl, options=None):
             val = kv[0].value
         else:
             val = ",".join([key.value for key in kv])
-        output += "| %s\n" % val
+        output += f"| {val}\n"
     output += "|}\n"
     return HttpResponse(output)
 
 
 ################################################################################
 def hostlist(request, criturl):
-    """ Display a list of matching hosts with their details"""
+    """Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)
     try:
-        return render(request, 'mediawiki/hostlist.wiki', hostData(request, criteria))
+        return render(request, "mediawiki/hostlist.wiki", hostData(request, criteria))
     except HostinfoException as err:
-        return render(request, 'mediawiki/hostlist.wiki', {'error': err})
+        return render(request, "mediawiki/hostlist.wiki", {"error": err})
 
 
 ################################################################################
 def doRestrValList(request, key):
-    """ Return the list of restricted values for the key"""
+    """Return the list of restricted values for the key"""
     rvlist = RestrictedValue.objects.filter(keyid__key=key)
-    d = {
-        'key': key,
-        'rvlist': rvlist
-    }
-    return render(request, 'mediawiki/restrval.wiki', d)
+    d = {"key": key, "rvlist": rvlist}
+    return render(request, "mediawiki/restrval.wiki", d)
 
 
 # EOF

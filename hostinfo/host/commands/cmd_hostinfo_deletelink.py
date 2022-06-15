@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2017 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@ from host.models import HostinfoCommand, HostinfoException, Links
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Delete a link to a host'
+    description = "Delete a link to a host"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument('--everytag', help='Delete all links', action='store_true')
-        parser.add_argument('--tag', help='The link tag', nargs=1)
-        parser.add_argument('host', help='The host to delete the link from')
+        parser.add_argument("--everytag", help="Delete all links", action="store_true")
+        parser.add_argument("--tag", help="The link tag", nargs=1)
+        parser.add_argument("host", help="The host to delete the link from")
 
     ###########################################################################
     def handle(self, namespace):
@@ -44,5 +44,6 @@ class Command(HostinfoCommand):
         for link in links:
             link.delete()
         return None, 0
+
 
 # EOF

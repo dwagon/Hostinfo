@@ -1,7 +1,7 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
-#    Copyright (C) 2016 Dougal Scott
+#    Copyright (C) 2022 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -22,16 +22,19 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = 'Report on available keys'
+    description = "Report on available keys"
 
     ###########################################################################
     def parseArgs(self, parser):
         parser.add_argument(
-            '--type',
-            help='Display just the types', dest='typeflag', action='store_true')
+            "--type",
+            help="Display just the types",
+            dest="typeflag",
+            action="store_true",
+        )
         parser.add_argument(
-            'keylist',
-            help="List of keys to display. Defaults to all", nargs='*')
+            "keylist", help="List of keys to display. Defaults to all", nargs="*"
+        )
 
     ###########################################################################
     def handle(self, namespace):
@@ -56,7 +59,11 @@ class Command(HostinfoCommand):
                     notes += "[NUMERIC]"
                 if key.readonlyFlag:
                     notes += "[KEY READ ONLY]"
-                outstr.append("%s\t%s\t%s%s" % (key.key, key.get_validtype_display(), key.desc, notes))
+                outstr.append(
+                    "%s\t%s\t%s%s"
+                    % (key.key, key.get_validtype_display(), key.desc, notes)
+                )
         return "\n".join(outstr), 0
+
 
 # EOF
