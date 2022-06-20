@@ -1,5 +1,5 @@
 Nginx Installation
-=================
+==================
 
 For Ubuntu::
 
