@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+3.0.1
+=====
+* Use new django auth view
+* Contrib updates
+
 3.0.0
 =====
 * Upgraded to use python3 and Django 4
