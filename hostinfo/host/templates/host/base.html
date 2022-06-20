@@ -41,7 +41,7 @@
 
 	<br>
     {% if user.is_authenticated %}
-	    <a href="{% url 'logoff' %}" role="button" class="btn btn-xs btn-primary">Logout {{user.username}}</a>
+	    <a href="{% url 'logout' %}" role="button" class="btn btn-xs btn-primary">Logout {{user.username}}</a>
 	{% else %}
 	    <a href="{% url 'login' %}" role="button" class="btn btn-xs btn-primary">Login</a>
 	{% endif %}
