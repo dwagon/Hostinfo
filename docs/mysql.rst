@@ -22,10 +22,6 @@ For MacOS::
 
     brew install mariadb
 
-Python Requirements::
-
-    pip install mysqlclient
-
 To setup the database use the mysql client (mysql -u root -p)::
 
     CREATE USER '<USER>'@'localhost' IDENTIFIED BY '<PASSWORD>';

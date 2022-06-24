@@ -22,6 +22,8 @@ Starting Out
 * :doc:`install_client` How to install hostinfo as a client
 * :doc:`postgresql` How to install using postgresql as a database
 * :doc:`mysql` How to install using mysql as a database
+* :doc:`apache` How to install using apache as a webserver
+* :doc:`nginx` How to install using nginx as a webserver
 * :doc:`gettingStarted` What to do after installation
 
 Concepts

@@ -1,11 +1,11 @@
 Apache Installation
-=================
+===================
 
 For Ubuntu::
 
     apt-get install apache2
 
-For CentOS (You will need the epel repo)::
+For CentOS::
 
     yum install httpd
 

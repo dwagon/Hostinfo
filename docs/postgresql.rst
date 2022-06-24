@@ -14,10 +14,6 @@ For CentOS::
     yum install postgresql-server
     yum install postgresql-devel
 
-Python Requirements::
-
-    psycopg2
-
 To setup the database (do this as the postgres user)::
 
     createuser <USER> -P
