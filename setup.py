@@ -32,7 +32,7 @@ setup_classifiers = [
 
 setup(
     name='hostinfo',
-    version=open('version').read(),
+    version=open('version').read().strip(),
     description='ITIL CMDB for systems administrators',
     author='Dougal Scott',
     author_email='dougal.scott@gmail.com',
