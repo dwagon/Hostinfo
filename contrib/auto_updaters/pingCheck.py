@@ -48,8 +48,8 @@ def parse_args():
 ###########################################################################
 def pingCheck(hostname: str) -> bool:
     """Ping the hostname to see if it is up"""
-    retcode = subprocess.call("/bin/ping", "-c", "1", hostname)
-    if retcode < 0:
+    compl = subprocess.run(["/bin/ping", "-c", "1", hostname])
+    if compl.returncode < 0:
         return False
     return True
 
@@ -57,20 +57,21 @@ def pingCheck(hostname: str) -> bool:
 ###########################################################################
 def updateHost(hostname: str) -> None:
     """Update hostinfo with the new ping date"""
-    subprocess.call(
-        "hostinfo_addvalue",
-        "--origin",
-        "pingCheck",
-        "--update",
-        "lastping=today",
-        hostname,
+    subprocess.run(
+        [
+            "hostinfo_addvalue",
+            "--origin",
+            "pingCheck",
+            "--update",
+            "lastping=today",
+            hostname,
+        ]
     )
 
 
 ###############################################################################
 def pinger(hostname):
     """Check and update host if required"""
-    print(hostname)
     if pingCheck(hostname):
         updateHost(hostname)
 
@@ -80,7 +81,6 @@ def main():
     """mainline"""
     args = parse_args()
     host_list = get_host_list(args.hostargs)
-    print(host_list)
     with Pool(args.numthreads) as pool:
         pool.map(pinger, host_list)
 
