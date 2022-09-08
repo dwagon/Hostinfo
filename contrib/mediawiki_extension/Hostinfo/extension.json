@@ -1,0 +1,17 @@
+{
+	"name": "hostinfo",
+	"author": [
+		"Dougal Scott"
+	],
+	"url": "https://github.com/dwagon/Hostinfo",
+	"descriptionmsg": "Hostinfo",
+	"license-name": "GPL-2.0-or-later",
+    "type": "parserhook",
+    "AutoloadClasses": {
+		"Hostinfo": "hostinfo.php"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": "Hostinfo::hostinfo"
+	},
+	"manifest_version": 1
+}
