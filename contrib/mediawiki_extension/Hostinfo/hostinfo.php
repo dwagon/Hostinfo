@@ -15,7 +15,7 @@
 class Hostinfo
 {
     /*********************************************************************************/
-    public static function hostinfo( &$parser )
+    public static function hostinfo_init( &$parser )
     {
         $parser->setHook('hostinfo', 'Hostinfo::renderHostinfo');
 

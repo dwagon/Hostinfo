@@ -11,7 +11,7 @@
 		"Hostinfo": "hostinfo.php"
 	},
 	"Hooks": {
-		"ParserFirstCallInit": "Hostinfo::hostinfo"
+		"ParserFirstCallInit": "Hostinfo::hostinfo_init"
 	},
 	"manifest_version": 1
 }
