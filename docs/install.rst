@@ -12,8 +12,8 @@ Firstly you need to satisfy a number of :doc:`prerequisites` the most obvious be
 
 For Ubuntu::
 
-    apt-get install python-virtualenv
-    apt-get install python-dev
+    apt-get install python3-venv
+    apt-get install python3-dev
     apt-get install libyaml-dev
     ... and appropriate database packages
     ... and appropriate web server packages
