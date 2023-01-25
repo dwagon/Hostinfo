@@ -849,7 +849,7 @@ def run_from_cmdline():
     c.over_parseArgs()
     try:
         output, retval = c.over_handle()
-        if output is not None:
+        if output:
             print(output.strip())
     except HostinfoException as exc:
         sys.stderr.write("%s\n" % exc.msg)
