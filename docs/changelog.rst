@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+3.0.2
+=====
+* If there is nothing to output then it should output nothing, rather than a blank line - Fixed
+
 3.0.1
 =====
 * Use new django auth view
