@@ -8,7 +8,7 @@
  *      http://www.noah.org/wiki/MediaWiki_Include
  *
  * @package extensions
- * @copyright Copyright 2022 @author Dougal Scott
+ * @copyright Copyright 2025 @author Dougal Scott
  *
  */
 

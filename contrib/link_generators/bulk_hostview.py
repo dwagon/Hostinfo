@@ -6,7 +6,7 @@
 # $Id: bulk_hostview.py 79 2011-02-15 10:51:03Z dougal.scott@gmail.com $
 # $HeadURL: https://hostinfo.googlecode.com/svn/trunk/contrib/link_generators/bulk_hostview.py $
 #
-#    Copyright (C) 2022 Dougal Scott
+#    Copyright (C) 2025 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

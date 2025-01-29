@@ -6,7 +6,7 @@
 # $Id: xls2hostinfo.py 124 2012-12-05 21:17:22Z dougal.scott@gmail.com $
 # $HeadURL: https://hostinfo.googlecode.com/svn/trunk/contrib/dataload/xls2hostinfo.py $
 #
-#    Copyright (C) 2022 Dougal Scott
+#    Copyright (C) 2025 Dougal Scott
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
