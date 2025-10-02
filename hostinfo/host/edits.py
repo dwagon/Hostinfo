@@ -163,7 +163,7 @@ def doHostRenameChoose(request):
             srchost = form.cleaned_data["srchost"]
             dsthost = form.cleaned_data["dsthost"]
             return HttpResponseRedirect(
-                "/hostinfo/hostrename/%s/%s" % (srchost, dsthost)
+                f"/hostinfo/hostrename/{srchost}/{dsthost}"
             )
     else:
         d["form"] = hostRenameForm()

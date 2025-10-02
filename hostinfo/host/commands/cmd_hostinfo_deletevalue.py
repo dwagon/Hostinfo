@@ -50,7 +50,7 @@ class Command(HostinfoCommand):
         for host in namespace.host:
             hostid = getHost(host)
             if not hostid:
-                raise HostinfoException("Unknown host: %s" % host)
+                raise HostinfoException(f"Unknown host: {host}")
             if value:
                 kvlist = KeyValue.objects.filter(
                     hostid=hostid, keyid=keyid, value=value
@@ -58,7 +58,7 @@ class Command(HostinfoCommand):
             else:
                 kvlist = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
             if not kvlist:
-                raise HostinfoException("Host %s doesn't have key %s" % (host, key))
+                raise HostinfoException(f"Host {host} doesn't have key {key}")
             else:
                 for kv in kvlist:
                     try:

@@ -28,14 +28,15 @@ def getReports():
             desc = repmodule.reportdesc
         else:
             desc = "unknown description"
-        link = "report/%s" % os.path.split(rf)[1].replace(".py", "")
+        new_path = os.path.split(rf)[1].replace(".py", "")
+        link = f"report/{new_path}"
         ans.append((link, name, desc))
     return ans
 
 
 ################################################################################
 def doReport(request, report, args=""):
-    reportmodule = os.path.join(reportdir, "%s.py" % report)
+    reportmodule = os.path.join(reportdir, f"{report}.py")
     if os.path.exists(reportmodule):
         repmodule = module_from_path(reportmodule)
         try:

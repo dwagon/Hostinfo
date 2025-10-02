@@ -35,11 +35,10 @@ class Command(HostinfoCommand):
         for host in namespace.host:
             host = host.lower()
             if self.checkHost(host):
-                raise HostinfoException("Host %s already exists" % host)
+                raise HostinfoException(f"Host {host} already exists")
             if host[0] in ("-",):
                 raise HostinfoException(
-                    "Host begins with a forbidden character ('%s') - not adding"
-                    % host[0]
+                    f"Host begins with a forbidden character ('{host[0]}') - not adding"
                 )
             hobj = Host(hostname=host, origin=origin)
             hobj.save()

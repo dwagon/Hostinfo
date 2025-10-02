@@ -37,9 +37,9 @@ class Command(HostinfoCommand):
         alias = namespace.alias.lower()
         targhost = getHost(host)
         if not targhost:
-            raise HostinfoException("Host %s doesn't exist" % host)
+            raise HostinfoException(f"Host {host} doesn't exist")
         if getHost(alias):
-            raise HostinfoException("Host %s already exists" % alias)
+            raise HostinfoException(f"Host {alias} already exists")
         haobj = HostAlias(hostid=targhost, alias=alias, origin=origin)
         haobj.save()
         return None, 0

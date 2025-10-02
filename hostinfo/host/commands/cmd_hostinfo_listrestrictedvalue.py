@@ -35,14 +35,14 @@ class Command(HostinfoCommand):
         key = namespace.key.lower()
         keyobjlist = AllowedKey.objects.filter(key=key)
         if len(keyobjlist) != 1:
-            raise HostinfoException("No key %s found" % key)
+            raise HostinfoException(f"No key {key} found")
 
         vals = []
         rvallist = RestrictedValue.objects.filter(keyid=keyobjlist[0])
         for rv in rvallist:
             vals.append(rv.value)
         for rv in sorted(vals):
-            outstr += "%s\n" % rv
+            outstr += f"{rv}\n"
         return outstr, 0
 
 

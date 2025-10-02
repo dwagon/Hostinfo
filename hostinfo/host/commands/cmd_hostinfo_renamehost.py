@@ -37,12 +37,10 @@ class Command(HostinfoCommand):
     def handle(self, namespace):
         hostobj = getHost(namespace.srchost[0])
         if not hostobj:
-            raise HostinfoException("There is no host called %s" % namespace.srchost[0])
+            raise HostinfoException(f"There is no host called {namespace.srchost[0]}")
         dsthostobj = getHost(namespace.dsthost[0])
         if dsthostobj:
-            raise HostinfoException(
-                "A host already exists with the name %s" % namespace.dsthost[0]
-            )
+            raise HostinfoException(f"A host already exists with the name {namespace.dsthost[0]}")
         hostobj.hostname = namespace.dsthost[0]
         hostobj.save()
         return None, 0

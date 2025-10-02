@@ -25,16 +25,13 @@ import sys
 f = os.popen("/app/hostinfo/bin/hostinfo measured=orcallator")
 for line in f:
     host = line.strip()
-    print("%s http://orcallator/orcallator/o_%s-all.html Orcallator" % (host, host))
+    print(f"{host} http://orcallator/orcallator/o_{host}-all.html Orcallator")
 f.close()
 
 f = os.popen("/app/hostinfo/bin/hostinfo measured=procallator")
 for line in f:
     host = line.strip()
-    print(
-        "%s http://procallator/procallator/procallator_%s-all.html Procallator"
-        % (host, host)
-    )
+    print(f"{host} http://procallator/procallator/procallator_{host}-all.html Procallator")
 f.close()
 
 sys.exit(0)

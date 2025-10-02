@@ -60,7 +60,7 @@ class Command(HostinfoCommand):
                 user = "unknown"
         ulog = UndoLog.objects.filter(user=user, actiondate__gte=then)
         for undoact in ulog:
-            outstr += "%-55s # %s\n" % (undoact.action, undoact.actiondate)
+            outstr += f"{undoact.actiondate:<55} # {undoact.actiondate}\n"
         return outstr, 0
 
 

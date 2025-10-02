@@ -25,7 +25,7 @@ import sys
 f = os.popen("/app/hostinfo/bin/hostinfo")
 for line in f:
     host = line.strip()
-    print("%s http://opscmdb/hostinfo/host/%s/ HostDetails" % (host, host))
+    print(f"{host} http://opscmdb/hostinfo/host/{host}/ HostDetails")
 f.close()
 
 sys.exit(0)

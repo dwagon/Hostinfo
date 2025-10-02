@@ -40,9 +40,7 @@ class Command(HostinfoCommand):
         value = m.group("value").lower()
         rvallist = RestrictedValue.objects.filter(keyid__key=key, value=value)
         if len(rvallist) != 1:
-            raise HostinfoException(
-                "No key %s=%s in the restrictedvalue list" % (key, value)
-            )
+            raise HostinfoException(f"No key {key}={value} in the restrictedvalue list")
         rvallist[0].delete()
         return None, 0
 

@@ -69,20 +69,16 @@ class Command(HostinfoCommand):
                 )
             except RestrictedValueException:
                 raise RestrictedValueException(
-                    "Cannot add %s=%s to a restricted key" % (key, value),
+                    f"Cannot add {key}={value} to a restricted key",
                     key=key,
                     retval=2,
                 )
             except ReadonlyValueException:
-                raise ReadonlyValueException(
-                    "Cannot add %s=%s to a readonly key" % (key, value), retval=3
-                )
+                raise ReadonlyValueException(f"Cannot add {key}={value} to a readonly key", retval=3)
             except HostinfoException as err:
                 raise
             except TypeError as err:  # pragma: nocover
-                raise HostinfoException(
-                    "Couldn't add value %s to %s - %s" % (value, host, err)
-                )
+                raise HostinfoException(f"Couldn't add value {value} to {host} - {err}")
         return None, 0
 
 

@@ -36,7 +36,7 @@ class Command(HostinfoCommand):
         host = namespace.host.lower()
         h = getHost(host)
         if not h:
-            raise HostinfoException("Host %s doesn't exist" % host)
+            raise HostinfoException(f"Host {host} doesn't exist")
 
         if not namespace.lethal:
             raise HostinfoException("Didn't do delete as no --lethal specified")

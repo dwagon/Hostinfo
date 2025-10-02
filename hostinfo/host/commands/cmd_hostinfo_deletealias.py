@@ -33,7 +33,7 @@ class Command(HostinfoCommand):
         alias = namespace.alias.lower()
         aliases = HostAlias.objects.filter(alias=alias)
         if len(aliases) == 0:
-            raise HostinfoException("No alias called %s" % alias)
+            raise HostinfoException(f"No alias called {alias}")
         aliases[0].delete()
         return None, 0
 

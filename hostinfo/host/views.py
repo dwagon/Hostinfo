@@ -74,19 +74,17 @@ def handlePost(request):
     if "hostname" in request.POST:
         return HttpResponseRedirect(f"/hostinfo/host/{request.POST['hostname']}")
     elif "hostre" in request.POST:
-        return HttpResponseRedirect(
-            "/hostinfo/hostlist/%s.hostre" % request.POST["hostre"].strip()
-        )
+        hostre_str = request.POST["hostre"].strip()
+        return HttpResponseRedirect(f"/hostinfo/hostlist/{hostre_str}.hostre")
     elif "key0" in request.POST:
         expr = ""
         for key in request.POST:
             if key.startswith("key"):
                 num = key.replace("key", "")
-                expr += "%s.%s.%s/" % (
-                    request.POST[f"key{num}"].strip(),
-                    request.POST[f"op{num}"].strip(),
-                    request.POST[f"value{num}"].strip().replace("/", ".slash."),
-                )
+                key_str = request.POST[f"key{num}"].strip()
+                op_str = request.POST[f"op{num}"].strip()
+                val_str = request.POST[f"value{num}"].strip().replace("/", ".slash.")
+                expr += f"{key_str}.{op_str}.{val_str}/"
         expr = expr[:-1]
         return HttpResponseRedirect(f"/hostinfo/hostlist/{expr}")
 
@@ -170,10 +168,10 @@ def hostData(user, criteria=None, options="", printers=None, order=None, linker=
         if linker:
             tmp["links"] = linker(hostid=host.id)
         data.append(tmp)
-
+    elapsed = time.time() - starttime
     d = {
         "hostlist": data,
-        "elapsed": "%0.4f" % (time.time() - starttime),
+        "elapsed": f"{elapsed:0.4f}",
         "csvavailable": f"/hostinfo/csv/{criteriaToWeb(criteria)}",
         "title": " AND ".join(criteria),
         "criteria": criteriaToWeb(criteria),
@@ -232,7 +230,7 @@ def doHostcmp(request, criturl="", options=""):
             options += "dates,"
         if "origin" in request.POST.getlist("options"):
             options += "origin,"
-        return HttpResponseRedirect("/hostinfo/hostcmp/%s/%s" % (criturl, options[:-1]))
+        return HttpResponseRedirect(f"/hostinfo/hostcmp/{criturl}/{options[:-1]}")
     try:
         return render(
             request,

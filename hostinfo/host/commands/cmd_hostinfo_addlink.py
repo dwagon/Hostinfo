@@ -49,7 +49,7 @@ class Command(HostinfoCommand):
         targhost = getHost(host)
         # Add url validation
         if not targhost:
-            raise HostinfoException("Host %s doesn't exist" % host)
+            raise HostinfoException(f"Host {host} doesn't exist")
         link = Links.objects.filter(hostid=targhost, tag=tag)
         if link:
             if namespace.update:
@@ -57,7 +57,7 @@ class Command(HostinfoCommand):
                 link[0].save()
                 return None, 0
             else:
-                return "Host %s already has a link with tag %s" % (host, tag), 1
+                return f"Host {host} already has a link with tag {tag}", 1
         link = Links(hostid=targhost, tag=tag, url=url)
         link.save()
         return None, 0

@@ -134,14 +134,14 @@ class Host(models.Model):
         global _all_hosts
         if not user:
             user = getUser()
-        undo = UndoLog(user=user, action="hostinfo_addhost %s" % self.hostname)
+        undo = UndoLog(user=user, action=f"hostinfo_addhost {self.hostname}")
         undo.save()
         super(Host, self).delete()
         _all_hosts = None
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s" % self.hostname
+        return str(self.hostname)
 
     ############################################################################
     class Meta:
@@ -163,7 +163,7 @@ class HostAlias(models.Model):
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s -> %s" % (self.alias, self.hostid.hostname)
+        return f"{self.alias} -> {self.hostid.hostname}"
 
     ############################################################################
     class Meta:
@@ -190,7 +190,7 @@ class AllowedKey(models.Model):
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s" % self.key
+        return str(self.key)
 
     ############################################################################
     class Meta:
@@ -225,31 +225,21 @@ class KeyValue(models.Model):
         if self.keyid.restrictedFlag:
             rk = RestrictedValue.objects.filter(keyid=self.keyid, value=self.value)
             if not rk:
-                raise RestrictedValueException(
-                    key=self.keyid, msg="%s is a restricted key" % self.keyid
-                )
+                raise RestrictedValueException(key=self.keyid, msg=f"{self.keyid} is a restricted key")
 
         if self.keyid.readonlyFlag and not readonlychange:
-            raise ReadonlyValueException(
-                key=self.keyid, msg="%s is a readonly key" % self.keyid
-            )
+            raise ReadonlyValueException(key=self.keyid, msg=f"{self.keyid} is a readonly key")
         if self.keyid.get_validtype_display() == "date":
             self.value = validateDate(self.value)
 
         if self.id:  # Check for update
             oldobj = KeyValue.objects.get(id=self.id)
             undo = UndoLog(
-                user=user,
-                action="hostinfo_replacevalue %s=%s %s %s"
-                % (self.keyid, self.value, oldobj.value, self.hostid),
+                user=user, action=f"hostinfo_replacevalue {self.keyid}={self.value} {oldobj.value} {self.hostid}"
             )
             undo.save()
         else:  # New object
-            undo = UndoLog(
-                user=user,
-                action="hostinfo_deletevalue %s=%s %s"
-                % (self.keyid, self.value, self.hostid),
-            )
+            undo = UndoLog(user=user, action=f"hostinfo_deletevalue {self.keyid}={self.value} {self.hostid}")
             undo.save()
 
         # Actually do the saves
@@ -262,24 +252,18 @@ class KeyValue(models.Model):
         if not user:
             user = getUser()
         if self.keyid.readonlyFlag and not readonlychange:
-            raise ReadonlyValueException(
-                key=self.keyid, msg="%s is a read only key" % self.keyid
-            )
+            raise ReadonlyValueException(key=self.keyid, msg=f"{self.keyid} is a read only key")
         if self.keyid.get_validtype_display() == "list":
             undoflag = "--append"
         else:
             undoflag = ""
-        undo = UndoLog(
-            user=user,
-            action="hostinfo_addvalue %s %s=%s %s"
-            % (undoflag, self.keyid, self.value, self.hostid),
-        )
+        undo = UndoLog(user=user, action=f"hostinfo_addvalue {undoflag} {self.keyid}={self.value} {self.hostid}")
         undo.save()
         super(KeyValue, self).delete()
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s=%s" % (self.keyid.key, self.value)
+        return f"{self.keyid.key}={self.value}"
 
     ############################################################################
     class Meta:
@@ -324,7 +308,7 @@ class RestrictedValue(models.Model):
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s %s" % (self.keyid.key, self.value)
+        return f"{self.keyid.key} {self.value}"
 
     ############################################################################
     class Meta:
@@ -360,7 +344,7 @@ def validateDate(datestr):
         year = time.localtime()[0]
         month = time.localtime()[1]
         day = time.localtime()[2]
-        return "%04d-%02d-%02d" % (year, month, day)
+        return f"{year:04d}-{month:02d}-{day:02d}"
 
     formats = [
         "%Y-%m-%d",
@@ -380,12 +364,9 @@ def validateDate(datestr):
         break
 
     if year < 0:
-        raise TypeError(
-            "%s couldn't be converted to a known date format (e.g. YYYY-MM-DD)"
-            % datestr
-        )
+        raise TypeError(f"{datestr} couldn't be converted to a known date format (e.g. YYYY-MM-DD)")
 
-    return "%04d-%02d-%02d" % (year, month, day)
+    return f"{year:04d}-{month:02d}-{day:02d}"
 
 
 ################################################################################
@@ -427,9 +408,9 @@ def parseQualifiers(args):
             continue
         for op, reg, opts in optable:
             if opts["threeparts"]:
-                mo = re.match("(?P<key>.+)(%s)(?P<val>.+)" % reg, arg)
+                mo = re.match(f"(?P<key>.+)({reg})(?P<val>.+)", arg)
             else:
-                mo = re.match("(?P<key>.+)(%s)(?P<val>)" % reg, arg)
+                mo = re.match(f"(?P<key>.+)({reg})(?P<val>)", arg)
             if mo:
                 key = mo.group("key").lower()
                 if opts.get("validkey", True):
@@ -449,7 +430,7 @@ def parseQualifiers(args):
                 matched = True
 
         if not matched:
-            raise HostinfoException("Unknown qualifier %s" % arg)
+            raise HostinfoException(f"Unknown qualifier {arg}")
 
     return qualifiers
 
@@ -668,7 +649,7 @@ def getMatches(qualifiers):
             try:
                 lngth = int(v)
             except ValueError:
-                raise HostinfoException("Length must be an integer, not %s" % str(v))
+                raise HostinfoException(f"Length must be an integer, not {str(v)}")
             for h in get_all_hosts():
                 if h.id not in hostids:
                     continue
@@ -766,7 +747,7 @@ def getAK(key):
         try:
             _akcache[key] = AllowedKey.objects.get(key=key)
         except ObjectDoesNotExist:
-            raise HostinfoException("Must use an existing key, not %s" % key)
+            raise HostinfoException(f"Must use an existing key, not {key}")
     return _akcache[key]
 
 
@@ -789,7 +770,7 @@ def addKeytoHost(
         hostid = getHost(host)
     origin = getOrigin(origin)
     if not hostid:
-        raise HostinfoException("Unknown host: %s" % host)
+        raise HostinfoException(f"Unknown host: {host}")
     keytype = keyid.get_validtype_display()
     if keytype != "list" and appendFlag:
         raise HostinfoException("Can only append to list type keys")
@@ -807,9 +788,7 @@ def addKeytoHost(
                 retval = 0
         else:
             if kv[0].value != value:
-                raise HostinfoException(
-                    "%s:%s already has a value %s" % (host, key, kv[0].value)
-                )
+                raise HostinfoException(f"{host}:{key} already has a value {kv[0].value}")
             else:
                 retval = 1
     else:
@@ -824,9 +803,7 @@ class HostinfoCommand(object):
     epilog = None
 
     def over_parseArgs(self):
-        parser = argparse.ArgumentParser(
-            description=self.description, epilog=self.epilog
-        )
+        parser = argparse.ArgumentParser(description=self.description, epilog=self.epilog)
         self.parseArgs(parser)
         self.namespace = parser.parse_args(sys.argv[1:])
 
@@ -839,11 +816,11 @@ def run_from_cmdline():
     import importlib
 
     start_time = time.time()
-    cmdname = "host.commands.cmd_%s" % os.path.basename(sys.argv[0])
+    cmdname = f"host.commands.cmd_{os.path.basename(sys.argv[0])}"
     try:
         cmd = importlib.import_module(cmdname)
     except ImportError:
-        sys.stderr.write("No such hostinfo command %s\n" % sys.argv[0])
+        sys.stderr.write(f"No such hostinfo command {sys.argv[0]}\n")
         return 255
     c = cmd.Command()
     c.over_parseArgs()
@@ -852,14 +829,12 @@ def run_from_cmdline():
         if output:
             print(output.strip())
     except HostinfoException as exc:
-        sys.stderr.write("%s\n" % exc.msg)
+        sys.stderr.write(str(exc.msg))
         return exc.retval
     if settings.DEBUG:  # pragma: no cover
         end_time = time.time()
-        db_query_time = sum([float(x["time"]) for x in connection.queries])
-        sys.stderr.write(
-            f"DB Queries: {len(connection.queries)} queries in {db_query_time} secs.\n"
-        )
+        db_query_time = sum(float(x["time"]) for x in connection.queries)
+        sys.stderr.write(f"DB Queries: {len(connection.queries)} queries in {db_query_time} secs.\n")
         sys.stderr.write(f"Total time {end_time-start_time} secs\n")
     return retval
 

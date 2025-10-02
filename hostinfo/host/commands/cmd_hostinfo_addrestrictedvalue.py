@@ -40,15 +40,13 @@ class Command(HostinfoCommand):
         value = m.group("value").lower()
         keyobjlist = AllowedKey.objects.filter(key=key)
         if len(keyobjlist) != 1:
-            raise HostinfoException("No key %s found" % key)
+            raise HostinfoException(f"No key {key} found")
         keyobj = keyobjlist[0]
         if not keyobj.restrictedFlag:
-            raise HostinfoException("Key %s isn't a restrictedvalue key" % key)
+            raise HostinfoException(f"Key {key} isn't a restrictedvalue key")
         rvallist = RestrictedValue.objects.filter(keyid=keyobj, value=value)
         if rvallist:
-            raise HostinfoException(
-                "Already a key %s=%s in the restrictedvalue list" % (key, value)
-            )
+            raise HostinfoException(f"Already a key {key}={value} in the restrictedvalue list")
         rv = RestrictedValue(keyid=keyobj, value=value)
         rv.save()
         return None, 0

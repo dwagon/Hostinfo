@@ -24,7 +24,7 @@ def getHostinfo(*args, **kwargs):
     args = list(args)
     ans = {}
     for k, v in kwargs.items():
-        args.append("%s=%s" % (k, v))
+        args.append(f"{k}={v}")
     qualifiers = parseQualifiers(args)
     matches = getMatches(qualifiers)
     for hostid in matches:

@@ -35,7 +35,7 @@ class Command(HostinfoCommand):
         host = namespace.host.lower()
         targhost = getHost(host)
         if not targhost:
-            raise HostinfoException("Host %s doesn't exist" % host)
+            raise HostinfoException(f"Host {host} doesn't exist")
         links = Links.objects.filter(hostid=targhost)
         if namespace.everytag:
             pass

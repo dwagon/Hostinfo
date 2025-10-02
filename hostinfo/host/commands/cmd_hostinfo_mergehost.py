@@ -50,14 +50,10 @@ class Command(HostinfoCommand):
         self.force = namespace.force
         srchostobj = getHost(namespace.srchost[0])
         if not srchostobj:
-            raise HostinfoException(
-                "Source host %s doesn't exist" % namespace.srchost[0]
-            )
+            raise HostinfoException(f"Source host {namespace.srchost[0]} doesn't exist")
         dsthostobj = getHost(namespace.dsthost[0])
         if not dsthostobj:
-            raise HostinfoException(
-                "Destination host %s doesn't exist" % namespace.dsthost[0]
-            )
+            raise HostinfoException(f"Destination host {namespace.dsthost[0]} doesn't exist")
 
         ok = True
 
@@ -115,29 +111,12 @@ class Command(HostinfoCommand):
                 if not self.kidding:
                     srckey.delete(readonlychange=True)
             else:
+                sys.stderr.write(f"Collision: {srckey.keyid.raw} src={srckey.value} dst={dstkey.value}\n")
                 sys.stderr.write(
-                    "Collision: %s src=%s dst=%s\n"
-                    % (srckey.keyid.key, srckey.value, dstkey.value)
+                    f"To keep dst {dsthostobj.hostname} value {dstkey.value}: hostinfo_addvalue --update {dstkey.keyid.key}='{dstkey.value}' {srchostobj.hostname}\n"
                 )
                 sys.stderr.write(
-                    "To keep dst %s value %s: hostinfo_addvalue --update %s='%s' %s\n"
-                    % (
-                        dsthostobj.hostname,
-                        dstkey.value,
-                        dstkey.keyid.key,
-                        dstkey.value,
-                        srchostobj.hostname,
-                    )
-                )
-                sys.stderr.write(
-                    "To keep src %s value %s: hostinfo_addvalue --update %s='%s' %s\n"
-                    % (
-                        srchostobj.hostname,
-                        srckey.value,
-                        srckey.keyid.key,
-                        srckey.value,
-                        dsthostobj.hostname,
-                    )
+                    f"To keep src {srchostobj.honame} value {srckey.value}: hostinfo_addvalue --update {srckey.keyid.key}='{srckey.value}' {dsthostobj.hostname}\n"
                 )
                 return False
         else:

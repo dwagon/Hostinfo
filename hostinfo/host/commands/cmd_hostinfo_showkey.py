@@ -50,7 +50,7 @@ class Command(HostinfoCommand):
 
         for key in keys:
             if namespace.typeflag:
-                outstr.append("%s\t%s" % (key.key, key.get_validtype_display()))
+                outstr.append(f"{key.key}\t{key.get_validtype_display()}")
             else:
                 notes = "    "
                 if key.restrictedFlag:
@@ -59,10 +59,7 @@ class Command(HostinfoCommand):
                     notes += "[NUMERIC]"
                 if key.readonlyFlag:
                     notes += "[KEY READ ONLY]"
-                outstr.append(
-                    "%s\t%s\t%s%s"
-                    % (key.key, key.get_validtype_display(), key.desc, notes)
-                )
+                outstr.append(f"{key.key}\t{key.get_validtype_display()}\t{key.desc}{notes}")
         return "\n".join(outstr), 0
 
 

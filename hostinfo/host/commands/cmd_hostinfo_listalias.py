@@ -39,17 +39,17 @@ class Command(HostinfoCommand):
         if namespace.all or not namespace.host:
             aliases = HostAlias.objects.all().order_by("alias").select_related("hostid")
             for alias in aliases:
-                outstr += "%s %s\n" % (alias.alias, alias.hostid.hostname)
+                outstr += f"{alias.alias} {alias.hostid.hostname}\n"
             return outstr, 0
         hid = getHost(namespace.host.lower())
         if not hid:
-            raise HostinfoException("Host %s doesn't exist" % namespace.host)
-        outstr += "%s\n" % hid.hostname
+            raise HostinfoException(f"Host {namespace.host} doesn't exist")
+        outstr += f"{hid.hostname}\n"
         aliases = HostAlias.objects.filter(hostid=hid).order_by("alias")
         if not aliases:
             return outstr, 1
         for alias in aliases:
-            outstr += "%s\n" % alias.alias
+            outstr += f"{alias.alias}\n"
 
         return outstr, 0
 
