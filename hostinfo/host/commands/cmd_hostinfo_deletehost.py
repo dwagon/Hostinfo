@@ -26,9 +26,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "--lethal", help="Actually do the delete - NO UNDO", action="store_true"
-        )
+        parser.add_argument("--lethal", help="Actually do the delete - NO UNDO", action="store_true")
         parser.add_argument("host", help="Name of host to delete")
 
     ###########################################################################

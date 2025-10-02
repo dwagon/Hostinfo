@@ -38,9 +38,7 @@ class Command(HostinfoCommand):
             action="store_true",
             default=False,
         )
-        parser.add_argument(
-            "--all", help="Do for all hosts", action="store_true", default=False
-        )
+        parser.add_argument("--all", help="Do for all hosts", action="store_true", default=False)
         parser.add_argument(
             "keyvalue",
             help="Name of the key/value pair to replace (key=value)",

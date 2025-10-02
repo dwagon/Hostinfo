@@ -1,4 +1,5 @@
-""" Command to import hostinfo data """
+"""Command to import hostinfo data"""
+
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
 #    Copyright (C) 2025 Dougal Scott
@@ -28,12 +29,13 @@ _akcache = {}
 
 ###############################################################################
 class Command(HostinfoCommand):
-    """ Base Class"""
+    """Base Class"""
+
     description = "Import data from XML file"
 
     ###########################################################################
     def parseArgs(self, parser):
-        """ Parse command line arguments """
+        """Parse command line arguments"""
         parser.add_argument(
             "-k",
             dest="kiddingFlag",
@@ -52,7 +54,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
-        """ handle the call """
+        """handle the call"""
         self.namespace = namespace
         try:
             xmltree = xml.etree.ElementTree.parse(namespace.xmlfile)

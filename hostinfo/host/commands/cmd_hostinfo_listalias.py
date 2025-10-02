@@ -26,12 +26,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "-a", "--all", help="List aliases for all hosts", action="store_true"
-        )
-        parser.add_argument(
-            "host", help="List the aliases for this host only", nargs="?"
-        )
+        parser.add_argument("-a", "--all", help="List aliases for all hosts", action="store_true")
+        parser.add_argument("host", help="List the aliases for this host only", nargs="?")
 
     ###########################################################################
     def handle(self, namespace):

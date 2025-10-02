@@ -1,4 +1,5 @@
-""" hostinfo views"""
+"""hostinfo views"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -32,7 +33,7 @@ from .models import Links, getHostList, getAliases, getAK
 
 ################################################################################
 def get_rev_akcache():
-    """ Reverse AllowedKey Cache """
+    """Reverse AllowedKey Cache"""
     revcache = {}
     for aks in AllowedKey.objects.all():
         revcache[aks.id] = aks.key
@@ -70,7 +71,7 @@ def hostviewrepr(host, printers=None, revcache=None):
 
 ################################################################################
 def handlePost(request):
-    """ POST call handling """
+    """POST call handling"""
     if "hostname" in request.POST:
         return HttpResponseRedirect(f"/hostinfo/host/{request.POST['hostname']}")
     elif "hostre" in request.POST:
@@ -160,9 +161,7 @@ def hostData(user, criteria=None, options="", printers=None, order=None, linker=
     for host in hl:
         tmp = {
             "hostname": host.hostname,
-            "hostview": hostviewrepr(
-                host.hostname, printers=printers, revcache=revcache
-            ),
+            "hostview": hostviewrepr(host.hostname, printers=printers, revcache=revcache),
             "aliases": getAliases(host.hostname),
         }
         if linker:
@@ -276,7 +275,7 @@ def orderHostList(hostlist, order):
 
 ################################################################################
 def doCsvreport(_, criturl=""):
-    """ CSV report"""
+    """CSV report"""
     criteria = criteriaFromWeb(criturl)
     hl = getHostList(criteria)
     if not criturl:
@@ -300,7 +299,7 @@ def criteriaFromWeb(criteria):
 
 ################################################################################
 def csvDump(hostlist, filename):
-    """ Dump output in CSV format """
+    """Dump output in CSV format"""
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
@@ -308,9 +307,7 @@ def csvDump(hostlist, filename):
     revcache = get_rev_akcache()
     data = []
     for host in hostlist:
-        data.append(
-            (host.hostname, hostviewrepr(host.hostname, revcache=revcache), None)
-        )
+        data.append((host.hostname, hostviewrepr(host.hostname, revcache=revcache), None))
     data.sort(key=lambda x: x[0])
 
     # Grab all the headings
@@ -337,7 +334,7 @@ def csvDump(hostlist, filename):
 
 ################################################################################
 def index(request):
-    """ URL = /"""
+    """URL = /"""
     d = {
         "numhosts": Host.objects.count(),
         "keys": AllowedKey.objects.all(),

@@ -1,4 +1,5 @@
-""" Django models definition for hostinfo CMDB"""
+"""Django models definition for hostinfo CMDB"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -37,7 +38,8 @@ _all_hosts_cache_time = None
 
 ################################################################################
 class HostinfoException(Exception):
-    """ Generic Hostinfo Exception """
+    """Generic Hostinfo Exception"""
+
     def __init__(self, msg="", retval=1):
         self.msg = msg
         self.retval = retval
@@ -107,7 +109,8 @@ def auditedKey(instance):
 ################################################################################
 ################################################################################
 class Host(models.Model):
-    """ Host / Server / Whatever core model """
+    """Host / Server / Whatever core model"""
+
     hostname = models.CharField(max_length=200, unique=True)
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
@@ -122,9 +125,7 @@ class Host(models.Model):
             user = getUser()
         self.hostname = self.hostname.lower()
         if not self.id:  # Check for update
-            undo = UndoLog(
-                user=user, action=f"hostinfo_deletehost --lethal {self.hostname}"
-            )
+            undo = UndoLog(user=user, action=f"hostinfo_deletehost --lethal {self.hostname}")
             undo.save()
         super().save(**kwargs)
         _all_hosts = None
@@ -152,9 +153,7 @@ class Host(models.Model):
 ################################################################################
 ################################################################################
 class HostAlias(models.Model):
-    hostid = models.ForeignKey(
-        Host, db_index=True, related_name="aliases", on_delete=models.CASCADE
-    )
+    hostid = models.ForeignKey(Host, db_index=True, related_name="aliases", on_delete=models.CASCADE)
     alias = models.CharField(max_length=200, unique=True)
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
@@ -319,9 +318,7 @@ class RestrictedValue(models.Model):
 ################################################################################
 ################################################################################
 class Links(models.Model):
-    hostid = models.ForeignKey(
-        Host, db_index=True, related_name="links", on_delete=models.CASCADE
-    )
+    hostid = models.ForeignKey(Host, db_index=True, related_name="links", on_delete=models.CASCADE)
     url = models.CharField(max_length=200)
     tag = models.CharField(max_length=100)
     modifieddate = models.DateField(auto_now=True)
@@ -438,9 +435,7 @@ def parseQualifiers(args):
 ################################################################################
 def calcKeylistVals(key, from_hostids=[]):
     keyid = getAK(key)
-    kvlist = KeyValue.objects.filter(keyid__key=key).values_list(
-        "hostid", "value", "numvalue"
-    )
+    kvlist = KeyValue.objects.filter(keyid__key=key).values_list("hostid", "value", "numvalue")
     if not from_hostids:
         from_hostids = [v[0] for v in get_all_hosts().values_list("id")]
     total = len(from_hostids)
@@ -571,47 +566,31 @@ def getMatches(qualifiers):
             vals = []
         elif q == "equal":
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values("hostid")
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value=v).values("hostid")
         elif q == "lessthan":
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue__lt=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue__lt=v).values("hostid")
             else:
-                vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values("hostid")
         elif q == "approx":
             vals = getApproxObjects(keyid=key.id, value=v)
         elif q == "greaterthan":
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue__gt=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue__gt=v).values("hostid")
             else:
-                vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values("hostid")
         elif q == "contains":
-            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values(
-                "hostid"
-            )
+            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values("hostid")
         elif q == "notcontains":
-            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values(
-                "hostid"
-            )
+            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values("hostid")
             mode = "difference"
         elif q == "def":
             vals = KeyValue.objects.filter(keyid=key.id).values("hostid")
         elif q == "unequal":
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values("hostid")
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value=v).values("hostid")
             mode = "difference"
@@ -622,14 +601,8 @@ def getMatches(qualifiers):
             vals = []
             mode = "noop"
         elif q == "hostre":
-            vals = [
-                {"hostid": h["id"]}
-                for h in Host.objects.filter(hostname__contains=k).values("id")
-            ]
-            alias = [
-                {"hostid": h["hostid"]}
-                for h in HostAlias.objects.filter(alias__contains=k).values("hostid")
-            ]
+            vals = [{"hostid": h["id"]} for h in Host.objects.filter(hostname__contains=k).values("id")]
+            alias = [{"hostid": h["hostid"]} for h in HostAlias.objects.filter(alias__contains=k).values("hostid")]
             vals.extend(alias)
 
         if vals:

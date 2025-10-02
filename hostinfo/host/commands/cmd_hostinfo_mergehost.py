@@ -28,21 +28,15 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "-f", "--force", help="Force the merge", action="store_true", default=False
-        )
+        parser.add_argument("-f", "--force", help="Force the merge", action="store_true", default=False)
         parser.add_argument(
             "-k",
             "--kidding",
             help="Don't actually make any changes",
             action="store_true",
         )
-        parser.add_argument(
-            "--src", help="The source host", nargs=1, required=True, dest="srchost"
-        )
-        parser.add_argument(
-            "--dst", help="The destination host", nargs=1, required=True, dest="dsthost"
-        )
+        parser.add_argument("--src", help="The source host", nargs=1, required=True, dest="srchost")
+        parser.add_argument("--dst", help="The destination host", nargs=1, required=True, dest="dsthost")
 
     ###########################################################################
     def handle(self, namespace):

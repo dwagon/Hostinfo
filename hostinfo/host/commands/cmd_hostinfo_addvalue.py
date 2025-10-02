@@ -32,18 +32,10 @@ class Command(HostinfoCommand):
     ###########################################################################
     def parseArgs(self, parser):
         parser.add_argument("-o", "--origin", help="The origin of this data")
-        parser.add_argument(
-            "-a", "--append", help="Append to a list type key", action="store_true"
-        )
-        parser.add_argument(
-            "-u", "--update", help="Replace an existing value", action="store_true"
-        )
-        parser.add_argument(
-            "--readonlyupdate", help="Write to a readonly key", action="store_true"
-        )
-        parser.add_argument(
-            "keyvalue", help="Name of the key/value pair to add (key=value)"
-        )
+        parser.add_argument("-a", "--append", help="Append to a list type key", action="store_true")
+        parser.add_argument("-u", "--update", help="Replace an existing value", action="store_true")
+        parser.add_argument("--readonlyupdate", help="Write to a readonly key", action="store_true")
+        parser.add_argument("keyvalue", help="Name of the key/value pair to add (key=value)")
         parser.add_argument("host", help="Host(s) to add this value to", nargs="+")
 
     ###########################################################################

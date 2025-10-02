@@ -27,9 +27,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "--user", help="Print the undolog for the specified user", nargs=1
-        )
+        parser.add_argument("--user", help="Print the undolog for the specified user", nargs=1)
         parser.add_argument(
             "--week",
             help="Print the undolog the the last week",

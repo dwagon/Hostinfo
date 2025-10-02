@@ -27,9 +27,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "keyvalue", help="Name of the key/value pair to allow (key=value)"
-        )
+        parser.add_argument("keyvalue", help="Name of the key/value pair to allow (key=value)")
 
     ###########################################################################
     def handle(self, namespace):

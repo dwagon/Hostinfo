@@ -27,15 +27,9 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "keyvalue", help="The key or keyvalue to delete (key[=value])"
-        )
-        parser.add_argument(
-            "--readonlyupdate", help="Write to a readonly key", action="store_true"
-        )
-        parser.add_argument(
-            "host", help="The host(s) to delete the value from", nargs="+"
-        )
+        parser.add_argument("keyvalue", help="The key or keyvalue to delete (key[=value])")
+        parser.add_argument("--readonlyupdate", help="Write to a readonly key", action="store_true")
+        parser.add_argument("host", help="The host(s) to delete the value from", nargs="+")
 
     ###########################################################################
     def handle(self, namespace):
@@ -52,9 +46,7 @@ class Command(HostinfoCommand):
             if not hostid:
                 raise HostinfoException(f"Unknown host: {host}")
             if value:
-                kvlist = KeyValue.objects.filter(
-                    hostid=hostid, keyid=keyid, value=value
-                )
+                kvlist = KeyValue.objects.filter(hostid=hostid, keyid=keyid, value=value)
             else:
                 kvlist = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
             if not kvlist:

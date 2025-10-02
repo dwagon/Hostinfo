@@ -48,9 +48,7 @@ class Command(HostinfoCommand):
             help="Print everything known about the matching hosts",
             action="store_true",
         )
-        parser.add_argument(
-            "--origin", help="Print out origin of data", action="store_true"
-        )
+        parser.add_argument("--origin", help="Print out origin of data", action="store_true")
         parser.add_argument(
             "--aliases",
             help="Print out all aliases of matching host",
@@ -70,28 +68,14 @@ class Command(HostinfoCommand):
             action="store_false",
             default=True,
         )
-        parser.add_argument(
-            "--valuereport", help="Print out frequencies of values", nargs=1
-        )
+        parser.add_argument("--valuereport", help="Print out frequencies of values", nargs=1)
         parser.add_argument("--host", help="For this specific host", nargs=1)
-        parser.add_argument(
-            "--csv", help="Print data in CSV format", action="store_true"
-        )
-        parser.add_argument(
-            "--xml", help="Print data in XML format", action="store_true"
-        )
-        parser.add_argument(
-            "--json", help="Print data in JSON format", action="store_true"
-        )
-        parser.add_argument(
-            "--sep", help="Use <str> as a value separator.", nargs=1, default=", "
-        )
-        parser.add_argument(
-            "--hsep", help="Use <str> as a host separator.", nargs=1, default="\n"
-        )
-        parser.add_argument(
-            "--count", help="Return the number of matching hosts", action="store_true"
-        )
+        parser.add_argument("--csv", help="Print data in CSV format", action="store_true")
+        parser.add_argument("--xml", help="Print data in XML format", action="store_true")
+        parser.add_argument("--json", help="Print data in JSON format", action="store_true")
+        parser.add_argument("--sep", help="Use <str> as a value separator.", nargs=1, default=", ")
+        parser.add_argument("--hsep", help="Use <str> as a host separator.", nargs=1, default="\n")
+        parser.add_argument("--count", help="Return the number of matching hosts", action="store_true")
         parser.add_argument(
             "-p",
             help="Print values of key for matching hosts",
@@ -175,9 +159,9 @@ class Command(HostinfoCommand):
         if total == 0:
             return ""
         nummatch = 0
-        kvlist = KeyValue.objects.filter(
-            keyid__key=self.namespace.valuereport[0]
-        ).values_list("hostid", "value", "numvalue")
+        kvlist = KeyValue.objects.filter(keyid__key=self.namespace.valuereport[0]).values_list(
+            "hostid", "value", "numvalue"
+        )
 
         for hostid, value, numvalue in kvlist:
             hostids.add(hostid)

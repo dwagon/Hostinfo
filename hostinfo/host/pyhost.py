@@ -12,6 +12,7 @@ setup_environ(settings)
 from .models import getMatches, parseQualifiers
 from .models import KeyValue, Host
 
+
 ################################################################################
 def getHostinfo(*args, **kwargs):
     """Return a dictionary of dictionaries for each hostinfo host that matches the

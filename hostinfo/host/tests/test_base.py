@@ -1,4 +1,4 @@
-""" Test rig for hostinfo"""
+"""Test rig for hostinfo"""
 
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
@@ -42,7 +42,7 @@ class test_DateValidator(TestCase):
 
     ###########################################################################
     def test_formats(self):
-        """ Test different date formats """
+        """Test different date formats"""
         self.assertEqual(validateDate("2012-12-31"), "2012-12-31")
         self.assertEqual(validateDate("31/12/2012"), "2012-12-31")
         self.assertEqual(validateDate("31/12/12"), "2012-12-31")
@@ -50,7 +50,7 @@ class test_DateValidator(TestCase):
 
     ###########################################################################
     def test_today(self):
-        """ Does today equal now """
+        """Does today equal now"""
         now = time.strftime("%Y-%m-%d")
         self.assertEqual(validateDate("now"), now)
         self.assertEqual(validateDate("today"), now)
@@ -117,44 +117,20 @@ class test_parseQualifiers(TestCase):
 
     ###########################################################################
     def test_singles(self):
-        self.assertEqual(
-            parseQualifiers(["kpq!=value"]), [("unequal", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.ne.value"]), [("unequal", "kpq", "value")]
-        )
+        self.assertEqual(parseQualifiers(["kpq!=value"]), [("unequal", "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.ne.value"]), [("unequal", "kpq", "value")])
         self.assertEqual(parseQualifiers(["kpq=value"]), [("equal", "kpq", "value")])
-        self.assertEqual(
-            parseQualifiers(["kpq.eq.value"]), [("equal", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq<value"]), [("lessthan", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.lt.value"]), [("lessthan", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq>value"]), [("greaterthan", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.gt.value"]), [("greaterthan", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq~value"]), [("contains", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.ss.value"]), [("contains", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq%value"]), [("notcontains", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.ns.value"]), [("notcontains", "kpq", "value")]
-        )
+        self.assertEqual(parseQualifiers(["kpq.eq.value"]), [("equal", "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq<value"]), [("lessthan", "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.lt.value"]), [("lessthan", "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq>value"]), [("greaterthan", "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.gt.value"]), [("greaterthan", "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq~value"]), [("contains", "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.ss.value"]), [("contains", "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq%value"]), [("notcontains", "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.ns.value"]), [("notcontains", "kpq", "value")])
         self.assertEqual(parseQualifiers(["kpq@value"]), [("approx", "kpq", "value")])
-        self.assertEqual(
-            parseQualifiers(["kpq.ap.value"]), [("approx", "kpq", "value")]
-        )
+        self.assertEqual(parseQualifiers(["kpq.ap.value"]), [("approx", "kpq", "value")])
         self.assertEqual(parseQualifiers(["kpq.undef"]), [("undef", "kpq", "")])
         self.assertEqual(parseQualifiers(["kpq.unset"]), [("undef", "kpq", "")])
         self.assertEqual(parseQualifiers(["kpq.def"]), [("def", "kpq", "")])
@@ -289,16 +265,12 @@ class test_getMatches(TestCase):
             set(getMatches([("unequal", "list", "gamma")])),
             set([self.host.id, self.host2.id]),
         )
-        self.assertEqual(
-            getMatches([("unequal", "date", "2012-12-25")]), [self.host2.id]
-        )
+        self.assertEqual(getMatches([("unequal", "date", "2012-12-25")]), [self.host2.id])
         self.assertEqual(
             set(getMatches([("unequal", "date", "2012-12-26")])),
             set([self.host.id, self.host2.id]),
         )
-        self.assertEqual(
-            set(getMatches([("unequal", "number", "100.0")])), set([self.host2.id])
-        )
+        self.assertEqual(set(getMatches([("unequal", "number", "100.0")])), set([self.host2.id]))
         try:
             getMatches([("unequal", "number", "string")])
         except Exception:  # pragma: no cover
@@ -315,9 +287,7 @@ class test_getMatches(TestCase):
             set([self.host.id, self.host2.id]),
         )
         self.assertEqual(getMatches([("greaterthan", "list", "zzzzz")]), [])
-        self.assertEqual(
-            getMatches([("greaterthan", "date", "2012-12-24")]), [self.host.id]
-        )
+        self.assertEqual(getMatches([("greaterthan", "date", "2012-12-24")]), [self.host.id])
         self.assertEqual(getMatches([("greaterthan", "date", "2012-12-26")]), [])
         self.assertEqual(getMatches([("greaterthan", "number", "10")]), [self.host.id])
         try:
@@ -337,9 +307,7 @@ class test_getMatches(TestCase):
             set([self.host.id, self.host2.id]),
         )
         self.assertEqual(getMatches([("lessthan", "date", "2012-12-24")]), [])
-        self.assertEqual(
-            getMatches([("lessthan", "date", "2012-12-26")]), [self.host.id]
-        )
+        self.assertEqual(getMatches([("lessthan", "date", "2012-12-26")]), [self.host.id])
         self.assertEqual(getMatches([("lessthan", "number", "90")]), [self.host2.id])
         try:
             getMatches([("lessthan", "number", "goodbye")]),
@@ -377,9 +345,7 @@ class test_getMatches(TestCase):
             set(getMatches([("notcontains", "list", "betan")])),
             set([self.host.id, self.host2.id]),
         )
-        self.assertEqual(
-            getMatches([("notcontains", "date", "2012")]), [self.host2.id]
-        )
+        self.assertEqual(getMatches([("notcontains", "date", "2012")]), [self.host2.id])
         self.assertEqual(
             set(getMatches([("notcontains", "date", "-13-")])),
             set([self.host.id, self.host2.id]),
@@ -412,9 +378,7 @@ class test_getMatches(TestCase):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25
         # hostB: list=[alpha]
         self.assertEqual(getMatches([("def", "single", "")]), [self.host.id])
-        self.assertEqual(
-            set(getMatches([("def", "list", "")])), set([self.host.id, self.host2.id])
-        )
+        self.assertEqual(set(getMatches([("def", "list", "")])), set([self.host.id, self.host2.id]))
         self.assertEqual(getMatches([("def", "date", "")]), [self.host.id])
 
     ###########################################################################
@@ -799,9 +763,7 @@ class test_hostData(TestCase):
         self.assertEqual(result["count"], 1)
         self.assertEqual(result["criteria"], "hdfkey1.defined/hdfhost1.hostre")
         self.assertEqual(result["title"], "hdfkey1.defined AND hdfhost1.hostre")
-        self.assertEqual(
-            result["csvavailable"], "/hostinfo/csv/hdfkey1.defined/hdfhost1.hostre"
-        )
+        self.assertEqual(result["csvavailable"], "/hostinfo/csv/hdfkey1.defined/hdfhost1.hostre")
         self.assertEqual(result["options"], "")
         self.assertEqual(result["order"], None)
         self.assertEqual(result["printers"], [])

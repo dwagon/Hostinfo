@@ -26,12 +26,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "--src", help="The current name of the host", nargs=1, dest="srchost"
-        )
-        parser.add_argument(
-            "--dst", help="The new name of the host", nargs=1, dest="dsthost"
-        )
+        parser.add_argument("--src", help="The current name of the host", nargs=1, dest="srchost")
+        parser.add_argument("--dst", help="The new name of the host", nargs=1, dest="dsthost")
 
     ###########################################################################
     def handle(self, namespace):

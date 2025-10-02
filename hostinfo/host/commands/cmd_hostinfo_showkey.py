@@ -32,9 +32,7 @@ class Command(HostinfoCommand):
             dest="typeflag",
             action="store_true",
         )
-        parser.add_argument(
-            "keylist", help="List of keys to display. Defaults to all", nargs="*"
-        )
+        parser.add_argument("keylist", help="List of keys to display. Defaults to all", nargs="*")
 
     ###########################################################################
     def handle(self, namespace):
