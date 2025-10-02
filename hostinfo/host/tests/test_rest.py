@@ -21,10 +21,9 @@ import json
 
 from django.test import TestCase
 from django.test.client import Client
-
 from host.models import Host, HostAlias, AllowedKey, RestrictedValue, Links
-from host.models import clearAKcache
 from host.models import addKeytoHost, KeyValue
+from host.models import clearAKcache
 
 
 ###############################################################################

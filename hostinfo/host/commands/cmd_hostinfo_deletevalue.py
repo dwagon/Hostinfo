@@ -17,8 +17,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-from host.models import HostinfoException, KeyValue, getAK
+
 from host.models import HostinfoCommand, getHost, ReadonlyValueException
+from host.models import HostinfoException, KeyValue, getAK
 
 
 ###############################################################################

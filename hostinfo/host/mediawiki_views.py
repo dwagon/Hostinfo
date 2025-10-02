@@ -22,7 +22,6 @@ from django.shortcuts import render
 
 from .models import KeyValue
 from .models import RestrictedValue, HostinfoException
-
 from .views import criteriaFromWeb, getHostList
 from .views import orderHostList, hostData, getLinks
 

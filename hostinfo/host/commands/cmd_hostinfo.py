@@ -20,9 +20,9 @@ import time
 from collections import defaultdict
 
 from host.models import AllowedKey, KeyValue, parseQualifiers
-from host.models import getMatches, getAK, Host, getHost
-from host.models import getAliases, RestrictedValue
 from host.models import HostinfoCommand, HostinfoException
+from host.models import getAliases, RestrictedValue
+from host.models import getMatches, getAK, Host, getHost
 
 
 ###############################################################################

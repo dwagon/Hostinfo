@@ -25,10 +25,11 @@ import sys
 import time
 from collections import defaultdict
 from operator import itemgetter
-from django.db import models, connection
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.conf import settings
+from django.db import models, connection
 from simple_history.models import HistoricalRecords
 
 _akcache = {None: None}

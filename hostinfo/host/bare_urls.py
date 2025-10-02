@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.urls import path, re_path
+
 from .bare_views import displayHost, doHostCount, doHostList, doHostcmp, doKeylist
 
 urlpatterns = [

@@ -1,8 +1,9 @@
-from django.shortcuts import render
-from django.conf import settings
 import glob
-import imp
 import os
+
+import imp
+from django.conf import settings
+from django.shortcuts import render
 
 reportdir = settings.HOSTINFO_REPORT_DIR
 

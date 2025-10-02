@@ -15,10 +15,11 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from host.models import UndoLog
-from host.models import HostinfoCommand
-import os
 import datetime
+import os
+
+from host.models import HostinfoCommand
+from host.models import UndoLog
 
 
 ###############################################################################

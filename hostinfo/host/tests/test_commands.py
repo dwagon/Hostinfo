@@ -17,12 +17,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.test import TestCase
 import json
 import os
 import sys
 import tempfile
 import time
+
+from django.test import TestCase
 
 try:
     from StringIO import StringIO

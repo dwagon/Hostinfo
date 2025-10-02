@@ -23,17 +23,15 @@ import time
 
 from django.test import TestCase
 from django.test.client import Client
-
-from host.models import HostinfoException
+from host.edits import getHostMergeKeyData
 from host.models import Host, HostAlias, AllowedKey, Links
-from host.models import validateDate, clearAKcache, calcKeylistVals
-from host.models import parseQualifiers, getMatches
-from host.models import getHost, checkHost, getAK
+from host.models import HostinfoException
 from host.models import addKeytoHost, KeyValue
-
+from host.models import getHost, checkHost, getAK
+from host.models import parseQualifiers, getMatches
+from host.models import validateDate, clearAKcache, calcKeylistVals
 from host.views import hostviewrepr, hostData
 from host.views import orderHostList
-from host.edits import getHostMergeKeyData
 
 
 ###############################################################################

@@ -17,9 +17,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from host.models import getHost, HostinfoException, KeyValue
-from host.models import HostinfoCommand
+
 from django.core.exceptions import ObjectDoesNotExist
+from host.models import HostinfoCommand
+from host.models import getHost, HostinfoException, KeyValue
 
 
 ###############################################################################

@@ -22,19 +22,17 @@
 import re
 import time
 
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 
+from .forms import hostEditForm
+from .forms import hostMergeForm, hostRenameForm, hostCreateForm
 from .models import Host, KeyValue, AllowedKey
+from .models import RestrictedValueException
 from .models import getAK, RestrictedValue
 from .models import getHost, validateDate
-from .models import RestrictedValueException
-
-from .forms import hostMergeForm, hostRenameForm, hostCreateForm
-from .forms import hostEditForm
-
 from .views import hostviewrepr
 
 _hostcache = None

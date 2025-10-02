@@ -20,7 +20,6 @@
 from django.shortcuts import render
 
 from .models import HostinfoException, calcKeylistVals, getMatches, parseQualifiers
-
 from .views import criteriaFromWeb
 from .views import hostData, hostCount
 

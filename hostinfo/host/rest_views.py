@@ -2,14 +2,16 @@
 # Handle django model.objects
 # pylint: disable=no-member
 import json
+
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.urls import reverse
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+
 from .models import Host, AllowedKey, KeyValue, HostAlias, Links, RestrictedValue
-from .models import parseQualifiers, getMatches, getHost, HostinfoException
 from .models import addKeytoHost, calcKeylistVals
+from .models import parseQualifiers, getMatches, getHost, HostinfoException
 
 
 ###############################################################################

@@ -1,7 +1,7 @@
 """ URL handler for hostinfo """
-from django.urls import include, path
 from django.conf import settings
 from django.contrib import admin
+from django.urls import include, path
 
 from .views import version
 

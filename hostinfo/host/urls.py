@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.urls import path, re_path
-from .views import index, doHostlist, doHost, doKeylist, handlePost
-from .views import doHostcmp, doHostSummary, doCsvreport, doRestrValList
+
 from .edits import (
     doHostMerge,
     doHostMergeChoose,
@@ -30,7 +29,8 @@ from .edits import (
     doHostCreate,
     doHostRename,
 )
-
+from .views import doHostcmp, doHostSummary, doCsvreport, doRestrValList
+from .views import index, doHostlist, doHost, doKeylist, handlePost
 
 urlpatterns = [
     path("", index, name="index"),

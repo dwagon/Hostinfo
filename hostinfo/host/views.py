@@ -27,8 +27,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 from .models import Host, KeyValue, AllowedKey, calcKeylistVals
-from .models import RestrictedValue, HostinfoException
 from .models import Links, getHostList, getAliases, getAK
+from .models import RestrictedValue, HostinfoException
 
 
 ################################################################################

@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import xml.etree.ElementTree
+
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from host.models import Host, AllowedKey, KeyValue
 from host.models import HostinfoCommand
 from host.models import HostinfoException
 from host.models import RestrictedValueException, RestrictedValue
-from host.models import Host, AllowedKey, KeyValue
 
 _akcache = {}
 

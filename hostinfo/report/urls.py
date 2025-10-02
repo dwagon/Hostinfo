@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.urls import path
+
 from .views import index, doReport
 
 urlpatterns = [

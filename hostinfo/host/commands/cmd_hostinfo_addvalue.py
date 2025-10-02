@@ -19,10 +19,11 @@
 import os
 import re
 import sys
-from host.models import addKeytoHost
-from host.models import RestrictedValueException
-from host.models import ReadonlyValueException, HostinfoException
+
 from host.models import HostinfoCommand
+from host.models import ReadonlyValueException, HostinfoException
+from host.models import RestrictedValueException
+from host.models import addKeytoHost
 
 
 ###############################################################################

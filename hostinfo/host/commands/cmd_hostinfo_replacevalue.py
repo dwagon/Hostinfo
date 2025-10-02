@@ -21,8 +21,9 @@
 
 import re
 import sys
-from host.models import getAK
+
 from host.models import HostinfoCommand, HostinfoException, KeyValue
+from host.models import getAK
 
 
 ###############################################################################

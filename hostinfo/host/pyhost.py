@@ -3,9 +3,8 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
-import sys
-
 from django.core.management import setup_environ
+
 from hostinfo import settings
 
 setup_environ(settings)

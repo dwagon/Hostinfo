@@ -17,10 +17,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client
-from django.contrib.auth.models import User
-
 from host.models import Host, HostAlias, KeyValue, RestrictedValue, Links
 from host.models import clearAKcache, AllowedKey
 
