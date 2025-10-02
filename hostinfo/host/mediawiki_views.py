@@ -1,4 +1,5 @@
-""" hostinfo views for mediawiki interface"""
+"""hostinfo views for mediawiki interface"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -28,7 +29,7 @@ from .views import orderHostList, hostData, getLinks
 
 ################################################################################
 def getWikiLinks(hostid=None, hostname=None):
-    """ Links """
+    """Links"""
     wikilinks = []
     for url, tag in getLinks(hostid, hostname):
         wikilinks.append(f"[{url} {tag}]")

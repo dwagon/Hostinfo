@@ -1,4 +1,5 @@
-""" hostinfo forms"""
+"""hostinfo forms"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #

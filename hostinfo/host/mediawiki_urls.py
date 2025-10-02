@@ -1,4 +1,5 @@
 """Local URL handler for hostinfo mediawiki interface"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #

@@ -1,4 +1,5 @@
 """Local URL handled for reports"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #

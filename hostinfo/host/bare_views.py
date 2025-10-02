@@ -1,4 +1,5 @@
-""" hostinfo views for bare interface """
+"""hostinfo views for bare interface"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -84,9 +85,7 @@ def doHostcmp(request, criturl="", options=""):
     """Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)
     try:
-        return render(
-            request, "bare/multihost.html", hostData(request, criteria, options)
-        )
+        return render(request, "bare/multihost.html", hostData(request, criteria, options))
     except HostinfoException as err:  # pragma: no cover
         return render(request, "bare/multihost.html", {"error": err})
 

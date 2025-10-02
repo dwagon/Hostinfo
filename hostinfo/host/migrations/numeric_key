@@ -6,7 +6,7 @@ import sys
 
 import django
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'hostinfo.settings'
+os.environ["DJANGO_SETTINGS_MODULE"] = "hostinfo.settings"
 django.setup()
 
 from host.models import AllowedKey, KeyValue

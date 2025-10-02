@@ -1,4 +1,4 @@
-""" Test rig for REST interface to hostinfo"""
+"""Test rig for REST interface to hostinfo"""
 
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
@@ -28,7 +28,8 @@ from host.models import clearAKcache
 
 ###############################################################################
 class test_restHost_keylist(TestCase):
-    """ Test keylist through REST """
+    """Test keylist through REST"""
+
     def setUp(self):
         clearAKcache()
         self.client = Client()
@@ -47,7 +48,7 @@ class test_restHost_keylist(TestCase):
 
     ###########################################################################
     def test_keylist(self):
-        """ Test listing of keys """
+        """Test listing of keys"""
         response = self.client.get("/api/keylist/rhkeykl/")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
@@ -59,7 +60,7 @@ class test_restHost_keylist(TestCase):
 
     ###########################################################################
     def test_keylist_criteria(self):
-        """ List keys with an additional criteria """
+        """List keys with an additional criteria"""
         response = self.client.get("/api/keylist/rhkeykl/rhkeykl.defined/")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
@@ -71,7 +72,8 @@ class test_restHost_keylist(TestCase):
 
 ###############################################################################
 class test_restHost_query(TestCase):
-    """ Query through REST interface """
+    """Query through REST interface"""
+
     def setUp(self):
         clearAKcache()
         self.client = Client()
@@ -90,31 +92,25 @@ class test_restHost_query(TestCase):
 
     ###########################################################################
     def test_query(self):
-        """ Do a query """
+        """Do a query"""
         response = self.client.get("/api/query/rhqkey=val/")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
         self.assertEqual(ans["result"], "1 matching hosts")
         self.assertEqual(ans["hosts"][0]["hostname"], "hostrhq")
-        self.assertSequenceEqual(
-            sorted(ans["hosts"][0].keys()), sorted(["id", "hostname", "url"])
-        )
+        self.assertSequenceEqual(sorted(ans["hosts"][0].keys()), sorted(["id", "hostname", "url"]))
 
     ###########################################################################
     def test_query_origin(self):
-        """ Test origin output """
+        """Test origin output"""
         response = self.client.get("/api/query/rhqkey=val/?origin=True")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
-        self.assertSequenceEqual(
-            sorted(ans["hosts"][0].keys()), sorted(["id", "hostname", "url", "origin"])
-        )
+        self.assertSequenceEqual(sorted(ans["hosts"][0].keys()), sorted(["id", "hostname", "url", "origin"]))
 
     ###########################################################################
     def test_query_multi(self):
-        response = self.client.get(
-            "/api/query/rhqkey=val/?aliases=True&dates=True&links=True"
-        )
+        response = self.client.get("/api/query/rhqkey=val/?aliases=True&dates=True&links=True")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
         self.assertSequenceEqual(
@@ -196,11 +192,9 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_hostcreate(self):
-        """ Test creation of host through REST interface """
+        """Test creation of host through REST interface"""
         data = {"origin": "testorigin"}
-        response = self.client.post(
-            "/api/host/noahsark/", data=json.dumps(data), content_type="application/json"
-        )
+        response = self.client.post("/api/host/noahsark/", data=json.dumps(data), content_type="application/json")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
         self.assertEqual(ans["result"], "ok")
@@ -211,7 +205,7 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_hostlist(self):
-        """ Test listing of hosts through REST interface """
+        """Test listing of hosts through REST interface"""
         response = self.client.get("/api/host/")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
@@ -232,7 +226,7 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_hostdetails(self):
-        """ Getting a hsot by its hostname """
+        """Getting a hsot by its hostname"""
         response = self.client.get("/api/host/hostrh/")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
@@ -241,7 +235,7 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_alias_details(self):
-        """ Get host details by its alias """
+        """Get host details by its alias"""
         response = self.client.get("/api/host/rhalias/")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
@@ -250,13 +244,13 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_missing_details(self):
-        """ Test asking for a host that doesn't exist """
+        """Test asking for a host that doesn't exist"""
         response = self.client.get("/api/host/badhost/")
         self.assertEqual(response.status_code, 404)
 
     ###########################################################################
     def test_list_aliases(self):
-        """ List all aliases """
+        """List all aliases"""
         response = self.client.get("/api/alias/")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
@@ -301,7 +295,7 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_delete_alias(self):
-        """ Delete an alias """
+        """Delete an alias"""
         response = self.client.delete("/api/host/hostrh/alias/rhalias2/")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
@@ -341,7 +335,7 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_delete_keyval(self):
-        """ Delete a key value pair"""
+        """Delete a key value pair"""
         response = self.client.delete("/api/host/hostrh/key/rhkey/")
         self.assertEqual(response.status_code, 200)
         ans = json.loads(response.content.decode())
@@ -379,7 +373,7 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_create_keyval(self):
-        """ Test creation of a key value pair """
+        """Test creation of a key value pair"""
         tmpkey = AllowedKey(key="tmprhkey", validtype=1)
         tmpkey.save()
         response = self.client.post("/api/host/hostrh/key/tmprhkey/noob/")
@@ -498,7 +492,7 @@ class test_restHost(TestCase):
 
     ###########################################################################
     def test_erroring_regexp(self):
-        """ Issue 36"""
+        """Issue 36"""
         response = self.client.get("/api/query/rhkey=host/rhlist.defined/")
         self.assertNotEqual(response.status_code, 404)
 

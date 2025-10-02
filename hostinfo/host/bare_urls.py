@@ -1,4 +1,5 @@
 """Local URL handler for hostinfo bare interface"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #

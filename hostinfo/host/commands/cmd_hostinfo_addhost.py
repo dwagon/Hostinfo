@@ -37,9 +37,7 @@ class Command(HostinfoCommand):
             if self.checkHost(host):
                 raise HostinfoException(f"Host {host} already exists")
             if host[0] in ("-",):
-                raise HostinfoException(
-                    f"Host begins with a forbidden character ('{host[0]}') - not adding"
-                )
+                raise HostinfoException(f"Host begins with a forbidden character ('{host[0]}') - not adding")
             hobj = Host(hostname=host, origin=origin)
             hobj.save()
         return None, 0

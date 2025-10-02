@@ -1,4 +1,5 @@
-""" Views for the REST interface """
+"""Views for the REST interface"""
+
 # Handle django model.objects
 # pylint: disable=no-member
 import json
@@ -21,9 +22,7 @@ def AliasList(request, *args):
     aliases = HostAlias.objects.all()
     ans = {
         "result": "ok",
-        "aliases": [
-            HostAliasSerialize(a, request) for a in aliases.select_related("hostid")
-        ],
+        "aliases": [HostAliasSerialize(a, request) for a in aliases.select_related("hostid")],
     }
     return JsonResponse(ans)
 
@@ -134,7 +133,7 @@ def getReferredHost(hostpk=None, hostname=None):
 # /keylist/(keypk, key)/[query]
 @require_http_methods(["GET"])
 def KeyListRest(request, akeypk=None, akey=None, query=None):
-    """ List Keys through REST interface """
+    """List Keys through REST interface"""
     matches = []
     if akeypk:
         akey = get_object_or_404(AllowedKey, id=akeypk)
@@ -226,11 +225,7 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
             ha.delete()
 
     kvals = []
-    for h in (
-        KeyValue.objects.filter(hostid=hostid)
-        .select_related("keyid")
-        .select_related("hostid")
-    ):
+    for h in KeyValue.objects.filter(hostid=hostid).select_related("keyid").select_related("hostid"):
         kvals.append(KeyValueSerialize(h, request))
     return JsonResponse({"result": result, "keyvalues": kvals})
 
@@ -239,10 +234,8 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
 # /host/(hostname|pk)/link/(tagname|linkpk)[/url]
 @require_http_methods(["GET", "POST", "DELETE"])
 @csrf_exempt
-def HostLinkRest(
-    request, hostpk=None, hostname=None, linkpk=None, tagname=None, url=None
-):
-    """ Link related actions through REST """
+def HostLinkRest(request, hostpk=None, hostname=None, linkpk=None, tagname=None, url=None):
+    """Link related actions through REST"""
     result = "ok"
     hostid = getReferredHost(hostpk, hostname)
 
@@ -386,9 +379,7 @@ def HostSerialize(obj, request, **kwargs):
     ans = {
         "id": obj.id,
         "hostname": obj.hostname,
-        "url": request.build_absolute_uri(
-            reverse("resthost", kwargs={"hostpk": obj.id})
-        ),
+        "url": request.build_absolute_uri(reverse("resthost", kwargs={"hostpk": obj.id})),
     }
 
     if fields["origin"]:
@@ -455,9 +446,7 @@ def AllowedKeySerialize(obj, request):
 ###############################################################################
 def HostShortSerialize(obj, request):
     """Serialize the host but in serialize the minimum for speed"""
-    return HostSerialize(
-        obj, request, keys=False, aliases=False, links=False, dates=False
-    )
+    return HostSerialize(obj, request, keys=False, aliases=False, links=False, dates=False)
 
 
 ###############################################################################
