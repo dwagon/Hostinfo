@@ -34,7 +34,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
-        m = re.match("(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
+        m = re.match(r"(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
         if m:
             key = m.group("key").lower()
             value = m.group("value").lower()

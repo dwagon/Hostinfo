@@ -32,7 +32,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
-        m = re.match("(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
+        m = re.match(r"(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
         if not m:
             raise HostinfoException("Must be specified in key=value format")
         key = m.group("key").lower()
