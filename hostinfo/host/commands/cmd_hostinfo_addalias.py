@@ -1,3 +1,5 @@
+"""hostinfo_addalias command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,16 +24,20 @@ from host.models import getHost, HostAlias, getOrigin
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_addalias"""
+
     description = "Add alias to a host"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """parse args"""
         parser.add_argument("host", help="The host to add the alias for")
         parser.add_argument("alias", help="The alias for the host")
         parser.add_argument("--origin", help="The origin of this alias")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
         origin = getOrigin(namespace.origin)
         host = namespace.host.lower()
         alias = namespace.alias.lower()

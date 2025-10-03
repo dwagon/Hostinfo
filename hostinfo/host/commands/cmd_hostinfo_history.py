@@ -1,3 +1,5 @@
+"""hostinfo_history command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -27,11 +29,15 @@ from host.models import HostinfoCommand, Host
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = "Add alias to a host"
+    """hostinfo_history"""
+
+    description = "History of changes to a hsot"
     _keycache = {}
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument(
             "-o",
             "--origin",
@@ -47,6 +53,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         outstr = ""
         host = getHost(namespace.host)
         if not host:
@@ -78,6 +86,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def getKeyName(self, keyid):
+        """Return the name of the key"""
         if keyid in self._keycache:
             return self._keycache[keyid]
         try:

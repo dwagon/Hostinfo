@@ -167,8 +167,7 @@ class test_ListKey(TestCase):
         ans = [k.value for k in kv]
         if len(ans) == 1:
             return ans[0]
-        else:
-            return sorted(ans)
+        return sorted(ans)
 
     ###########################################################################
     def test_adds(self):

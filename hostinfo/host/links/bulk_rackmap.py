@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#
-# Script to generate rackmap links for all hosts
+"""Script to generate rackmap links for all hosts"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #

@@ -1,3 +1,5 @@
+"""hostinfo_undolog command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -24,10 +26,14 @@ from host.models import UndoLog
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_undolog"""
+
     description = "Display the undolog"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("--user", help="Print the undolog for the specified user", nargs=1)
         parser.add_argument(
             "--week",
@@ -45,6 +51,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         outstr = ""
         now = datetime.datetime.now()
         if not namespace.days:

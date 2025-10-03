@@ -1,3 +1,5 @@
+"""hostinfo_addhost command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,15 +24,19 @@ from host.models import getHost, getOrigin, Host
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_addhost"""
+
     description = "Add a new host"
 
     ############################################################################
     def parseArgs(self, parser):
+        """parse args"""
         parser.add_argument("host", help="The host to add", nargs="+")
         parser.add_argument("--origin", help="The origin of this host")
 
     ############################################################################
     def handle(self, namespace):
+        """do command"""
         origin = getOrigin(namespace.origin)
         for host in namespace.host:
             host = host.lower()

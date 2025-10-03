@@ -1,3 +1,5 @@
+"""Base hostinfo command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -17,6 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import time
+import json
 from collections import defaultdict
 
 from host.models import AllowedKey, KeyValue, parseQualifiers
@@ -27,6 +30,8 @@ from host.models import getMatches, getAK, Host, getHost
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo command"""
+
     description = "Retrieve details from hostinfo database"
     epilog = """
      Criteria:
@@ -43,6 +48,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
         parser.add_argument(
             "--showall",
             help="Print everything known about the matching hosts",
@@ -94,6 +100,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """Do command"""
         global _hostcache
         self.namespace = namespace
         self.printout = namespace.printout
@@ -106,8 +113,8 @@ class Command(HostinfoCommand):
         else:
             try:
                 qualifiers = parseQualifiers(namespace.criteria)
-            except TypeError as err:  # pragma: no cover
-                raise HostinfoException(err)
+            except TypeError as exc:  # pragma: no cover
+                raise HostinfoException(exc) from exc
             matches = getMatches(qualifiers)
         _hostcache = self.getHostCache(matches)
         output = self.Display(matches)
@@ -127,18 +134,17 @@ class Command(HostinfoCommand):
 
         if self.namespace.valuereport:
             return self.DisplayValuereport(matches)
-        elif self.namespace.csv:
+        if self.namespace.csv:
             return self.DisplayCSV(matches)
-        elif self.namespace.xml:
+        if self.namespace.xml:
             return self.DisplayXML(matches)
-        elif self.namespace.json:
+        if self.namespace.json:
             return self.DisplayJson(matches)
-        elif self.namespace.showall:
+        if self.namespace.showall:
             return self.DisplayShowall(matches)
-        elif self.namespace.count:
+        if self.namespace.count:
             return self.DisplayCount(matches)
-        else:
-            return self.DisplayNormal(matches)
+        return self.DisplayNormal(matches)
 
     ###########################################################################
     def DisplayCount(self, matches) -> str:
@@ -333,7 +339,6 @@ class Command(HostinfoCommand):
     ###########################################################################
     def DisplayJson(self, matches):
         """Display hosts and other printables in JSON format"""
-        import json
 
         if self.namespace.showall:
             columns = [k.key for k in AllowedKey.objects.all()]
@@ -388,7 +393,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def loadPrintoutCache(self, columns, matches=None):
-        # Load all the information that we have been requested into a cache
+        """Load all the information that we have been requested into a cache"""
         cache = {}
         for p in columns:
             getAK(p)

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#
-# Script to generate orcallator and procallator links in bulk
+"""Script to generate orcallator and procallator links in bulk"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #

@@ -169,6 +169,7 @@ def doHostRenameChoose(request):
 ################################################################################
 @login_required
 def doHostRename(request, srchost, dsthost):
+    """Rename host"""
     starttime = time.time()
     d = {}
     d["srchost"] = srchost
@@ -184,9 +185,7 @@ def doHostRename(request, srchost, dsthost):
 ################################################################################
 @login_required
 def doHostCreateChoose(request):
-    """
-    Get the user to choose a host to create
-    """
+    """Get the user to choose a host to create"""
     starttime = time.time()
     d = {}
     if request.method == "POST":
@@ -204,6 +203,7 @@ def doHostCreateChoose(request):
 ################################################################################
 @login_required
 def doHostCreate(request, hostname):
+    """Create a new host"""
     starttime = time.time()
     d = {}
     d["newhost"] = hostname

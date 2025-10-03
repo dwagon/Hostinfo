@@ -1,3 +1,5 @@
+"""hostinfo_listalias command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,15 +24,21 @@ from host.models import getHost, HostAlias, HostinfoException
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_listalias"""
+
     description = "List aliases"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("-a", "--all", help="List aliases for all hosts", action="store_true")
         parser.add_argument("host", help="List the aliases for this host only", nargs="?")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         outstr = ""
         if namespace.all or not namespace.host:
             aliases = HostAlias.objects.all().order_by("alias").select_related("hostid")

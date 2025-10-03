@@ -1,3 +1,5 @@
+"""hostinfo_renamehost command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,15 +24,21 @@ from host.models import getHost, HostinfoException
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_renamehost"""
+
     description = "Rename a host"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("--src", help="The current name of the host", nargs=1, dest="srchost")
         parser.add_argument("--dst", help="The new name of the host", nargs=1, dest="dsthost")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         hostobj = getHost(namespace.srchost[0])
         if not hostobj:
             raise HostinfoException(f"There is no host called {namespace.srchost[0]}")

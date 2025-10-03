@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#
-# Script to generate host detail view links in bulk
+"""Script to generate host detail view links in bulk"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #

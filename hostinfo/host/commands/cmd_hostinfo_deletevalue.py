@@ -1,3 +1,5 @@
+"""hostinfo_deletevalue"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -24,16 +26,22 @@ from host.models import HostinfoException, KeyValue, getAK
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = "Delete an alias from a host"
+    """hostinfo_deletevalue"""
+
+    description = "Delete a value from a host"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("keyvalue", help="The key or keyvalue to delete (key[=value])")
         parser.add_argument("--readonlyupdate", help="Write to a readonly key", action="store_true")
         parser.add_argument("host", help="The host(s) to delete the value from", nargs="+")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         m = re.match(r"(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
         if m:
             key = m.group("key").lower()
@@ -52,12 +60,11 @@ class Command(HostinfoCommand):
                 kvlist = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
             if not kvlist:
                 raise HostinfoException(f"Host {host} doesn't have key {key}")
-            else:
-                for kv in kvlist:
-                    try:
-                        kv.delete(readonlychange=namespace.readonlyupdate)
-                    except ReadonlyValueException:
-                        raise HostinfoException("Cannot delete a readonly value")
+            for kv in kvlist:
+                try:
+                    kv.delete(readonlychange=namespace.readonlyupdate)
+                except ReadonlyValueException as exc:
+                    raise HostinfoException("Cannot delete a readonly value") from exc
         return None, 0
 
 

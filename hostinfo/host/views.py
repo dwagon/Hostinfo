@@ -74,10 +74,10 @@ def handlePost(request):
     """POST call handling"""
     if "hostname" in request.POST:
         return HttpResponseRedirect(f"/hostinfo/host/{request.POST['hostname']}")
-    elif "hostre" in request.POST:
+    if "hostre" in request.POST:
         hostre_str = request.POST["hostre"].strip()
         return HttpResponseRedirect(f"/hostinfo/hostlist/{hostre_str}.hostre")
-    elif "key0" in request.POST:
+    if "key0" in request.POST:
         expr = ""
         for key in request.POST:
             if key.startswith("key"):

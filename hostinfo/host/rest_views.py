@@ -183,7 +183,8 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
                 kvs = get_list_or_404(KeyValue, hostid=hostid, keyid=keyid)
         sha = [KeyValueSerialize(k, request) for k in kvs]
         return JsonResponse({"result": result, "keyvalues": sha})
-    elif request.method == "POST":
+
+    if request.method == "POST":
         origin = get_origin(request)
         if KeyValue.objects.filter(hostid=hostid, keyid=keyid, value=value):
             result = "duplicate"
@@ -257,7 +258,7 @@ def HostLinkRest(request, hostpk=None, hostname=None, linkpk=None, tagname=None,
             links = [lo]
         sha = [LinkSerialize(lnk, request) for lnk in links]
         return JsonResponse({"result": result, "links": sha})
-    elif request.method == "POST":
+    if request.method == "POST":
         if lo and lo.url == url:
             result = "duplicate"
         elif lo and lo.url != url:
@@ -297,7 +298,8 @@ def HostAliasRest(request, hostpk=None, hostname=None, aliaspk=None, alias=None)
         sha = [HostAliasSerialize(h, request) for h in ha]
         ans = {"result": result, "aliases": sha}
         return JsonResponse(ans)
-    elif request.method == "POST":
+
+    if request.method == "POST":
         if HostAlias.objects.filter(hostid=hostid, alias=alias):
             result = "duplicate"
         else:

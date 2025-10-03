@@ -1,3 +1,5 @@
+"""hostinfo_addvalue command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -28,10 +30,14 @@ from host.models import addKeytoHost
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_addvalue"""
+
     description = "Add a value to a hosts key"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("-o", "--origin", help="The origin of this data")
         parser.add_argument("-a", "--append", help="Append to a list type key", action="store_true")
         parser.add_argument("-u", "--update", help="Replace an existing value", action="store_true")
@@ -41,6 +47,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         m = re.match(r"(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
         if not m:
             raise HostinfoException("Must be specified in key=value format")
@@ -60,18 +68,18 @@ class Command(HostinfoCommand):
                     updateFlag=namespace.update,
                     appendFlag=namespace.append,
                 )
-            except RestrictedValueException:
+            except RestrictedValueException as exc:
                 raise RestrictedValueException(
                     f"Cannot add {key}={value} to a restricted key",
                     key=key,
                     retval=2,
-                )
-            except ReadonlyValueException:
-                raise ReadonlyValueException(f"Cannot add {key}={value} to a readonly key", retval=3)
-            except HostinfoException as err:
+                ) from exc
+            except ReadonlyValueException as exc:
+                raise ReadonlyValueException(f"Cannot add {key}={value} to a readonly key", retval=3) from exc
+            except HostinfoException as exc:
                 raise
-            except TypeError as err:  # pragma: nocover
-                raise HostinfoException(f"Couldn't add value {value} to {host} - {err}")
+            except TypeError as exc:  # pragma: nocover
+                raise HostinfoException(f"Couldn't add value {value} to {host} - {exc}") from exc
         return None, 0
 
 

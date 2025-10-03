@@ -1,3 +1,5 @@
+"""hostinfo_replacevalue command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -28,10 +30,14 @@ from host.models import getAK
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = "Add alias to a host"
+    """hostinfo_replacevalue command"""
+
+    description = "Replace a value"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument(
             "-k",
             "--kidding",
@@ -50,6 +56,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         m = re.match(r"(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue[0])
         if not m:
             raise HostinfoException(f"Must be in key=value format, not {namespace.keyvalue[0]}")

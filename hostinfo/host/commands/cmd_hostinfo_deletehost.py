@@ -1,3 +1,5 @@
+"""hostinfo_deletehost"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,15 +24,21 @@ from host.models import KeyValue, HostAlias, getHost
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_deletehost"""
+
     description = "Delete a host"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("--lethal", help="Actually do the delete - NO UNDO", action="store_true")
         parser.add_argument("host", help="Name of host to delete")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         host = namespace.host.lower()
         h = getHost(host)
         if not h:

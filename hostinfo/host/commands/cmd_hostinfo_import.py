@@ -1,4 +1,4 @@
-"""Command to import hostinfo data"""
+"""hostinfo_import comand"""
 
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
@@ -30,13 +30,13 @@ _akcache = {}
 
 ###############################################################################
 class Command(HostinfoCommand):
-    """Base Class"""
+    """hostinfo_history"""
 
     description = "Import data from XML file"
 
     ###########################################################################
     def parseArgs(self, parser):
-        """Parse command line arguments"""
+        """Parse args"""
         parser.add_argument(
             "-k",
             dest="kiddingFlag",
@@ -61,9 +61,8 @@ class Command(HostinfoCommand):
             xmltree = xml.etree.ElementTree.parse(namespace.xmlfile)
         except IOError as exc:
             if exc.errno == 2:
-                raise HostinfoException(f"File {namespace.xmlfile} doesn't exist")
-            else:
-                raise HostinfoException(f"File {namespace.xmlfile} not readable (errno={exc.errno})")
+                raise HostinfoException(f"File {namespace.xmlfile} doesn't exist") from exc
+            raise HostinfoException(f"File {namespace.xmlfile} not readable (errno={exc.errno})") from exc
 
         for key in xmltree.findall("key"):
             self.handleKey(key)

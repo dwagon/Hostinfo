@@ -1,3 +1,5 @@
+"""hostinfo_deletelink"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,16 +24,22 @@ from host.models import getHost
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_deletelink"""
+
     description = "Delete a link to a host"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("--everytag", help="Delete all links", action="store_true")
         parser.add_argument("--tag", help="The link tag", nargs=1)
         parser.add_argument("host", help="The host to delete the link from")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         host = namespace.host.lower()
         targhost = getHost(host)
         if not targhost:

@@ -19,8 +19,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import importlib
 import os
 import re
+import string
 import sys
 import time
 from collections import defaultdict
@@ -87,7 +89,7 @@ class HostinfoInternalException(HostinfoException):  # pragma: no cover
 
 ################################################################################
 def getUser(instance=None):
-    """Get the user for the audittrail
+    """Get the user for the audit trail
     For command line access use the persons login name
     """
     username = user = None
@@ -121,6 +123,7 @@ class Host(models.Model):
 
     ############################################################################
     def save(self, user=None, **kwargs):
+        """Save the model with an undolog entry"""
         global _all_hosts
         if not user:
             user = getUser()
@@ -133,12 +136,13 @@ class Host(models.Model):
 
     ############################################################################
     def delete(self, user=None):
+        """Delete the model with an undolog entry"""
         global _all_hosts
         if not user:
             user = getUser()
         undo = UndoLog(user=user, action=f"hostinfo_addhost {self.hostname}")
         undo.save()
-        super(Host, self).delete()
+        super().delete()
         _all_hosts = None
 
     ############################################################################
@@ -147,6 +151,8 @@ class Host(models.Model):
 
     ############################################################################
     class Meta:
+        """Order by hostname"""
+
         ordering = ["hostname"]
 
 
@@ -154,6 +160,8 @@ class Host(models.Model):
 ################################################################################
 ################################################################################
 class HostAlias(models.Model):
+    """Host Alias"""
+
     hostid = models.ForeignKey(Host, db_index=True, related_name="aliases", on_delete=models.CASCADE)
     alias = models.CharField(max_length=200, unique=True)
     origin = models.CharField(max_length=200, blank=True)
@@ -174,6 +182,8 @@ class HostAlias(models.Model):
 ################################################################################
 ################################################################################
 class AllowedKey(models.Model):
+    """Allowed Keys"""
+
     key = models.CharField(max_length=200)
     TYPE_CHOICES = ((1, "single"), (2, "list"), (3, "date"))
     validtype = models.IntegerField(choices=TYPE_CHOICES, default=1)
@@ -194,6 +204,8 @@ class AllowedKey(models.Model):
 
     ############################################################################
     class Meta:
+        """Order by key"""
+
         ordering = ["key"]
 
 
@@ -201,6 +213,8 @@ class AllowedKey(models.Model):
 ################################################################################
 ################################################################################
 class KeyValue(models.Model):
+    """Key Values associated with a host"""
+
     hostid = models.ForeignKey(Host, db_index=True, on_delete=models.CASCADE)
     keyid = models.ForeignKey(AllowedKey, db_index=True, on_delete=models.CASCADE)
     value = models.CharField(max_length=200, blank=True)
@@ -212,6 +226,7 @@ class KeyValue(models.Model):
 
     ############################################################################
     def save(self, user=None, readonlychange=False, **kwargs):
+        """Save the model with an undolog entry"""
         if not user:
             user = getUser()
         self.value = self.value.lower().strip()
@@ -245,10 +260,11 @@ class KeyValue(models.Model):
         # Actually do the saves
         if not self.keyid.auditFlag:
             self.skip_history_when_saving = True
-        super(KeyValue, self).save(**kwargs)
+        super().save(**kwargs)
 
     ############################################################################
     def delete(self, user=None, readonlychange=False):
+        """Delete the model with an undolog entry"""
         if not user:
             user = getUser()
         if self.keyid.readonlyFlag and not readonlychange:
@@ -259,7 +275,7 @@ class KeyValue(models.Model):
             undoflag = ""
         undo = UndoLog(user=user, action=f"hostinfo_addvalue {undoflag} {self.keyid}={self.value} {self.hostid}")
         undo.save()
-        super(KeyValue, self).delete()
+        super().delete()
 
     ############################################################################
     def __str__(self):  # pragma: no cover
@@ -274,6 +290,8 @@ class KeyValue(models.Model):
 ################################################################################
 ################################################################################
 class UndoLog(models.Model):
+    """Undo log"""
+
     user = models.CharField(max_length=200)
     actiondate = models.DateTimeField(auto_now=True)
     action = models.CharField(max_length=200)
@@ -289,7 +307,7 @@ class UndoLog(models.Model):
         else:
             self.user = self.user[:200]
         self.action = self.action[:200]
-        super(UndoLog, self).save(**kwargs)
+        super().save(**kwargs)
 
 
 ################################################################################
@@ -486,7 +504,6 @@ def oneoff(val):
     """Copied from norvig.com/spell-correct.html
     A page of true awesomeness
     """
-    import string
 
     alphabet = string.ascii_lowercase + string.digits
     s = [(val[:i], val[i:]) for i in range(len(val) + 1)]
@@ -698,11 +715,9 @@ def getOrigin(origin):
 ################################################################################
 def checkHost(host):
     """Check to make sure that a host exists"""
-    h = Host.objects.filter(hostname=host)
-    if h:
+    if Host.objects.filter(hostname=host):
         return True
-    else:
-        return False
+    return False
 
 
 ################################################################################
@@ -773,21 +788,25 @@ def addKeytoHost(
 
 ###############################################################################
 class HostinfoCommand(object):
+    """Base for all hostinfo command lines"""
+
     description = None
     epilog = None
 
     def over_parseArgs(self):
+        """Call parseArgs of the command"""
         parser = argparse.ArgumentParser(description=self.description, epilog=self.epilog)
         self.parseArgs(parser)
         self.namespace = parser.parse_args(sys.argv[1:])
 
     def over_handle(self):
+        """Call the handle() of the command"""
         return self.handle(self.namespace)
 
 
 ###############################################################################
 def run_from_cmdline():
-    import importlib
+    """Run the command by using the command name"""
 
     start_time = time.time()
     cmdname = f"host.commands.cmd_{os.path.basename(sys.argv[0])}"

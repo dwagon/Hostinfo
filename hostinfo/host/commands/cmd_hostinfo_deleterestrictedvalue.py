@@ -1,3 +1,5 @@
+"""hostinfo_deleterestrictedvalue command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -24,14 +26,20 @@ from host.models import RestrictedValue, HostinfoException
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_deleterestrictedvalue"""
+
     description = "Remove an allowable value from a restricted key"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("keyvalue", help="Name of the key/value pair to disallow (key=value)")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         m = re.match(r"(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
         if not m:
             raise HostinfoException("Must be specified in key=value format")

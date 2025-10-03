@@ -1,3 +1,5 @@
+"""hostinfo_mergehost command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -25,10 +27,14 @@ from host.models import getHost, HostinfoException, KeyValue
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_mergehost"""
+
     description = "Merge two hosts"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("-f", "--force", help="Force the merge", action="store_true", default=False)
         parser.add_argument(
             "-k",
@@ -41,6 +47,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         self.kidding = namespace.kidding
         self.force = namespace.force
         srchostobj = getHost(namespace.srchost[0])
@@ -71,8 +79,7 @@ class Command(HostinfoCommand):
         keytype = srckey.keyid.get_validtype_display()
         if keytype == "list":
             return self.transferListKey(srckey, srchostobj, dsthostobj)
-        else:
-            return self.transferSingleKey(srckey, srchostobj, dsthostobj)
+        return self.transferSingleKey(srckey, srchostobj, dsthostobj)
 
     ###############################################################################
     def transferListKey(self, srckey, srchostobj, dsthostobj):

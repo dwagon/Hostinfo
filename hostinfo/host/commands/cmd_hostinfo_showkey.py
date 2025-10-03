@@ -1,3 +1,5 @@
+"""hostinfo_showkey command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,10 +24,14 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_showkey"""
+
     description = "Report on available keys"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument(
             "--type",
             help="Display just the types",
@@ -36,12 +42,14 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         outstr = []
         allkeys = AllowedKey.objects.all()
         if namespace.keylist:
-            keys = [k for k in allkeys if k.key in namespace.keylist]
+            keys = [_ for _ in allkeys if _.key in namespace.keylist]
         else:
-            keys = [k for k in allkeys]
+            keys = list(allkeys)
 
         if not keys:
             raise HostinfoException("No keys to show")

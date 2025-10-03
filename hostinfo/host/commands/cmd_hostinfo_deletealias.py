@@ -1,3 +1,5 @@
+"""hostinfo_deletealias command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,14 +24,20 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_deletealias"""
+
     description = "Delete an alias from a host"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("alias", help="The alias to delete")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         alias = namespace.alias.lower()
         aliases = HostAlias.objects.filter(alias=alias)
         if len(aliases) == 0:
