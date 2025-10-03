@@ -1,7 +1,7 @@
 import glob
 import os
+import importlib
 
-import imp
 from django.conf import settings
 from django.shortcuts import render
 
@@ -52,7 +52,8 @@ def module_from_path(filepath):
     dirname, filename = os.path.split(filepath)
     mod_name = filename.replace(".py", "")
     dot_py_suffix = (".py", "U", 1)  # From imp.get_suffixes()[2]
-    return imp.load_module(mod_name, open(filepath), filepath, dot_py_suffix)
+    # return imp.load_module(mod_name, open(filepath), filepath, dot_py_suffix)
+    return importlib.import_module(mod_name)
 
 
 # EOF

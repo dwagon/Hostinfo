@@ -592,7 +592,7 @@ class test_orderhostlist(TestCase):
             kv = KeyValue(hostid=t, keyid=self.key1, value=h)
             kv.save()
             self.kvals.append(kv)
-            kv = KeyValue(hostid=t, keyid=self.key2, value=f"{h}1" % h)
+            kv = KeyValue(hostid=t, keyid=self.key2, value=f"{h}1")
             kv.save()
             self.kvals.append(kv)
             kv = KeyValue(hostid=t, keyid=self.key2, value="2")

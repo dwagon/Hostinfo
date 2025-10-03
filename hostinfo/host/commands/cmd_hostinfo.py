@@ -118,7 +118,7 @@ class Command(HostinfoCommand):
         return output, retval
 
     ###########################################################################
-    def Display(self, matches):
+    def Display(self, matches) -> str:
         """Display the list of hosts that matched the criteria"""
         # Sort the hosts alphabetically
         tmpl = [(_hostcache[id].hostname, id) for id in matches]
@@ -141,9 +141,9 @@ class Command(HostinfoCommand):
             return self.DisplayNormal(matches)
 
     ###########################################################################
-    def DisplayCount(self, matches):
+    def DisplayCount(self, matches) -> str:
         """Display a count of matching hosts"""
-        return len(matches)
+        return str(len(matches))
 
     ###########################################################################
     def DisplayValuereport(self, matches):
@@ -158,7 +158,6 @@ class Command(HostinfoCommand):
         total = len(matches)
         if total == 0:
             return ""
-        nummatch = 0
         kvlist = KeyValue.objects.filter(keyid__key=self.namespace.valuereport[0]).values_list(
             "hostid", "value", "numvalue"
         )
@@ -179,8 +178,8 @@ class Command(HostinfoCommand):
 
         tmpvalues.sort()
 
-        outstr += f"{self.namespace.valuereport[0]} set: {nummatch} {100.0 * nummatch / total:0.2%}\n"
-        outstr += f"{self.namespace.valuereport[0]} unset: {numundef} {100.0 * numundef / total:0.2%}\n"
+        outstr += f"{self.namespace.valuereport[0]} set: {nummatch} {nummatch / total:0.2%}\n"
+        outstr += f"{self.namespace.valuereport[0]} unset: {numundef} {numundef / total:0.2%}\n"
         outstr += "\n"
         for k, v, p in tmpvalues:
             outstr += f"{k} {v} %0.2f%%\n" % p
@@ -430,11 +429,11 @@ class Command(HostinfoCommand):
                         if self.namespace.origin:
                             val += f"[Origin: {kv['origin']}]"
                         if self.namespace.times:
-                            val += f"[Created: {kv['createdate']}, Modified: {kv['modifieddate']}"
+                            val += f"[Created: {kv['createdate']}, Modified: {kv['modifieddate']}]"
                         val += self.namespace.sep[0]
                 output += f"{p}={val[:-1]}\t"
 
-            outstr += "{output.rstrip()}{self.namespace.hsep[0]}"
+            outstr += f"{output.rstrip()}{self.namespace.hsep[0]}"
         if outstr and not outstr.endswith("\n"):
             outstr = f"{outstr[:-1]}\n"
         return outstr

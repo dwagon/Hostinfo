@@ -1,4 +1,4 @@
-""" Key based tests for hostinfo"""
+"""Key based tests for hostinfo"""
 
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
@@ -48,7 +48,7 @@ class test_SingleKey(TestCase):
 
     ###########################################################################
     def checkValue(self, host, key):
-        """ TODO """
+        """TODO"""
         keyid = getAK(key)
         hostid = getHost(host)
         kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
@@ -56,7 +56,7 @@ class test_SingleKey(TestCase):
 
     ###########################################################################
     def checkNumValue(self, host, key):
-        """ TODO """
+        """TODO"""
         keyid = getAK(key)
         hostid = getHost(host)
         kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
@@ -160,7 +160,7 @@ class test_ListKey(TestCase):
 
     ###########################################################################
     def checkValue(self, host, key):
-        """ TODO """
+        """TODO"""
         keyid = getAK(key)
         hostid = getHost(host)
         kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
@@ -282,7 +282,7 @@ class test_DateKey(TestCase):
 
     ###########################################################################
     def checkValue(self, host, key):
-        """ TODO """
+        """TODO"""
         keyid = getAK(key)
         hostid = getHost(host)
         kv = KeyValue.objects.filter(hostid=hostid, keyid=keyid)
