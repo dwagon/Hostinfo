@@ -48,7 +48,7 @@ class existingHostField(forms.CharField):
 class newHostField(forms.CharField):
     """A field for a host that should not already exist"""
 
-    def clean(self, value):
+    def clean(self, value: str) -> str:
         if not value:
             raise forms.ValidationError("Supply a valid host name")
         try:

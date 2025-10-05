@@ -23,7 +23,7 @@ register = template.Library()
 
 
 @register.filter
-def local_escape(value):
+def local_escape(value: str) -> str:
     """
     Go through a list and everytime it is called return the first element or return
     """

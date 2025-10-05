@@ -27,6 +27,7 @@ import sys
 import time
 from collections import defaultdict
 from operator import itemgetter
+from typing import Optional, Any, NewType
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -35,8 +36,8 @@ from django.db import models, connection
 from simple_history.models import HistoricalRecords
 
 _akcache = {None: None}
-_all_hosts = None
-_all_hosts_cache_time = None
+_all_hosts: Optional[models.QuerySet] = None
+_all_hosts_cache_time: Optional[float] = None
 
 
 ################################################################################
@@ -103,7 +104,7 @@ def getUser(instance=None):
 
 
 ############################################################################
-def auditedKey(instance):
+def auditedKey(instance) -> bool:
     """Return True if the AllowKey should be audited"""
     return instance.keyid.auditFlag
 
@@ -225,7 +226,7 @@ class KeyValue(models.Model):
     history = HistoricalRecords()
 
     ############################################################################
-    def save(self, user=None, readonlychange=False, **kwargs):
+    def save(self, user: Optional[str] = None, readonlychange: bool = False, **kwargs: Any):
         """Save the model with an undolog entry"""
         if not user:
             user = getUser()
@@ -263,7 +264,7 @@ class KeyValue(models.Model):
         super().save(**kwargs)
 
     ############################################################################
-    def delete(self, user=None, readonlychange=False):
+    def delete(self, user: Optional[str] = None, readonlychange: bool = False):
         """Delete the model with an undolog entry"""
         if not user:
             user = getUser()
@@ -349,7 +350,7 @@ class Links(models.Model):
 
 
 ############################################################################
-def validateDate(datestr):
+def validateDate(datestr: str) -> str:
     """Convert the various dates to a single format: YYYY-MM-DD"""
     year = -1
     month = -1
@@ -386,14 +387,14 @@ def validateDate(datestr):
 
 
 ################################################################################
-def parseQualifiers(args):
+def parseQualifiers(args) -> list[tuple[str, Optional[str], str]]:
     """
     Go through the supplied qualifiers and analyse them, generate
     a list of qualifier tuples: operator, key, value
     """
 
     # Table of all the operators:
-    #    tag of operator, regexp, threepart (ie. has value)?
+    #    tag of operator, regexp, threepart (i.e. has value)?
     optable = [
         ("unequal", r"!=|\.ne\.", {"threeparts": True}),
         ("equal", r"=|\.eq\.", {"threeparts": True}),  # Has to be after !=
@@ -410,7 +411,7 @@ def parseQualifiers(args):
         ("lengt", r"\.lengt\.", {"threeparts": True}),
     ]
 
-    qualifiers = []
+    qualifiers: list[tuple[str, Optional[str], str]] = []
     for arg in args:
         if arg == "":
             continue
@@ -500,7 +501,7 @@ def calcKeylistVals(key, from_hostids=[]):
 
 
 ################################################################################
-def oneoff(val):
+def oneoff(val: str) -> set[str]:
     """Copied from norvig.com/spell-correct.html
     A page of true awesomeness
     """
@@ -516,16 +517,16 @@ def oneoff(val):
 
 ################################################################################
 def getApproxObjects(keyid, value):
-    """Return all of the hostids that have a value that is approximately
+    """Return all the hostids that have a value that is approximately
     value
     """
     vals = KeyValue.objects.filter(keyid=keyid)
-    approxans = set()
+    approx_ans = set()
     approx = oneoff(value)
     for v in vals:
         if v.value in approx:
-            approxans.add(v)
-    ans = [{"hostid": v.hostid.id} for v in approxans]
+            approx_ans.add(v)
+    ans = [{"hostid": v.hostid.id} for v in approx_ans]
     return ans
 
 
@@ -540,7 +541,7 @@ def get_all_hosts():
 
 
 ################################################################################
-def getHostList(criteria):
+def getHostList(criteria: list[tuple[str, Optional[str], str]]):
     allhosts = {}
     for host in get_all_hosts():
         allhosts[host.id] = host
@@ -552,7 +553,7 @@ def getHostList(criteria):
 
 
 ################################################################################
-def getMatches(qualifiers):
+def getMatches(qualifiers: list[tuple[str, Optional[str], str]]) -> list[int]:
     """Get a list of matching hostids that satisfy the qualifiers
 
     Create a set of all the hostids and then go through each qualifier
@@ -659,14 +660,14 @@ def getMatches(qualifiers):
 
 
 ################################################################################
-def getAliases(hostname):
+def getAliases(hostname: str) -> list[str]:
     """Return the list of aliases that this host has"""
     aliaslist = HostAlias.objects.filter(hostid__hostname=hostname)
     return [a.alias for a in aliaslist]
 
 
 ################################################################################
-def getHost(hostname):
+def getHost(hostname: str) -> Optional[Host]:
     """Return the host object based on the hostname either from the Host or the
     HostAlias. Return None if not found
     """
@@ -689,7 +690,7 @@ def getHost(hostname):
 
 
 ################################################################################
-def getOrigin(origin):
+def getOrigin(origin: str) -> str:
     """Standard 'origin' getter
     Use the origin variable if provided otherwise try and determine who
     is making the change
@@ -713,7 +714,7 @@ def getOrigin(origin):
 
 
 ################################################################################
-def checkHost(host):
+def checkHost(host: str) -> bool:
     """Check to make sure that a host exists"""
     if Host.objects.filter(hostname=host):
         return True
@@ -728,8 +729,8 @@ def clearAKcache():
 
 
 ################################################################################
-def getAK(key):
-    """Lookup AllowedKeys. This is a oft repeated expensive activity so
+def getAK(key: str) -> AllowedKey:
+    """Lookup AllowedKeys. This is an oft repeated expensive activity so
     cache it"""
     global _akcache
     if key not in _akcache:
@@ -742,16 +743,17 @@ def getAK(key):
 
 ################################################################################
 def addKeytoHost(
-    host=None,
-    hostid=None,
-    key=None,
-    keyid=None,
-    value="",
-    origin=None,
-    updateFlag=False,
-    readonlyFlag=False,
-    appendFlag=False,
-):
+    host: Optional[str] = None,
+    hostid: Optional[Host] = None,
+    key: Optional[str] = None,
+    keyid: Optional[AllowedKey] = None,
+    value: str = "",
+    origin: Optional[str] = None,
+    updateFlag: bool = False,
+    readonlyFlag: bool = False,
+    appendFlag: bool = False,
+) -> int:
+    """Add a Key Value pair to a host"""
     retval = 0
     if not keyid:
         keyid = getAK(key)
@@ -790,8 +792,9 @@ def addKeytoHost(
 class HostinfoCommand(object):
     """Base for all hostinfo command lines"""
 
-    description = None
-    epilog = None
+    description: Optional[str] = None
+    epilog: Optional[str] = None
+    namespace: Optional[argparse.Namespace] = None
 
     def over_parseArgs(self):
         """Call parseArgs of the command"""
@@ -799,13 +802,21 @@ class HostinfoCommand(object):
         self.parseArgs(parser)
         self.namespace = parser.parse_args(sys.argv[1:])
 
-    def over_handle(self):
+    def over_handle(self) -> tuple[str, int]:
         """Call the handle() of the command"""
         return self.handle(self.namespace)
 
+    def handle(self, namespace: argparse.Namespace) -> tuple[str, int]:
+        """Do the command"""
+        raise NotImplementedError
+
+    def parseArgs(self, parser: argparse.ArgumentParser) -> argparse.Namespace:
+        """Parse Args"""
+        raise NotImplementedError
+
 
 ###############################################################################
-def run_from_cmdline():
+def run_from_cmdline() -> int:
     """Run the command by using the command name"""
 
     start_time = time.time()

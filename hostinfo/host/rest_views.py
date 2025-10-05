@@ -3,8 +3,9 @@
 # Handle django model.objects
 # pylint: disable=no-member
 import json
+from typing import Any
 
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -17,7 +18,7 @@ from .models import parseQualifiers, getMatches, getHost, HostinfoException
 
 ###############################################################################
 @require_http_methods(["GET"])
-def AliasList(request, *args):
+def AliasList(request: HttpRequest, *args) -> HttpResponse:
     """List aliases"""
     aliases = HostAlias.objects.all()
     ans = {
@@ -28,7 +29,7 @@ def AliasList(request, *args):
 
 
 ###############################################################################
-def getSerializerArgs(request):
+def getSerializerArgs(request: HttpRequest) -> dict[str, bool]:
     """Work out what to send to the client"""
     sargs = {
         "keys": False,
@@ -53,7 +54,7 @@ def getSerializerArgs(request):
 
 ###############################################################################
 @require_http_methods(["GET"])
-def HostQuery(request, query):
+def HostQuery(request: HttpRequest, query: str) -> HttpResponse:
     """Query hosts"""
     sargs = getSerializerArgs(request)
     criteria = query.split("/")
@@ -71,10 +72,10 @@ def HostQuery(request, query):
 
 
 ###############################################################################
-def get_payload(request):
+def get_payload(request: HttpRequest) -> dict[str, str]:
     """Get payload"""
     body_unicode = request.body.decode("utf-8")
-    data = {}
+    data: dict[str, str] = {}
     for k, v in request.GET.items():
         data[k] = v.split(",")
     try:
@@ -100,7 +101,7 @@ def get_origin(request):
 ###############################################################################
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
-def HostDetail(request, hostpk=None, hostname=None):
+def HostDetail(request: HttpRequest, hostpk=None, hostname=None) -> HttpResponse:
     """Details about a host"""
     if request.method == "GET":
         hostid = getReferredHost(hostpk, hostname)
@@ -119,20 +120,21 @@ def HostDetail(request, hostpk=None, hostname=None):
 
 
 ###############################################################################
-def getReferredHost(hostpk=None, hostname=None):
+def getReferredHost(hostpk=None, hostname=None) -> Host:
+    hostid = None
     if hostpk:
         hostid = get_object_or_404(Host, id=hostpk)
     elif hostname:
         hostid = getHost(hostname=hostname)
-        if not hostid:
-            raise Http404(f"Host {hostname} does not exist")
+    if not hostid:
+        raise Http404(f"Host {hostname} does not exist")
     return hostid
 
 
 ###############################################################################
 # /keylist/(keypk, key)/[query]
 @require_http_methods(["GET"])
-def KeyListRest(request, akeypk=None, akey=None, query=None):
+def KeyListRest(request: HttpRequest, akeypk=None, akey=None, query=None) -> HttpResponse:
     """List Keys through REST interface"""
     matches = []
     if akeypk:
@@ -156,7 +158,7 @@ def KeyListRest(request, akeypk=None, akey=None, query=None):
 ###############################################################################
 @require_http_methods(["GET", "POST", "DELETE"])
 @csrf_exempt
-def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value=None):
+def HostKeyRest(request: HttpRequest, hostpk=None, hostname=None, keypk=None, key=None, value=None) -> HttpResponse:
     """API call /host/(hostname|pk)/key/(keyname|pk)[/value]"""
     result = "ok"
     hostid = getReferredHost(hostpk, hostname)
@@ -235,7 +237,7 @@ def HostKeyRest(request, hostpk=None, hostname=None, keypk=None, key=None, value
 # /host/(hostname|pk)/link/(tagname|linkpk)[/url]
 @require_http_methods(["GET", "POST", "DELETE"])
 @csrf_exempt
-def HostLinkRest(request, hostpk=None, hostname=None, linkpk=None, tagname=None, url=None):
+def HostLinkRest(request: HttpRequest, hostpk=None, hostname=None, linkpk=None, tagname=None, url=None) -> HttpResponse:
     """Link related actions through REST"""
     result = "ok"
     hostid = getReferredHost(hostpk, hostname)
@@ -284,7 +286,7 @@ def HostLinkRest(request, hostpk=None, hostname=None, linkpk=None, tagname=None,
 ###############################################################################
 @require_http_methods(["GET", "POST", "DELETE"])
 @csrf_exempt
-def HostAliasRest(request, hostpk=None, hostname=None, aliaspk=None, alias=None):
+def HostAliasRest(request: HttpRequest, hostpk=None, hostname=None, aliaspk=None, alias=None) -> HttpResponse:
     result = "ok"
     hostid = getReferredHost(hostpk, hostname)
     if request.method == "GET":
@@ -320,7 +322,7 @@ def HostAliasRest(request, hostpk=None, hostname=None, aliaspk=None, alias=None)
 
 ###############################################################################
 @require_http_methods(["GET"])
-def HostList(request, *args):  # pylint: disable=unused-argument
+def HostList(request: HttpRequest, *args) -> HttpResponse:  # pylint: disable=unused-argument
     """List the hosts "/api/hosts/" """
     hosts = get_list_or_404(Host)
     ans = {
@@ -332,7 +334,7 @@ def HostList(request, *args):  # pylint: disable=unused-argument
 
 ###############################################################################
 @require_http_methods(["GET"])
-def KeyDetail(request, akeypk=None, akey=None):
+def KeyDetail(request: HttpRequest, akeypk=None, akey=None) -> HttpResponse:
     if akeypk:
         keyid = get_object_or_404(AllowedKey, id=akeypk)
     elif akey:
@@ -343,14 +345,14 @@ def KeyDetail(request, akeypk=None, akey=None):
 
 ###############################################################################
 @require_http_methods(["GET"])
-def KValDetail(request, pk=None):
+def KValDetail(request: HttpRequest, pk=None) -> HttpResponse:
     keyid = get_object_or_404(KeyValue, id=pk)
     ans = {"result": "ok", "keyvalue": KeyValueSerialize(keyid, request)}
     return JsonResponse(ans)
 
 
 ###############################################################################
-def HostSerialize(obj, request, **kwargs):
+def HostSerialize(obj, request: HttpRequest, **kwargs: Any) -> dict[str, Any]:
     """Serialize the host"""
     fields = {
         "keys": False,
@@ -423,7 +425,7 @@ def HostSerialize(obj, request, **kwargs):
 
 
 ###############################################################################
-def AllowedKeySerialize(obj, request):
+def AllowedKeySerialize(obj, request: HttpRequest) -> dict[str, Any]:
     """Serialize the allowed keys"""
     ans = {
         "id": obj.id,
@@ -446,13 +448,13 @@ def AllowedKeySerialize(obj, request):
 
 
 ###############################################################################
-def HostShortSerialize(obj, request):
+def HostShortSerialize(obj, request: HttpRequest) -> dict[str, Any]:
     """Serialize the host but in serialize the minimum for speed"""
     return HostSerialize(obj, request, keys=False, aliases=False, links=False, dates=False)
 
 
 ###############################################################################
-def RestrictedValueSerialize(obj, request):
+def RestrictedValueSerialize(obj, request: HttpRequest) -> dict[str, Any]:
     ans = {
         "id": obj.id,
         "keyid": obj.keyid.id,
@@ -464,7 +466,7 @@ def RestrictedValueSerialize(obj, request):
 
 
 ###############################################################################
-def LinkSerialize(obj, request):
+def LinkSerialize(obj, request: HttpRequest) -> dict[str, Any]:
     ans = {
         "id": obj.id,
         "host": HostShortSerialize(obj.hostid, request),
@@ -476,7 +478,7 @@ def LinkSerialize(obj, request):
 
 
 ###############################################################################
-def KeyValueShortSerialize(obj, request):
+def KeyValueShortSerialize(obj, request: HttpRequest) -> dict[str, Any]:
     ans = {
         "id": obj.id,
         "url": request.build_absolute_uri(reverse("restkval", args=(obj.id,))),
@@ -487,7 +489,7 @@ def KeyValueShortSerialize(obj, request):
 
 
 ###############################################################################
-def KeyValueSerialize(obj, request):
+def KeyValueSerialize(obj, request: HttpRequest) -> dict[str, Any]:
     ans = {
         "id": obj.id,
         "url": request.build_absolute_uri(reverse("restkval", args=(obj.id,))),
@@ -503,7 +505,7 @@ def KeyValueSerialize(obj, request):
 
 
 ###############################################################################
-def HostAliasSerialize(obj, request):
+def HostAliasSerialize(obj, request: HttpRequest) -> dict[str, Any]:
     ans = {
         "id": obj.id,
         "url": request.build_absolute_uri(

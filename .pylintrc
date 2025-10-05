@@ -1,5 +1,5 @@
 [MASTER]
-init-hook='import sys; sys.path.append(".")'
+init-hook='import sys; sys.path.append("."); sys.path.append("/Users/dwagon/code/Hostinfo/hostinfo")'
 
 [MAIN]
 
@@ -76,7 +76,7 @@ limit-inference-results=100
 
 # List of plugins (as comma separated values of python module names) to load,
 # usually to register additional checkers.
-load-plugins=
+load-plugins=pylint_django
 
 # Pickle collected data for later comparisons.
 persistent=yes

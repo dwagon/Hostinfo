@@ -25,7 +25,8 @@ import time
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect
+from django.db.models import QuerySet
+from django.http import HttpResponseRedirect, HttpRequest
 from django.shortcuts import render
 
 from .forms import hostEditForm
@@ -41,7 +42,7 @@ _convertercache = None
 
 
 ################################################################################
-def getHostMergeKeyData(srchost, dsthost):
+def getHostMergeKeyData(srchost: str, dsthost: str) -> list[tuple[str, dict[str, list[str]]]]:
     """Get the list of all keys that either or both of the hosts have
     Force everything to be a list as it is easier than trying
     to do type differentiation in the template
@@ -71,12 +72,12 @@ def getHostMergeKeyData(srchost, dsthost):
 
 
 ################################################################################
-def mergeKey(request, srchostobj, dsthostobj, key):
+def mergeKey(request: HttpRequest, srchostobj: Host, dsthostobj: Host, key: id) -> None:
     """Merge keys"""
-    keyobj = AllowedKey.objects.get(key=key)
+    keyobj: AllowedKey = AllowedKey.objects.get(key=key)
     if keyobj.get_validtype_display() == "list":
-        srckeys = KeyValue.objects.filter(hostid=srchostobj, keyid=keyobj)
-        dstkeys = KeyValue.objects.filter(hostid=dsthostobj, keyid=keyobj)
+        srckeys: QuerySet = KeyValue.objects.filter(hostid=srchostobj, keyid=keyobj)
+        dstkeys: QuerySet = KeyValue.objects.filter(hostid=dsthostobj, keyid=keyobj)
         for dkey in dstkeys:
             dkey.delete(request.user)
         for skey in srckeys:
@@ -95,12 +96,12 @@ def mergeKey(request, srchostobj, dsthostobj, key):
 
 ################################################################################
 @login_required
-def doHostMerging(request, srchost, dsthost):
+def doHostMerging(request: HttpRequest, srchost: int, dsthost: int) -> None:
     """Actually perform the merge
     We use underscores to avoid any future clash with keys that may be picked
     """
-    srchostobj = Host.objects.get(hostname=srchost)
-    dsthostobj = Host.objects.get(hostname=dsthost)
+    srchostobj: Host = Host.objects.get(hostname=srchost)
+    dsthostobj: Host = Host.objects.get(hostname=dsthost)
     for key in request.POST:
         if key.startswith("_"):
             continue
