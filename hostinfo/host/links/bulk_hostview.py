@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#
-# Script to generate host view links in bulk
+"""Script to generate host view links in bulk"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -25,8 +24,8 @@ import sys
 f = os.popen("/app/hostinfo/bin/hostinfo")
 for line in f:
     host = line.strip()
-    if os.path.exists("/app/explorer/output/%s.html" % host):
-        print("%s http://opscmdb/explorers/%s.html HostView" % (host, host))
+    if os.path.exists(f"/app/explorer/output/{host}.html"):
+        print(f"{host} http://opscmdb/explorers/{host}.html HostView")
 f.close()
 
 sys.exit(0)

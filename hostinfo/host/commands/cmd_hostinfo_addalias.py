@@ -1,3 +1,5 @@
+"""hostinfo_addalias command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -16,30 +18,34 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from host.models import getHost, HostAlias, getOrigin
 from host.models import HostinfoCommand, HostinfoException
+from host.models import getHost, HostAlias, getOrigin
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_addalias"""
+
     description = "Add alias to a host"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """parse args"""
         parser.add_argument("host", help="The host to add the alias for")
         parser.add_argument("alias", help="The alias for the host")
         parser.add_argument("--origin", help="The origin of this alias")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
         origin = getOrigin(namespace.origin)
         host = namespace.host.lower()
         alias = namespace.alias.lower()
         targhost = getHost(host)
         if not targhost:
-            raise HostinfoException("Host %s doesn't exist" % host)
+            raise HostinfoException(f"Host {host} doesn't exist")
         if getHost(alias):
-            raise HostinfoException("Host %s already exists" % alias)
+            raise HostinfoException(f"Host {alias} already exists")
         haobj = HostAlias(hostid=targhost, alias=alias, origin=origin)
         haobj.save()
         return None, 0

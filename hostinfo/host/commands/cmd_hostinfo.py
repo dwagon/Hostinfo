@@ -1,3 +1,5 @@
+"""Base hostinfo command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -17,16 +19,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import time
+import json
 from collections import defaultdict
 
 from host.models import AllowedKey, KeyValue, parseQualifiers
-from host.models import getMatches, getAK, Host, getHost
-from host.models import getAliases, RestrictedValue
 from host.models import HostinfoCommand, HostinfoException
+from host.models import getAliases, RestrictedValue
+from host.models import getMatches, getAK, Host, getHost
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo command"""
+
     description = "Retrieve details from hostinfo database"
     epilog = """
      Criteria:
@@ -43,14 +48,13 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
         parser.add_argument(
             "--showall",
             help="Print everything known about the matching hosts",
             action="store_true",
         )
-        parser.add_argument(
-            "--origin", help="Print out origin of data", action="store_true"
-        )
+        parser.add_argument("--origin", help="Print out origin of data", action="store_true")
         parser.add_argument(
             "--aliases",
             help="Print out all aliases of matching host",
@@ -70,28 +74,14 @@ class Command(HostinfoCommand):
             action="store_false",
             default=True,
         )
-        parser.add_argument(
-            "--valuereport", help="Print out frequencies of values", nargs=1
-        )
+        parser.add_argument("--valuereport", help="Print out frequencies of values", nargs=1)
         parser.add_argument("--host", help="For this specific host", nargs=1)
-        parser.add_argument(
-            "--csv", help="Print data in CSV format", action="store_true"
-        )
-        parser.add_argument(
-            "--xml", help="Print data in XML format", action="store_true"
-        )
-        parser.add_argument(
-            "--json", help="Print data in JSON format", action="store_true"
-        )
-        parser.add_argument(
-            "--sep", help="Use <str> as a value separator.", nargs=1, default=", "
-        )
-        parser.add_argument(
-            "--hsep", help="Use <str> as a host separator.", nargs=1, default="\n"
-        )
-        parser.add_argument(
-            "--count", help="Return the number of matching hosts", action="store_true"
-        )
+        parser.add_argument("--csv", help="Print data in CSV format", action="store_true")
+        parser.add_argument("--xml", help="Print data in XML format", action="store_true")
+        parser.add_argument("--json", help="Print data in JSON format", action="store_true")
+        parser.add_argument("--sep", help="Use <str> as a value separator.", nargs=1, default=", ")
+        parser.add_argument("--hsep", help="Use <str> as a host separator.", nargs=1, default="\n")
+        parser.add_argument("--count", help="Return the number of matching hosts", action="store_true")
         parser.add_argument(
             "-p",
             help="Print values of key for matching hosts",
@@ -110,6 +100,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """Do command"""
         global _hostcache
         self.namespace = namespace
         self.printout = namespace.printout
@@ -122,8 +113,8 @@ class Command(HostinfoCommand):
         else:
             try:
                 qualifiers = parseQualifiers(namespace.criteria)
-            except TypeError as err:  # pragma: no cover
-                raise HostinfoException(err)
+            except TypeError as exc:  # pragma: no cover
+                raise HostinfoException(exc) from exc
             matches = getMatches(qualifiers)
         _hostcache = self.getHostCache(matches)
         output = self.Display(matches)
@@ -134,7 +125,7 @@ class Command(HostinfoCommand):
         return output, retval
 
     ###########################################################################
-    def Display(self, matches):
+    def Display(self, matches) -> str:
         """Display the list of hosts that matched the criteria"""
         # Sort the hosts alphabetically
         tmpl = [(_hostcache[id].hostname, id) for id in matches]
@@ -143,23 +134,22 @@ class Command(HostinfoCommand):
 
         if self.namespace.valuereport:
             return self.DisplayValuereport(matches)
-        elif self.namespace.csv:
+        if self.namespace.csv:
             return self.DisplayCSV(matches)
-        elif self.namespace.xml:
+        if self.namespace.xml:
             return self.DisplayXML(matches)
-        elif self.namespace.json:
+        if self.namespace.json:
             return self.DisplayJson(matches)
-        elif self.namespace.showall:
+        if self.namespace.showall:
             return self.DisplayShowall(matches)
-        elif self.namespace.count:
+        if self.namespace.count:
             return self.DisplayCount(matches)
-        else:
-            return self.DisplayNormal(matches)
+        return self.DisplayNormal(matches)
 
     ###########################################################################
-    def DisplayCount(self, matches):
+    def DisplayCount(self, matches) -> str:
         """Display a count of matching hosts"""
-        return "%s" % len(matches)
+        return str(len(matches))
 
     ###########################################################################
     def DisplayValuereport(self, matches):
@@ -174,10 +164,9 @@ class Command(HostinfoCommand):
         total = len(matches)
         if total == 0:
             return ""
-        nummatch = 0
-        kvlist = KeyValue.objects.filter(
-            keyid__key=self.namespace.valuereport[0]
-        ).values_list("hostid", "value", "numvalue")
+        kvlist = KeyValue.objects.filter(keyid__key=self.namespace.valuereport[0]).values_list(
+            "hostid", "value", "numvalue"
+        )
 
         for hostid, value, numvalue in kvlist:
             hostids.add(hostid)
@@ -195,19 +184,11 @@ class Command(HostinfoCommand):
 
         tmpvalues.sort()
 
-        outstr += "%s set: %d %0.2f%%\n" % (
-            self.namespace.valuereport[0],
-            nummatch,
-            100.0 * nummatch / total,
-        )
-        outstr += "%s unset: %d %0.2f%%\n" % (
-            self.namespace.valuereport[0],
-            numundef,
-            100.0 * numundef / total,
-        )
+        outstr += f"{self.namespace.valuereport[0]} set: {nummatch} {nummatch / total:0.2%}\n"
+        outstr += f"{self.namespace.valuereport[0]} unset: {numundef} {numundef / total:0.2%}\n"
         outstr += "\n"
         for k, v, p in tmpvalues:
-            outstr += "%s %d %0.2f%%\n" % (k, v, p)
+            outstr += f"{k} {v} %0.2f%%\n" % p
         return outstr
 
     ###########################################################################
@@ -254,45 +235,33 @@ class Command(HostinfoCommand):
         for key, values in keyvals.items():
             values.sort()
             if self.namespace.origin:
-                originstr = "\t[Origin: %s]" % keyorig[key]
+                originstr = f"\t[Origin: {keyorig[key]}"
             else:
                 originstr = ""
 
             if self.namespace.times:
-                timestr = "\t[Created: %s Modified: %s]" % (
-                    keyctime[key],
-                    keymtime[key],
-                )
+                timestr = f"\t[Created: {keyctime[key]} Modified: {keymtime[key]}"
             else:
                 timestr = ""
-            output.append(
-                "    %s: %-15s%s%s"
-                % (key, self.namespace.sep[0].join(values), originstr, timestr)
-            )
+            output.append(f"    {key}: {self.namespace.sep[0].join(values):<15}%-15s{originstr}{timestr}")
         output.sort()
 
         # Generate the output for the hostname
         if self.namespace.origin:
-            originstr = "\t[Origin: %s]" % _hostcache[host].origin
+            originstr = f"\t[Origin: {_hostcache[host].origin}]"
         else:
             originstr = ""
         if self.namespace.times:
-            timestr = "\t[Created: %s Modified: %s]" % (
-                _hostcache[host].createdate,
-                _hostcache[host].modifieddate,
-            )
+            timestr = "\t[Created: {_hostcache[host].createdate} Modified: {_hostcache[host].modifieddate}]"
         else:
             timestr = ""
 
         # Output the pregenerated output
-        output.insert(0, "%s%s%s" % (_hostcache[host].hostname, originstr, timestr))
+        output.insert(0, f"{_hostcache[host].hostname}{originstr}{timestr}")
 
         if self.namespace.aliases:
-            output.insert(
-                0,
-                "    [Aliases: %s]"
-                % (", ".join(getAliases(_hostcache[host].hostname))),
-            )
+            alias_str = ", ".join(getAliases(_hostcache[host].hostname))
+            output.insert(0, f"    [Aliases: {alias_str}]")
 
         outstr += "\n".join(output)
         return outstr
@@ -312,25 +281,22 @@ class Command(HostinfoCommand):
 
         cache = self.loadPrintoutCache(columns, matches)
         outstr += "<hostinfo>\n"
-        outstr += '  <query date="%s">%s</query>\n' % (
-            time.ctime(),
-            escape(" ".join(sys.argv)),
-        )
+        outstr += f'  <query date="{time.ctime()}">{escape(" ".join(sys.argv))}</query>\n'
         for key in columns:
             k = getAK(key)
             outstr += "  <key>\n"
-            outstr += "    <name>%s</name>\n" % escape(key)
-            outstr += "    <type>%s</type>\n" % k.get_validtype_display()
-            outstr += "    <readonlyFlag>%s</readonlyFlag>\n" % k.readonlyFlag
-            outstr += "    <auditFlag>%s</auditFlag>\n" % k.auditFlag
-            outstr += "    <numericFlag>%s</numericFlag>\n" % k.numericFlag
-            outstr += "    <docpage>%s</docpage>\n" % k.docpage
-            outstr += "    <desc>%s</desc>\n" % k.desc
+            outstr += f"    <name>{escape(key)}</name>\n"
+            outstr += f"    <type>{k.get_validtype_display()}</type>\n"
+            outstr += f"    <readonlyFlag>{k.readonlyFlag}</readonlyFlag>\n"
+            outstr += f"    <auditFlag>{k.auditFlag}</auditFlag>\n"
+            outstr += f"    <numericFlag>{k.numericFlag}</numericFlag>\n"
+            outstr += f"    <docpage>{k.docpage}</docpage>\n"
+            outstr += f"    <desc>{k.desc}</desc>\n"
             if k.restrictedFlag:
                 outstr += "    <restricted>\n"
                 rvlist = RestrictedValue.objects.filter(keyid__key=key)
                 for rv in rvlist:
-                    outstr += "        <value>%s</value>\n" % escape(rv.value)
+                    outstr += f"        <value>{escape(rv.value)}</value>\n"
                 outstr += "    </restricted>\n"
             outstr += "  </key>\n"
 
@@ -338,28 +304,19 @@ class Command(HostinfoCommand):
             if self.namespace.aliases:
                 aliaslist = getAliases(_hostcache[host].hostname)
             if self.namespace.origin:
-                hostorigin = ' origin="%s" ' % _hostcache[host].origin
+                hostorigin = f' origin="{_hostcache[host].origin}" '
             else:
                 hostorigin = ""
             if self.namespace.times:
-                hostdates = ' modified="%s" created="%s" ' % (
-                    _hostcache[host].modifieddate,
-                    _hostcache[host].createdate,
-                )
+                hostdates = f' modified="{_hostcache[host].modifieddate}" created="{_hostcache[host].createdate}" '
             else:
                 hostdates = ""
-            outstr += '  <host docpage="%s" %s%s>\n' % (
-                _hostcache[host].docpage,
-                hostorigin,
-                hostdates,
-            )
-            outstr += "    <hostname>%s</hostname>\n" % escape(
-                _hostcache[host].hostname
-            )
+            outstr += f'  <host docpage="{_hostcache[host].docpage}" {hostorigin}{hostdates}>\n'
+            outstr += f"    <hostname>{escape(_hostcache[host].hostname)}</hostname>\n"
             if self.namespace.aliases and aliaslist:
                 outstr += "    <aliaslist>\n"
                 for alias in aliaslist:
-                    outstr += "      <alias>%s</alias>\n" % escape(alias)
+                    outstr += f"      <alias>{escape(alias)}</alias>\n"
                 outstr += "    </aliaslist>\n"
             outstr += "    <data>\n"
             for p in columns:
@@ -367,15 +324,12 @@ class Command(HostinfoCommand):
                     pass
                 else:
                     for c in cache[p][host]:
-                        outstr += '      <confitem key="%s"' % p
+                        outstr += f'      <confitem key="{p}"'
                         if self.namespace.origin:
-                            outstr += " origin=%s" % quoteattr(c["origin"])
+                            outstr += f" origin={quoteattr(c['origin'])}"
                         if self.namespace.times:
-                            outstr += ' modified="%s" created="%s"' % (
-                                c["modifieddate"],
-                                c["createdate"],
-                            )
-                        outstr += ">%s</confitem>\n" % escape(c["value"])
+                            outstr += f' modified="{c["modifieddate"]}" created="{c["createdate"]}"'
+                        outstr += f">{escape(c['value'])}</confitem>\n"
 
             outstr += "    </data>\n"
             outstr += "  </host>\n"
@@ -385,7 +339,6 @@ class Command(HostinfoCommand):
     ###########################################################################
     def DisplayJson(self, matches):
         """Display hosts and other printables in JSON format"""
-        import json
 
         if self.namespace.showall:
             columns = [k.key for k in AllowedKey.objects.all()]
@@ -422,29 +375,25 @@ class Command(HostinfoCommand):
         cache = self.loadPrintoutCache(columns, matches)
 
         if self.namespace.header:
-            output.append(
-                "hostname%s%s"
-                % (self.namespace.sep[0], self.namespace.sep[0].join(columns))
-            )
+            output.append(f"hostname{self.namespace.sep[0]}{self.namespace.sep[0].join(columns)}")
 
         for host in matches:
-            outline = "%s" % _hostcache[host].hostname
+            outline = str(_hostcache[host].hostname)
             for p in columns:
                 outline += self.namespace.sep[0]
                 if host not in cache[p] or len(cache[p][host]) == 0:
                     pass
                 else:
                     vals = sorted(cache[p][host], key=lambda x: x["value"])
-                    outline += '"%s"' % (
-                        self.namespace.sep[0].join([c["value"] for c in vals])
-                    )
+                    val_str = self.namespace.sep[0].join([_["value"] for _ in vals])
+                    outline += f'"{val_str}"'
 
             output.append(outline)
         return "\n".join(output)
 
     ###########################################################################
     def loadPrintoutCache(self, columns, matches=None):
-        # Load all the information that we have been requested into a cache
+        """Load all the information that we have been requested into a cache"""
         cache = {}
         for p in columns:
             getAK(p)
@@ -467,16 +416,13 @@ class Command(HostinfoCommand):
         outstr = ""
 
         for host in matches:
-            output = "%s\t" % _hostcache[host].hostname
+            output = f"{_hostcache[host].hostname}\t"
 
             # Generate the output for the hostname
             if self.namespace.origin:
-                output += "[Origin: %s]\t" % _hostcache[host].origin
+                output += f"[Origin: {_hostcache[host].origin}]\t"
             if self.namespace.times:
-                output += "[Created: %s Modified: %s]\t" % (
-                    _hostcache[host].createdate,
-                    _hostcache[host].modifieddate,
-                )
+                output += f"[Created: {_hostcache[host].createdate} Modified: {_hostcache[host].modifieddate}]\t"
 
             for p in self.printout:
                 val = ""
@@ -484,20 +430,17 @@ class Command(HostinfoCommand):
                     val = ""
                 else:
                     for kv in sorted(cache[p][host], key=lambda x: x["value"]):
-                        val += "%s" % kv["value"]
+                        val += str(kv["value"])
                         if self.namespace.origin:
-                            val += "[Origin: %s]" % kv["origin"]
+                            val += f"[Origin: {kv['origin']}]"
                         if self.namespace.times:
-                            val += "[Created: %s, Modified: %s]" % (
-                                kv["createdate"],
-                                kv["modifieddate"],
-                            )
+                            val += f"[Created: {kv['createdate']}, Modified: {kv['modifieddate']}]"
                         val += self.namespace.sep[0]
-                output += "%s=%s\t" % (p, val[:-1])
+                output += f"{p}={val[:-1]}\t"
 
-            outstr += "%s%s" % (output.rstrip(), self.namespace.hsep[0])
+            outstr += f"{output.rstrip()}{self.namespace.hsep[0]}"
         if outstr and not outstr.endswith("\n"):
-            outstr = "%s%s" % (outstr[:-1], "\n")
+            outstr = f"{outstr[:-1]}\n"
         return outstr
 
 

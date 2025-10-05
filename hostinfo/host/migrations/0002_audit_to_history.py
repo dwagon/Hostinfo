@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
 from django.conf import settings
+from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
@@ -18,16 +18,12 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.IntegerField(
-                        verbose_name="ID", db_index=True, auto_created=True, blank=True
-                    ),
+                    models.IntegerField(verbose_name="ID", db_index=True, auto_created=True, blank=True),
                 ),
                 ("key", models.CharField(max_length=200)),
                 (
                     "validtype",
-                    models.IntegerField(
-                        default=1, choices=[(1, b"single"), (2, b"list"), (3, b"date")]
-                    ),
+                    models.IntegerField(default=1, choices=[(1, b"single"), (2, b"list"), (3, b"date")]),
                 ),
                 ("desc", models.CharField(max_length=250, blank=True)),
                 ("createdate", models.DateField(editable=False, blank=True)),
@@ -63,9 +59,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.IntegerField(
-                        verbose_name="ID", db_index=True, auto_created=True, blank=True
-                    ),
+                    models.IntegerField(verbose_name="ID", db_index=True, auto_created=True, blank=True),
                 ),
                 ("hostname", models.CharField(max_length=200, db_index=True)),
                 ("origin", models.CharField(max_length=200, blank=True)),
@@ -97,9 +91,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.IntegerField(
-                        verbose_name="ID", db_index=True, auto_created=True, blank=True
-                    ),
+                    models.IntegerField(verbose_name="ID", db_index=True, auto_created=True, blank=True),
                 ),
                 (
                     "hostid_id",
@@ -134,9 +126,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.IntegerField(
-                        verbose_name="ID", db_index=True, auto_created=True, blank=True
-                    ),
+                    models.IntegerField(verbose_name="ID", db_index=True, auto_created=True, blank=True),
                 ),
                 (
                     "hostid_id",
@@ -172,9 +162,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.IntegerField(
-                        verbose_name="ID", db_index=True, auto_created=True, blank=True
-                    ),
+                    models.IntegerField(verbose_name="ID", db_index=True, auto_created=True, blank=True),
                 ),
                 (
                     "hostid_id",
@@ -208,9 +196,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.IntegerField(
-                        verbose_name="ID", db_index=True, auto_created=True, blank=True
-                    ),
+                    models.IntegerField(verbose_name="ID", db_index=True, auto_created=True, blank=True),
                 ),
                 ("keyid_id", models.IntegerField(db_index=True, null=True, blank=True)),
                 ("value", models.CharField(max_length=200)),

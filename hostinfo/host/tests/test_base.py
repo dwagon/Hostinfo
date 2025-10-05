@@ -1,4 +1,4 @@
-""" Test rig for hostinfo"""
+"""Test rig for hostinfo"""
 
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
@@ -23,17 +23,15 @@ import time
 
 from django.test import TestCase
 from django.test.client import Client
-
-from host.models import HostinfoException
+from host.edits import getHostMergeKeyData
 from host.models import Host, HostAlias, AllowedKey, Links
-from host.models import validateDate, clearAKcache, calcKeylistVals
-from host.models import parseQualifiers, getMatches
-from host.models import getHost, checkHost, getAK
+from host.models import HostinfoException
 from host.models import addKeytoHost, KeyValue
-
+from host.models import getHost, checkHost, getAK
+from host.models import parseQualifiers, getMatches, Qualifier
+from host.models import validateDate, clearAKcache, calcKeylistVals
 from host.views import hostviewrepr, hostData
 from host.views import orderHostList
-from host.edits import getHostMergeKeyData
 
 
 ###############################################################################
@@ -42,7 +40,7 @@ class test_DateValidator(TestCase):
 
     ###########################################################################
     def test_formats(self):
-        """ Test different date formats """
+        """Test different date formats"""
         self.assertEqual(validateDate("2012-12-31"), "2012-12-31")
         self.assertEqual(validateDate("31/12/2012"), "2012-12-31")
         self.assertEqual(validateDate("31/12/12"), "2012-12-31")
@@ -50,7 +48,7 @@ class test_DateValidator(TestCase):
 
     ###########################################################################
     def test_today(self):
-        """ Does today equal now """
+        """Does today equal now"""
         now = time.strftime("%Y-%m-%d")
         self.assertEqual(validateDate("now"), now)
         self.assertEqual(validateDate("today"), now)
@@ -117,53 +115,29 @@ class test_parseQualifiers(TestCase):
 
     ###########################################################################
     def test_singles(self):
-        self.assertEqual(
-            parseQualifiers(["kpq!=value"]), [("unequal", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.ne.value"]), [("unequal", "kpq", "value")]
-        )
-        self.assertEqual(parseQualifiers(["kpq=value"]), [("equal", "kpq", "value")])
-        self.assertEqual(
-            parseQualifiers(["kpq.eq.value"]), [("equal", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq<value"]), [("lessthan", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.lt.value"]), [("lessthan", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq>value"]), [("greaterthan", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.gt.value"]), [("greaterthan", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq~value"]), [("contains", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.ss.value"]), [("contains", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq%value"]), [("notcontains", "kpq", "value")]
-        )
-        self.assertEqual(
-            parseQualifiers(["kpq.ns.value"]), [("notcontains", "kpq", "value")]
-        )
-        self.assertEqual(parseQualifiers(["kpq@value"]), [("approx", "kpq", "value")])
-        self.assertEqual(
-            parseQualifiers(["kpq.ap.value"]), [("approx", "kpq", "value")]
-        )
-        self.assertEqual(parseQualifiers(["kpq.undef"]), [("undef", "kpq", "")])
-        self.assertEqual(parseQualifiers(["kpq.unset"]), [("undef", "kpq", "")])
-        self.assertEqual(parseQualifiers(["kpq.def"]), [("def", "kpq", "")])
-        self.assertEqual(parseQualifiers(["kpq.set"]), [("def", "kpq", "")])
-        self.assertEqual(parseQualifiers(["kpq.leneq.1"]), [("leneq", "kpq", "1")])
-        self.assertEqual(parseQualifiers(["kpq.lenlt.2"]), [("lenlt", "kpq", "2")])
-        self.assertEqual(parseQualifiers(["kpq.lengt.3"]), [("lengt", "kpq", "3")])
-        self.assertEqual(parseQualifiers(["HOST.hostre"]), [("hostre", "host", "")])
-        self.assertEqual(parseQualifiers(["HOST"]), [("host", None, "host")])
+        self.assertEqual(parseQualifiers(["kpq!=value"]), [(Qualifier.UNEQUAL, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.ne.value"]), [(Qualifier.UNEQUAL, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq=value"]), [(Qualifier.EQUAL, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.eq.value"]), [(Qualifier.EQUAL, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq<value"]), [(Qualifier.LESS_THAN, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.lt.value"]), [(Qualifier.LESS_THAN, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq>value"]), [(Qualifier.GREATER_THAN, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.gt.value"]), [(Qualifier.GREATER_THAN, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq~value"]), [(Qualifier.CONTAINS, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.ss.value"]), [(Qualifier.CONTAINS, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq%value"]), [(Qualifier.NOT_CONTAINS, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.ns.value"]), [(Qualifier.NOT_CONTAINS, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq@value"]), [(Qualifier.APPROX, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.ap.value"]), [(Qualifier.APPROX, "kpq", "value")])
+        self.assertEqual(parseQualifiers(["kpq.undef"]), [(Qualifier.UNDEF, "kpq", "")])
+        self.assertEqual(parseQualifiers(["kpq.unset"]), [(Qualifier.UNDEF, "kpq", "")])
+        self.assertEqual(parseQualifiers(["kpq.def"]), [(Qualifier.DEF, "kpq", "")])
+        self.assertEqual(parseQualifiers(["kpq.set"]), [(Qualifier.DEF, "kpq", "")])
+        self.assertEqual(parseQualifiers(["kpq.leneq.1"]), [(Qualifier.LEN_EQ, "kpq", "1")])
+        self.assertEqual(parseQualifiers(["kpq.lenlt.2"]), [(Qualifier.LEN_LT, "kpq", "2")])
+        self.assertEqual(parseQualifiers(["kpq.lengt.3"]), [(Qualifier.LEN_GT, "kpq", "3")])
+        self.assertEqual(parseQualifiers(["HOST.hostre"]), [(Qualifier.HOST_RE, "host", "")])
+        self.assertEqual(parseQualifiers(["HOST"]), [(Qualifier.HOST, None, "host")])
         self.assertEqual(parseQualifiers([]), [])
 
     ###########################################################################
@@ -172,7 +146,7 @@ class test_parseQualifiers(TestCase):
         host.save()
         self.assertEqual(
             parseQualifiers(["hosta.lt.example.com"]),
-            [("host", None, "hosta.lt.example.com")],
+            [(Qualifier.HOST, None, "hosta.lt.example.com")],
         )
         host.delete()
         with self.assertRaises(HostinfoException):
@@ -183,9 +157,9 @@ class test_parseQualifiers(TestCase):
         self.assertEqual(
             parseQualifiers(["kpq!=value", "kpq.def", "kpq@value"]),
             [
-                ("unequal", "kpq", "value"),
-                ("def", "kpq", ""),
-                ("approx", "kpq", "value"),
+                (Qualifier.UNEQUAL, "kpq", "value"),
+                (Qualifier.DEF, "kpq", ""),
+                (Qualifier.APPROX, "kpq", "value"),
             ],
         )
 
@@ -239,42 +213,34 @@ class test_getMatches(TestCase):
 
     ###########################################################################
     def test_leneq(self):
-        self.assertEqual(getMatches([("leneq", "list", "2")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.LEN_EQ, "list", "2")]), [self.host.id])
 
     ###########################################################################
     def test_lengt(self):
-        self.assertEqual(getMatches([("lengt", "list", "3")]), [])
+        self.assertEqual(getMatches([(Qualifier.LEN_GT, "list", "3")]), [])
 
     ###########################################################################
     def test_lenlt(self):
-        # Why people, why?!
-        if sys.version_info.major == 2:  # pragma: no cover
-            tester = self.assertItemsEqual
-        else:  # pragma: no cover
-            tester = self.assertCountEqual
-        tester(getMatches([("lenlt", "list", "2")]), [self.host.id, self.host2.id])
+        self.assertCountEqual(getMatches([(Qualifier.LEN_LT, "list", "2")]), [self.host.id, self.host2.id])
 
     ###########################################################################
     def test_badlenlt(self):
         with self.assertRaises(HostinfoException) as cm:
-            getMatches([("lenlt", "list", "foo")])
+            getMatches([(Qualifier.LEN_LT, "list", "foo")])
         self.assertEqual(cm.exception.msg, "Length must be an integer, not foo")
 
     ###########################################################################
     def test_equals(self):
-        self.assertEqual(getMatches([("equal", "single", "100")]), [self.host.id])
-        self.assertEqual(
-            set(getMatches([("equal", "list", "alpha")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(getMatches([("equal", "list", "beta")]), [self.host.id])
-        self.assertEqual(getMatches([("equal", "list", "gamma")]), [])
-        self.assertEqual(getMatches([("equal", "date", "2012-12-25")]), [self.host.id])
-        self.assertEqual(getMatches([("equal", "date", "2012/12/25")]), [])
-        self.assertEqual(getMatches([("equal", "date", "2012/12/26")]), [])
-        self.assertEqual(getMatches([("equal", "number", "2.0")]), [self.host2.id])
+        self.assertEqual(getMatches([(Qualifier.EQUAL, "single", "100")]), [self.host.id])
+        self.assertEqual(set(getMatches([(Qualifier.EQUAL, "list", "alpha")])), {self.host.id, self.host2.id})
+        self.assertEqual(getMatches([(Qualifier.EQUAL, "list", "beta")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.EQUAL, "list", "gamma")]), [])
+        self.assertEqual(getMatches([(Qualifier.EQUAL, "date", "2012-12-25")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.EQUAL, "date", "2012/12/25")]), [])
+        self.assertEqual(getMatches([(Qualifier.EQUAL, "date", "2012/12/26")]), [])
+        self.assertEqual(getMatches([(Qualifier.EQUAL, "number", "2.0")]), [self.host2.id])
         try:
-            getMatches([("equal", "number", "five")]),
+            getMatches([(Qualifier.EQUAL, "number", "five")]),
         except Exception:  # pragma: no cover
             self.fail("Non-numeric value for numeric key in equal")
 
@@ -282,25 +248,21 @@ class test_getMatches(TestCase):
     def test_unequals(self):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEqual(getMatches([("unequal", "single", "100")]), [self.host2.id])
-        self.assertEqual(getMatches([("unequal", "list", "alpha")]), [])
-        self.assertEqual(getMatches([("unequal", "list", "beta")]), [self.host2.id])
+        self.assertEqual(getMatches([(Qualifier.UNEQUAL, "single", "100")]), [self.host2.id])
+        self.assertEqual(getMatches([(Qualifier.UNEQUAL, "list", "alpha")]), [])
+        self.assertEqual(getMatches([(Qualifier.UNEQUAL, "list", "beta")]), [self.host2.id])
         self.assertEqual(
-            set(getMatches([("unequal", "list", "gamma")])),
-            set([self.host.id, self.host2.id]),
+            set(getMatches([(Qualifier.UNEQUAL, "list", "gamma")])),
+            {self.host.id, self.host2.id},
         )
+        self.assertEqual(getMatches([(Qualifier.UNEQUAL, "date", "2012-12-25")]), [self.host2.id])
         self.assertEqual(
-            getMatches([("unequal", "date", "2012-12-25")]), [self.host2.id]
+            set(getMatches([(Qualifier.UNEQUAL, "date", "2012-12-26")])),
+            {self.host.id, self.host2.id},
         )
-        self.assertEqual(
-            set(getMatches([("unequal", "date", "2012-12-26")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(
-            set(getMatches([("unequal", "number", "100.0")])), set([self.host2.id])
-        )
+        self.assertEqual(set(getMatches([(Qualifier.UNEQUAL, "number", "100.0")])), {self.host2.id})
         try:
-            getMatches([("unequal", "number", "string")])
+            getMatches([(Qualifier.UNEQUAL, "number", "string")])
         except Exception:  # pragma: no cover
             self.fail("Non-numeric value for numeric key in unequal")
 
@@ -308,20 +270,15 @@ class test_getMatches(TestCase):
     def test_greaterthan(self):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25, number=100
         # hostB: list=[alpha], number=2
-        self.assertEqual(getMatches([("greaterthan", "single", "99")]), [])
-        self.assertEqual(getMatches([("greaterthan", "single", "101")]), [])
-        self.assertEqual(
-            set(getMatches([("greaterthan", "list", "aaaaa")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(getMatches([("greaterthan", "list", "zzzzz")]), [])
-        self.assertEqual(
-            getMatches([("greaterthan", "date", "2012-12-24")]), [self.host.id]
-        )
-        self.assertEqual(getMatches([("greaterthan", "date", "2012-12-26")]), [])
-        self.assertEqual(getMatches([("greaterthan", "number", "10")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.GREATER_THAN, "single", "99")]), [])
+        self.assertEqual(getMatches([(Qualifier.GREATER_THAN, "single", "101")]), [])
+        self.assertEqual(set(getMatches([(Qualifier.GREATER_THAN, "list", "aaaaa")])), {self.host.id, self.host2.id})
+        self.assertEqual(getMatches([(Qualifier.GREATER_THAN, "list", "zzzzz")]), [])
+        self.assertEqual(getMatches([(Qualifier.GREATER_THAN, "date", "2012-12-24")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.GREATER_THAN, "date", "2012-12-26")]), [])
+        self.assertEqual(getMatches([(Qualifier.GREATER_THAN, "number", "10")]), [self.host.id])
         try:
-            getMatches([("greaterthan", "number", "hello")]),
+            getMatches([(Qualifier.GREATER_THAN, "number", "hello")]),
         except Exception:  # pragma: no cover
             self.fail("Non-numeric value for numeric key in greaterthan")
 
@@ -329,20 +286,15 @@ class test_getMatches(TestCase):
     def test_lessthan(self):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25, number=100
         # hostB: list=[alpha], number=2
-        self.assertEqual(getMatches([("lessthan", "single", "99")]), [self.host.id])
-        self.assertEqual(getMatches([("lessthan", "single", "101")]), [self.host.id])
-        self.assertEqual(getMatches([("lessthan", "list", "aaaaa")]), [])
-        self.assertEqual(
-            set(getMatches([("lessthan", "list", "zzzzz")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(getMatches([("lessthan", "date", "2012-12-24")]), [])
-        self.assertEqual(
-            getMatches([("lessthan", "date", "2012-12-26")]), [self.host.id]
-        )
-        self.assertEqual(getMatches([("lessthan", "number", "90")]), [self.host2.id])
+        self.assertEqual(getMatches([(Qualifier.LESS_THAN, "single", "99")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.LESS_THAN, "single", "101")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.LESS_THAN, "list", "aaaaa")]), [])
+        self.assertEqual(set(getMatches([(Qualifier.LESS_THAN, "list", "zzzzz")])), {self.host.id, self.host2.id})
+        self.assertEqual(getMatches([(Qualifier.LESS_THAN, "date", "2012-12-24")]), [])
+        self.assertEqual(getMatches([(Qualifier.LESS_THAN, "date", "2012-12-26")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.LESS_THAN, "number", "90")]), [self.host2.id])
         try:
-            getMatches([("lessthan", "number", "goodbye")]),
+            getMatches([(Qualifier.LESS_THAN, "number", "goodbye")]),
         except Exception:  # pragma: no cover
             self.fail("Non-numeric value for numeric key in lessthan")
 
@@ -350,89 +302,64 @@ class test_getMatches(TestCase):
     def test_contains(self):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEqual(getMatches([("contains", "single", "0")]), [self.host.id])
-        self.assertEqual(getMatches([("contains", "single", "9")]), [])
-        self.assertEqual(
-            set(getMatches([("contains", "list", "alp")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(
-            set(getMatches([("contains", "list", "alpha")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(getMatches([("contains", "list", "betan")]), [])
-        self.assertEqual(getMatches([("contains", "date", "2012")]), [self.host.id])
-        self.assertEqual(getMatches([("contains", "date", "-13-")]), [])
+        self.assertEqual(getMatches([(Qualifier.CONTAINS, "single", "0")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.CONTAINS, "single", "9")]), [])
+        self.assertEqual(set(getMatches([(Qualifier.CONTAINS, "list", "alp")])), {self.host.id, self.host2.id})
+        self.assertEqual(set(getMatches([(Qualifier.CONTAINS, "list", "alpha")])), {self.host.id, self.host2.id})
+        self.assertEqual(getMatches([(Qualifier.CONTAINS, "list", "betan")]), [])
+        self.assertEqual(getMatches([(Qualifier.CONTAINS, "date", "2012")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.CONTAINS, "date", "-13-")]), [])
 
     ###########################################################################
     def test_notcontains(self):
-        self.assertEqual(getMatches([("notcontains", "single", "0")]), [self.host2.id])
-        self.assertEqual(
-            set(getMatches([("notcontains", "single", "9")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(getMatches([("notcontains", "list", "alp")]), [])
-        self.assertEqual(getMatches([("notcontains", "list", "alpha")]), [])
-        self.assertEqual(
-            set(getMatches([("notcontains", "list", "betan")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(
-            getMatches([("notcontains", "date", "2012")]), [self.host2.id]
-        )
-        self.assertEqual(
-            set(getMatches([("notcontains", "date", "-13-")])),
-            set([self.host.id, self.host2.id]),
-        )
+        self.assertEqual(getMatches([(Qualifier.NOT_CONTAINS, "single", "0")]), [self.host2.id])
+        self.assertEqual(set(getMatches([(Qualifier.NOT_CONTAINS, "single", "9")])), {self.host.id, self.host2.id})
+        self.assertEqual(getMatches([(Qualifier.NOT_CONTAINS, "list", "alp")]), [])
+        self.assertEqual(getMatches([(Qualifier.NOT_CONTAINS, "list", "alpha")]), [])
+        self.assertEqual(set(getMatches([(Qualifier.NOT_CONTAINS, "list", "betan")])), {self.host.id, self.host2.id})
+        self.assertEqual(getMatches([(Qualifier.NOT_CONTAINS, "date", "2012")]), [self.host2.id])
+        self.assertEqual(set(getMatches([(Qualifier.NOT_CONTAINS, "date", "-13-")])), {self.host.id, self.host2.id})
 
     ###########################################################################
     def test_approx(self):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEqual(
-            set(getMatches([("approx", "list", "alhpa")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(getMatches([("approx", "list", "beta")]), [self.host.id])
-        self.assertEqual(getMatches([("approx", "list", "betan")]), [self.host.id])
-        self.assertEqual(getMatches([("approx", "date", "2012/12/26")]), [])
-        self.assertEqual(getMatches([("approx", "single", "101")]), [self.host.id])
-        self.assertEqual(getMatches([("approx", "single", "99")]), [])
+        self.assertEqual(set(getMatches([(Qualifier.APPROX, "list", "alhpa")])), {self.host.id, self.host2.id})
+        self.assertEqual(getMatches([(Qualifier.APPROX, "list", "beta")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.APPROX, "list", "betan")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.APPROX, "date", "2012/12/26")]), [])
+        self.assertEqual(getMatches([(Qualifier.APPROX, "single", "101")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.APPROX, "single", "99")]), [])
 
     ###########################################################################
     def test_undef(self):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEqual(getMatches([("undef", "single", "")]), [self.host2.id])
-        self.assertEqual(getMatches([("undef", "list", "")]), [])
-        self.assertEqual(getMatches([("undef", "date", "")]), [self.host2.id])
+        self.assertEqual(getMatches([(Qualifier.UNDEF, "single", "")]), [self.host2.id])
+        self.assertEqual(getMatches([(Qualifier.UNDEF, "list", "")]), [])
+        self.assertEqual(getMatches([(Qualifier.UNDEF, "date", "")]), [self.host2.id])
 
     ###########################################################################
     def test_def(self):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEqual(getMatches([("def", "single", "")]), [self.host.id])
-        self.assertEqual(
-            set(getMatches([("def", "list", "")])), set([self.host.id, self.host2.id])
-        )
-        self.assertEqual(getMatches([("def", "date", "")]), [self.host.id])
+        self.assertEqual(getMatches([(Qualifier.DEF, "single", "")]), [self.host.id])
+        self.assertEqual(set(getMatches([(Qualifier.DEF, "list", "")])), {self.host.id, self.host2.id})
+        self.assertEqual(getMatches([(Qualifier.DEF, "date", "")]), [self.host.id])
 
     ###########################################################################
     def test_hostre(self):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEqual(
-            set(getMatches([("hostre", "host", "")])),
-            set([self.host.id, self.host2.id]),
-        )
-        self.assertEqual(getMatches([("hostre", "host2", "")]), [])
+        self.assertEqual(set(getMatches([(Qualifier.HOST_RE, "host", "")])), {self.host.id, self.host2.id})
+        self.assertEqual(getMatches([(Qualifier.HOST_RE, "host2", "")]), [])
 
     ###########################################################################
     def test_host(self):
         # hostA: single=100, list==[alpha, beta], date=2012/12/25
         # hostB: list=[alpha]
-        self.assertEqual(getMatches([("host", None, "host")]), [])
-        self.assertEqual(getMatches([("host", None, "foo")]), [])
+        self.assertEqual(getMatches([(Qualifier.HOST, None, "host")]), [])
+        self.assertEqual(getMatches([(Qualifier.HOST, None, "foo")]), [])
 
 
 ###############################################################################
@@ -630,7 +557,7 @@ class test_orderhostlist(TestCase):
             kv = KeyValue(hostid=t, keyid=self.key1, value=h)
             kv.save()
             self.kvals.append(kv)
-            kv = KeyValue(hostid=t, keyid=self.key2, value="%s1" % h)
+            kv = KeyValue(hostid=t, keyid=self.key2, value=f"{h}1")
             kv.save()
             self.kvals.append(kv)
             kv = KeyValue(hostid=t, keyid=self.key2, value="2")
@@ -799,9 +726,7 @@ class test_hostData(TestCase):
         self.assertEqual(result["count"], 1)
         self.assertEqual(result["criteria"], "hdfkey1.defined/hdfhost1.hostre")
         self.assertEqual(result["title"], "hdfkey1.defined AND hdfhost1.hostre")
-        self.assertEqual(
-            result["csvavailable"], "/hostinfo/csv/hdfkey1.defined/hdfhost1.hostre"
-        )
+        self.assertEqual(result["csvavailable"], "/hostinfo/csv/hdfkey1.defined/hdfhost1.hostre")
         self.assertEqual(result["options"], "")
         self.assertEqual(result["order"], None)
         self.assertEqual(result["printers"], [])

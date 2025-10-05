@@ -1,4 +1,4 @@
-""" Test rig for bare interface to hostinfo"""
+"""Test rig for bare interface to hostinfo"""
 
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
@@ -26,7 +26,8 @@ from host.models import KeyValue
 
 ###############################################################################
 class test_bare(TestCase):
-    """ Test Bare interface """
+    """Test Bare interface"""
+
     def setUp(self):
         self.client = Client()
         self.host = Host(hostname="hostcn")
@@ -79,9 +80,7 @@ class test_bare(TestCase):
         """Show a specific host"""
         response = self.client.get("/bare/host/hostcn", follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            [t.name for t in response.templates], ["bare/host.html", "bare/base.html"]
-        )
+        self.assertEqual([t.name for t in response.templates], ["bare/host.html", "bare/base.html"])
 
     ###########################################################################
     def test_keylist(self):

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#
-# Script to generate rackmap links for all hosts
+"""Script to generate rackmap links for all hosts"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -29,10 +28,7 @@ for line in f:
     host = bits[0]
     rack = bits[1].replace("rack=", "")
     site = bits[2].replace("site=", "")
-    print(
-        "%s http://opscmdb/hostinfo/report/rackreport/%s/%s RackReport"
-        % (host, site, rack)
-    )
+    print(f"{host} http://opscmdb/hostinfo/report/rackreport/{site}/{rack} RackReport")
 f.close()
 sys.exit(0)
 

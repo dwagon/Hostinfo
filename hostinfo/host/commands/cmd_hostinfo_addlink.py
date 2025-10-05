@@ -1,3 +1,5 @@
+"""hostinfo_addlink command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -16,16 +18,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from host.models import getHost
 from host.models import HostinfoCommand, HostinfoException, Links
+from host.models import getHost
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_addlink"""
+
     description = "Associate a link with a host"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """parse args"""
         parser.add_argument("tag", help="The link tag")
         parser.add_argument("url", help="The url for the link")
         parser.add_argument("host", help="The host to add the link to")
@@ -43,21 +48,21 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
         host = namespace.host.lower()
         tag = namespace.tag.lower()
         url = namespace.url.lower()
         targhost = getHost(host)
         # Add url validation
         if not targhost:
-            raise HostinfoException("Host %s doesn't exist" % host)
+            raise HostinfoException(f"Host {host} doesn't exist")
         link = Links.objects.filter(hostid=targhost, tag=tag)
         if link:
             if namespace.update:
                 link[0].url = url
                 link[0].save()
                 return None, 0
-            else:
-                return "Host %s already has a link with tag %s" % (host, tag), 1
+            return f"Host {host} already has a link with tag {tag}", 1
         link = Links(hostid=targhost, tag=tag, url=url)
         link.save()
         return None, 0

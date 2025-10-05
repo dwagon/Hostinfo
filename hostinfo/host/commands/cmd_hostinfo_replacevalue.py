@@ -1,3 +1,5 @@
+"""hostinfo_replacevalue command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -21,16 +23,21 @@
 
 import re
 import sys
-from host.models import getAK
+
 from host.models import HostinfoCommand, HostinfoException, KeyValue
+from host.models import getAK
 
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = "Add alias to a host"
+    """hostinfo_replacevalue command"""
+
+    description = "Replace a value"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument(
             "-k",
             "--kidding",
@@ -38,9 +45,7 @@ class Command(HostinfoCommand):
             action="store_true",
             default=False,
         )
-        parser.add_argument(
-            "--all", help="Do for all hosts", action="store_true", default=False
-        )
+        parser.add_argument("--all", help="Do for all hosts", action="store_true", default=False)
         parser.add_argument(
             "keyvalue",
             help="Name of the key/value pair to replace (key=value)",
@@ -51,11 +56,11 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
-        m = re.match("(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue[0])
+        """do command"""
+
+        m = re.match(r"(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue[0])
         if not m:
-            raise HostinfoException(
-                "Must be in key=value format, not %s" % namespace.keyvalue[0]
-            )
+            raise HostinfoException(f"Must be in key=value format, not {namespace.keyvalue[0]}")
         key = m.group("key").lower()
         value = m.group("value").lower()
         keyid = getAK(key)
@@ -64,16 +69,13 @@ class Command(HostinfoCommand):
 
         kvlist = KeyValue.objects.filter(keyid=keyid, value=value)
         for kv in kvlist:
-            if (
-                namespace.hosts and kv.hostid.hostname in namespace.hosts
-            ) or not namespace.hosts:
+            if (namespace.hosts and kv.hostid.hostname in namespace.hosts) or not namespace.hosts:
                 if not namespace.kidding:
                     kv.value = namespace.newvalue[0]
                     kv.save()
                 else:
                     sys.stderr.write(
-                        "Would replace %s=%s with %s on %s\n"
-                        % (kv.keyid, kv.value, namespace.newvalue[0], kv.hostid)
+                        f"Would replace {kv.keyid}={kv.value} with {namespace.newvalue[0]} on {kv.hostid}\n"
                     )
         return None, 0
 

@@ -16,6 +16,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Any
 
 from django import template
 
@@ -23,7 +24,7 @@ register = template.Library()
 
 
 @register.filter
-def getnextelem(value):
+def getnextelem(value: Any) -> str:
     """
     Go through a list and everytime it is called return the first element or return
     """

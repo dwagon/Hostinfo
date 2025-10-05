@@ -1,3 +1,5 @@
+"""hostinfo_addhost command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -16,31 +18,32 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from host.models import getHost, getOrigin, Host
 from host.models import HostinfoCommand, HostinfoException
+from host.models import getHost, getOrigin, Host
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_addhost"""
+
     description = "Add a new host"
 
     ############################################################################
     def parseArgs(self, parser):
+        """parse args"""
         parser.add_argument("host", help="The host to add", nargs="+")
         parser.add_argument("--origin", help="The origin of this host")
 
     ############################################################################
     def handle(self, namespace):
+        """do command"""
         origin = getOrigin(namespace.origin)
         for host in namespace.host:
             host = host.lower()
             if self.checkHost(host):
-                raise HostinfoException("Host %s already exists" % host)
+                raise HostinfoException(f"Host {host} already exists")
             if host[0] in ("-",):
-                raise HostinfoException(
-                    "Host begins with a forbidden character ('%s') - not adding"
-                    % host[0]
-                )
+                raise HostinfoException(f"Host begins with a forbidden character ('{host[0]}') - not adding")
             hobj = Host(hostname=host, origin=origin)
             hobj.save()
         return None, 0

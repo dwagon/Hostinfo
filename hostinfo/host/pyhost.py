@@ -3,14 +3,14 @@
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
-import sys
-
 from django.core.management import setup_environ
+
 from hostinfo import settings
 
 setup_environ(settings)
 from .models import getMatches, parseQualifiers
 from .models import KeyValue, Host
+
 
 ################################################################################
 def getHostinfo(*args, **kwargs):
@@ -24,7 +24,7 @@ def getHostinfo(*args, **kwargs):
     args = list(args)
     ans = {}
     for k, v in kwargs.items():
-        args.append("%s=%s" % (k, v))
+        args.append(f"{k}={v}")
     qualifiers = parseQualifiers(args)
     matches = getMatches(qualifiers)
     for hostid in matches:

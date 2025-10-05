@@ -9,28 +9,28 @@
 	<th align=right width=10%>{{key}}</th>
 	{% if bits.src == bits.dst %}
 	    <td colspan=4 align=right> Source and Dest both have the same value: 
-	    {% if bits.src|length_is:1 %} {{bits.src.0}} {% else %} <ul>{% for bit in bits.src%} <li> {{bit}} {% endfor %}</ul> {% endif %}
+	    {% if bits.src|length == 1 %} {{bits.src.0}} {% else %} <ul>{% for bit in bits.src%} <li> {{bit}} {% endfor %}</ul> {% endif %}
 	    <input type=hidden name={{key}} value="dst">
 	    </td>
 	{% else %}
-	    {% if bits.src|length_is:0 %}
+	    {% if bits.src|length == 0 %}
 		<td colspan=4 align=right>
 		Taking "{{dsthost}}" values:
-		{% if bits.dst|length_is:1 %} {{bits.dst.0}} {% else %} <ul>{% for bit in bits.dst%} <li> {{bit}} {% endfor %}</ul> {% endif %}
+		{% if bits.dst|length == 1 %} {{bits.dst.0}} {% else %} <ul>{% for bit in bits.dst%} <li> {{bit}} {% endfor %}</ul> {% endif %}
 		<input type=hidden name={{key}} value="dst">
 		</td>
 	    {% else %}
-		{% if bits.dst|length_is:0 %}
+		{% if bits.dst|length == 0 %}
 		    <td colspan=4 align=right>
 		    Taking "{{srchost}}" values:
-		    {% if bits.src|length_is:1 %} {{bits.src.0}} {% else %} <ul>{% for bit in bits.src%} <li> {{bit}} {% endfor %}</ul> {% endif %}
+		    {% if bits.src|length == 1 %} {{bits.src.0}} {% else %} <ul>{% for bit in bits.src%} <li> {{bit}} {% endfor %}</ul> {% endif %}
 		    <input type=hidden name={{key}} value="src">
 		    </td>
 		{% else %}
 		    <td> <input type=radio name={{key}} value="src"> </td>
-		    {% if bits.src|length_is:1 %} <td width=35%>{{bits.src.0}}</td> {% else %} <td width=35%><ul>{% for bit in bits.src%} <li> {{bit}} {% endfor %}</ul></td> {% endif %}
+		    {% if bits.src|length == 1 %} <td width=35%>{{bits.src.0}}</td> {% else %} <td width=35%><ul>{% for bit in bits.src%} <li> {{bit}} {% endfor %}</ul></td> {% endif %}
 		    <td> <input type=radio name={{key}} checked value="dst"> </td>
-		    {% if bits.dst|length_is:1 %} <td width=35%>{{bits.dst.0}}</td> {% else %} <td width=35%><ul>{% for bit in bits.dst%} <li> {{bit}} {% endfor %}</ul></td> {% endif %}
+		    {% if bits.dst|length == 1 %} <td width=35%>{{bits.dst.0}}</td> {% else %} <td width=35%><ul>{% for bit in bits.dst%} <li> {{bit}} {% endfor %}</ul></td> {% endif %}
 		{% endif %}
 	    {% endif %}
 	{% endif %}

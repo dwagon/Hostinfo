@@ -1,4 +1,5 @@
-""" Django models definition for hostinfo CMDB"""
+"""Django models definition for hostinfo CMDB"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -18,26 +19,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import importlib
 import os
 import re
+import string
 import sys
 import time
 from collections import defaultdict
 from operator import itemgetter
-from django.db import models, connection
+from typing import Optional, Any
+from enum import Enum, auto
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.conf import settings
+from django.db import models, connection
 from simple_history.models import HistoricalRecords
 
 _akcache = {None: None}
-_all_hosts = None
-_all_hosts_cache_time = None
+_all_hosts: Optional[models.QuerySet] = None
+_all_hosts_cache_time: Optional[float] = None
 
 
 ################################################################################
 class HostinfoException(Exception):
-    """ Generic Hostinfo Exception """
+    """Generic Hostinfo Exception"""
+
     def __init__(self, msg="", retval=1):
         self.msg = msg
         self.retval = retval
@@ -84,7 +91,7 @@ class HostinfoInternalException(HostinfoException):  # pragma: no cover
 
 ################################################################################
 def getUser(instance=None):
-    """Get the user for the audittrail
+    """Get the user for the audit trail
     For command line access use the persons login name
     """
     username = user = None
@@ -98,7 +105,7 @@ def getUser(instance=None):
 
 
 ############################################################################
-def auditedKey(instance):
+def auditedKey(instance) -> bool:
     """Return True if the AllowKey should be audited"""
     return instance.keyid.auditFlag
 
@@ -107,7 +114,8 @@ def auditedKey(instance):
 ################################################################################
 ################################################################################
 class Host(models.Model):
-    """ Host / Server / Whatever core model """
+    """Host / Server / Whatever core model"""
+
     hostname = models.CharField(max_length=200, unique=True)
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
@@ -117,34 +125,36 @@ class Host(models.Model):
 
     ############################################################################
     def save(self, user=None, **kwargs):
+        """Save the model with an undolog entry"""
         global _all_hosts
         if not user:
             user = getUser()
         self.hostname = self.hostname.lower()
         if not self.id:  # Check for update
-            undo = UndoLog(
-                user=user, action=f"hostinfo_deletehost --lethal {self.hostname}"
-            )
+            undo = UndoLog(user=user, action=f"hostinfo_deletehost --lethal {self.hostname}")
             undo.save()
         super().save(**kwargs)
         _all_hosts = None
 
     ############################################################################
     def delete(self, user=None):
+        """Delete the model with an undolog entry"""
         global _all_hosts
         if not user:
             user = getUser()
-        undo = UndoLog(user=user, action="hostinfo_addhost %s" % self.hostname)
+        undo = UndoLog(user=user, action=f"hostinfo_addhost {self.hostname}")
         undo.save()
-        super(Host, self).delete()
+        super().delete()
         _all_hosts = None
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s" % self.hostname
+        return str(self.hostname)
 
     ############################################################################
     class Meta:
+        """Order by hostname"""
+
         ordering = ["hostname"]
 
 
@@ -152,9 +162,9 @@ class Host(models.Model):
 ################################################################################
 ################################################################################
 class HostAlias(models.Model):
-    hostid = models.ForeignKey(
-        Host, db_index=True, related_name="aliases", on_delete=models.CASCADE
-    )
+    """Host Alias"""
+
+    hostid = models.ForeignKey(Host, db_index=True, related_name="aliases", on_delete=models.CASCADE)
     alias = models.CharField(max_length=200, unique=True)
     origin = models.CharField(max_length=200, blank=True)
     createdate = models.DateField(auto_now_add=True)
@@ -163,7 +173,7 @@ class HostAlias(models.Model):
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s -> %s" % (self.alias, self.hostid.hostname)
+        return f"{self.alias} -> {self.hostid.hostname}"
 
     ############################################################################
     class Meta:
@@ -174,6 +184,8 @@ class HostAlias(models.Model):
 ################################################################################
 ################################################################################
 class AllowedKey(models.Model):
+    """Allowed Keys"""
+
     key = models.CharField(max_length=200)
     TYPE_CHOICES = ((1, "single"), (2, "list"), (3, "date"))
     validtype = models.IntegerField(choices=TYPE_CHOICES, default=1)
@@ -190,10 +202,12 @@ class AllowedKey(models.Model):
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s" % self.key
+        return str(self.key)
 
     ############################################################################
     class Meta:
+        """Order by key"""
+
         ordering = ["key"]
 
 
@@ -201,6 +215,8 @@ class AllowedKey(models.Model):
 ################################################################################
 ################################################################################
 class KeyValue(models.Model):
+    """Key Values associated with a host"""
+
     hostid = models.ForeignKey(Host, db_index=True, on_delete=models.CASCADE)
     keyid = models.ForeignKey(AllowedKey, db_index=True, on_delete=models.CASCADE)
     value = models.CharField(max_length=200, blank=True)
@@ -211,7 +227,8 @@ class KeyValue(models.Model):
     history = HistoricalRecords()
 
     ############################################################################
-    def save(self, user=None, readonlychange=False, **kwargs):
+    def save(self, user: Optional[str] = None, readonlychange: bool = False, **kwargs: Any):
+        """Save the model with an undolog entry"""
         if not user:
             user = getUser()
         self.value = self.value.lower().strip()
@@ -225,61 +242,46 @@ class KeyValue(models.Model):
         if self.keyid.restrictedFlag:
             rk = RestrictedValue.objects.filter(keyid=self.keyid, value=self.value)
             if not rk:
-                raise RestrictedValueException(
-                    key=self.keyid, msg="%s is a restricted key" % self.keyid
-                )
+                raise RestrictedValueException(key=self.keyid, msg=f"{self.keyid} is a restricted key")
 
         if self.keyid.readonlyFlag and not readonlychange:
-            raise ReadonlyValueException(
-                key=self.keyid, msg="%s is a readonly key" % self.keyid
-            )
+            raise ReadonlyValueException(key=self.keyid, msg=f"{self.keyid} is a readonly key")
         if self.keyid.get_validtype_display() == "date":
             self.value = validateDate(self.value)
 
         if self.id:  # Check for update
             oldobj = KeyValue.objects.get(id=self.id)
             undo = UndoLog(
-                user=user,
-                action="hostinfo_replacevalue %s=%s %s %s"
-                % (self.keyid, self.value, oldobj.value, self.hostid),
+                user=user, action=f"hostinfo_replacevalue {self.keyid}={self.value} {oldobj.value} {self.hostid}"
             )
             undo.save()
         else:  # New object
-            undo = UndoLog(
-                user=user,
-                action="hostinfo_deletevalue %s=%s %s"
-                % (self.keyid, self.value, self.hostid),
-            )
+            undo = UndoLog(user=user, action=f"hostinfo_deletevalue {self.keyid}={self.value} {self.hostid}")
             undo.save()
 
         # Actually do the saves
         if not self.keyid.auditFlag:
             self.skip_history_when_saving = True
-        super(KeyValue, self).save(**kwargs)
+        super().save(**kwargs)
 
     ############################################################################
-    def delete(self, user=None, readonlychange=False):
+    def delete(self, user: Optional[str] = None, readonlychange: bool = False):
+        """Delete the model with an undolog entry"""
         if not user:
             user = getUser()
         if self.keyid.readonlyFlag and not readonlychange:
-            raise ReadonlyValueException(
-                key=self.keyid, msg="%s is a read only key" % self.keyid
-            )
+            raise ReadonlyValueException(key=self.keyid, msg=f"{self.keyid} is a read only key")
         if self.keyid.get_validtype_display() == "list":
             undoflag = "--append"
         else:
             undoflag = ""
-        undo = UndoLog(
-            user=user,
-            action="hostinfo_addvalue %s %s=%s %s"
-            % (undoflag, self.keyid, self.value, self.hostid),
-        )
+        undo = UndoLog(user=user, action=f"hostinfo_addvalue {undoflag} {self.keyid}={self.value} {self.hostid}")
         undo.save()
-        super(KeyValue, self).delete()
+        super().delete()
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s=%s" % (self.keyid.key, self.value)
+        return f"{self.keyid.key}={self.value}"
 
     ############################################################################
     class Meta:
@@ -290,6 +292,8 @@ class KeyValue(models.Model):
 ################################################################################
 ################################################################################
 class UndoLog(models.Model):
+    """Undo log"""
+
     user = models.CharField(max_length=200)
     actiondate = models.DateTimeField(auto_now=True)
     action = models.CharField(max_length=200)
@@ -305,7 +309,7 @@ class UndoLog(models.Model):
         else:
             self.user = self.user[:200]
         self.action = self.action[:200]
-        super(UndoLog, self).save(**kwargs)
+        super().save(**kwargs)
 
 
 ################################################################################
@@ -324,7 +328,7 @@ class RestrictedValue(models.Model):
 
     ############################################################################
     def __str__(self):  # pragma: no cover
-        return "%s %s" % (self.keyid.key, self.value)
+        return f"{self.keyid.key} {self.value}"
 
     ############################################################################
     class Meta:
@@ -335,9 +339,7 @@ class RestrictedValue(models.Model):
 ################################################################################
 ################################################################################
 class Links(models.Model):
-    hostid = models.ForeignKey(
-        Host, db_index=True, related_name="links", on_delete=models.CASCADE
-    )
+    hostid = models.ForeignKey(Host, db_index=True, related_name="links", on_delete=models.CASCADE)
     url = models.CharField(max_length=200)
     tag = models.CharField(max_length=100)
     modifieddate = models.DateField(auto_now=True)
@@ -349,7 +351,7 @@ class Links(models.Model):
 
 
 ############################################################################
-def validateDate(datestr):
+def validateDate(datestr: str) -> str:
     """Convert the various dates to a single format: YYYY-MM-DD"""
     year = -1
     month = -1
@@ -360,7 +362,7 @@ def validateDate(datestr):
         year = time.localtime()[0]
         month = time.localtime()[1]
         day = time.localtime()[2]
-        return "%04d-%02d-%02d" % (year, month, day)
+        return f"{year:04d}-{month:02d}-{day:02d}"
 
     formats = [
         "%Y-%m-%d",
@@ -380,40 +382,57 @@ def validateDate(datestr):
         break
 
     if year < 0:
-        raise TypeError(
-            "%s couldn't be converted to a known date format (e.g. YYYY-MM-DD)"
-            % datestr
-        )
+        raise TypeError(f"{datestr} couldn't be converted to a known date format (e.g. YYYY-MM-DD)")
 
-    return "%04d-%02d-%02d" % (year, month, day)
+    return f"{year:04d}-{month:02d}-{day:02d}"
 
 
 ################################################################################
-def parseQualifiers(args):
+class Qualifier(Enum):
+    """All the operators - to prevent string comparisons"""
+
+    UNEQUAL = auto()
+    EQUAL = auto()
+    LESS_THAN = auto()
+    GREATER_THAN = auto()
+    CONTAINS = auto()
+    NOT_CONTAINS = auto()
+    APPROX = auto()
+    UNDEF = auto()
+    DEF = auto()
+    HOST_RE = auto()
+    LEN_LT = auto()
+    LEN_EQ = auto()
+    LEN_GT = auto()
+    HOST = auto()
+
+
+################################################################################
+def parseQualifiers(args) -> list[tuple[Qualifier, Optional[str], str]]:
     """
     Go through the supplied qualifiers and analyse them, generate
     a list of qualifier tuples: operator, key, value
     """
 
     # Table of all the operators:
-    #    tag of operator, regexp, threepart (ie. has value)?
+    #    tag of operator, regexp, threepart (i.e. has value)?
     optable = [
-        ("unequal", r"!=|\.ne\.", {"threeparts": True}),
-        ("equal", r"=|\.eq\.", {"threeparts": True}),  # Has to be after !=
-        ("lessthan", r"<|\.lt\.", {"threeparts": True}),
-        ("greaterthan", r">|\.gt\.", {"threeparts": True}),
-        ("contains", r"~|\.ss\.", {"threeparts": True}),
-        ("notcontains", r"%|\.ns\.", {"threeparts": True}),
-        ("approx", r"@|\.ap\.", {"threeparts": True}),
-        ("undef", r"\.undef|\.undefined|\.unset", {"threeparts": False}),
-        ("def", r"\.def|\.defined|\.set", {"threeparts": False}),
-        ("hostre", r"\.hostre", {"threeparts": False, "validkey": False}),
-        ("lenlt", r"\.lenlt\.", {"threeparts": True}),
-        ("leneq", r"\.leneq\.", {"threeparts": True}),
-        ("lengt", r"\.lengt\.", {"threeparts": True}),
+        (Qualifier.UNEQUAL, r"!=|\.ne\.", {"threeparts": True}),
+        (Qualifier.EQUAL, r"=|\.eq\.", {"threeparts": True}),  # Has to be after !=
+        (Qualifier.LESS_THAN, r"<|\.lt\.", {"threeparts": True}),
+        (Qualifier.GREATER_THAN, r">|\.gt\.", {"threeparts": True}),
+        (Qualifier.CONTAINS, r"~|\.ss\.", {"threeparts": True}),
+        (Qualifier.NOT_CONTAINS, r"%|\.ns\.", {"threeparts": True}),
+        (Qualifier.APPROX, r"@|\.ap\.", {"threeparts": True}),
+        (Qualifier.UNDEF, r"\.undef|\.undefined|\.unset", {"threeparts": False}),
+        (Qualifier.DEF, r"\.def|\.defined|\.set", {"threeparts": False}),
+        (Qualifier.HOST_RE, r"\.hostre", {"threeparts": False, "validkey": False}),
+        (Qualifier.LEN_LT, r"\.lenlt\.", {"threeparts": True}),
+        (Qualifier.LEN_EQ, r"\.leneq\.", {"threeparts": True}),
+        (Qualifier.LEN_GT, r"\.lengt\.", {"threeparts": True}),
     ]
 
-    qualifiers = []
+    qualifiers: list[tuple[Qualifier, Optional[str], str]] = []
     for arg in args:
         if arg == "":
             continue
@@ -422,14 +441,14 @@ def parseQualifiers(args):
         # embedded operator like subdomain - e.g. host.lt.example.com
         ishostname = Host.objects.filter(hostname=arg.lower())
         if ishostname:
-            qualifiers.append(("host", None, arg.lower()))
+            qualifiers.append((Qualifier.HOST, None, arg.lower()))
             matched = True
             continue
         for op, reg, opts in optable:
             if opts["threeparts"]:
-                mo = re.match("(?P<key>.+)(%s)(?P<val>.+)" % reg, arg)
+                mo = re.match(f"(?P<key>.+)({reg})(?P<val>.+)", arg)
             else:
-                mo = re.match("(?P<key>.+)(%s)(?P<val>)" % reg, arg)
+                mo = re.match(f"(?P<key>.+)({reg})(?P<val>)", arg)
             if mo:
                 key = mo.group("key").lower()
                 if opts.get("validkey", True):
@@ -445,11 +464,11 @@ def parseQualifiers(args):
         if not matched:
             hm = re.match(r"\w+", arg)
             if hm:
-                qualifiers.append(("host", None, arg.lower()))
+                qualifiers.append((Qualifier.HOST, None, arg.lower()))
                 matched = True
 
         if not matched:
-            raise HostinfoException("Unknown qualifier %s" % arg)
+            raise HostinfoException(f"Unknown qualifier {arg}")
 
     return qualifiers
 
@@ -457,9 +476,7 @@ def parseQualifiers(args):
 ################################################################################
 def calcKeylistVals(key, from_hostids=[]):
     keyid = getAK(key)
-    kvlist = KeyValue.objects.filter(keyid__key=key).values_list(
-        "hostid", "value", "numvalue"
-    )
+    kvlist = KeyValue.objects.filter(keyid__key=key).values_list("hostid", "value", "numvalue")
     if not from_hostids:
         from_hostids = [v[0] for v in get_all_hosts().values_list("id")]
     total = len(from_hostids)
@@ -505,11 +522,10 @@ def calcKeylistVals(key, from_hostids=[]):
 
 
 ################################################################################
-def oneoff(val):
+def oneoff(val: str) -> set[str]:
     """Copied from norvig.com/spell-correct.html
     A page of true awesomeness
     """
-    import string
 
     alphabet = string.ascii_lowercase + string.digits
     s = [(val[:i], val[i:]) for i in range(len(val) + 1)]
@@ -522,16 +538,16 @@ def oneoff(val):
 
 ################################################################################
 def getApproxObjects(keyid, value):
-    """Return all of the hostids that have a value that is approximately
+    """Return all the hostids that have a value that is approximately
     value
     """
     vals = KeyValue.objects.filter(keyid=keyid)
-    approxans = set()
+    approx_ans = set()
     approx = oneoff(value)
     for v in vals:
         if v.value in approx:
-            approxans.add(v)
-    ans = [{"hostid": v.hostid.id} for v in approxans]
+            approx_ans.add(v)
+    ans = [{"hostid": v.hostid.id} for v in approx_ans]
     return ans
 
 
@@ -546,7 +562,7 @@ def get_all_hosts():
 
 
 ################################################################################
-def getHostList(criteria):
+def getHostList(criteria: list[tuple[str, Optional[str], str]]):
     allhosts = {}
     for host in get_all_hosts():
         allhosts[host.id] = host
@@ -558,7 +574,7 @@ def getHostList(criteria):
 
 
 ################################################################################
-def getMatches(qualifiers):
+def getMatches(qualifiers: list[tuple[Qualifier, Optional[str], str]]) -> list[int]:
     """Get a list of matching hostids that satisfy the qualifiers
 
     Create a set of all the hostids and then go through each qualifier
@@ -570,8 +586,9 @@ def getMatches(qualifiers):
     difference between all hosts and the hosts that have that value set.
     """
     hostids = set([host.id for host in get_all_hosts()])
+    checknum = False
     for q, k, v in qualifiers:  # qualifier, key, value
-        if q != "hostre":  # hostre doesn't put a key into key
+        if q != Qualifier.HOST_RE:  # hostre doesn't put a key into key
             key = getAK(k)
             checknum = False
             # Numeric keys can be queried for non-numeric values
@@ -583,72 +600,50 @@ def getMatches(qualifiers):
                     pass
         mode = "intersection"
         queryset = set([])  # Else if no match it won't have a queryset defined
-        if q == "host":
+        if q == Qualifier.HOST:
             hostqs = set([h.id for h in Host.objects.filter(hostname=v)])
             aliasqs = set([ha.hostid.id for ha in HostAlias.objects.filter(alias=v)])
             queryset = hostqs | aliasqs
             vals = []
-        elif q == "equal":
+        elif q == Qualifier.EQUAL:
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values("hostid")
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value=v).values("hostid")
-        elif q == "lessthan":
+        elif q == Qualifier.LESS_THAN:
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue__lt=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue__lt=v).values("hostid")
             else:
-                vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values(
-                    "hostid"
-                )
-        elif q == "approx":
+                vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values("hostid")
+        elif q == Qualifier.APPROX:
             vals = getApproxObjects(keyid=key.id, value=v)
-        elif q == "greaterthan":
+        elif q == Qualifier.GREATER_THAN:
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue__gt=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue__gt=v).values("hostid")
             else:
-                vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values(
-                    "hostid"
-                )
-        elif q == "contains":
-            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values(
-                "hostid"
-            )
-        elif q == "notcontains":
-            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values(
-                "hostid"
-            )
+                vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values("hostid")
+        elif q == Qualifier.CONTAINS:
+            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values("hostid")
+        elif q == Qualifier.NOT_CONTAINS:
+            vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values("hostid")
             mode = "difference"
-        elif q == "def":
+        elif q == Qualifier.DEF:
             vals = KeyValue.objects.filter(keyid=key.id).values("hostid")
-        elif q == "unequal":
+        elif q == Qualifier.UNEQUAL:
             if checknum:
-                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values(
-                    "hostid"
-                )
+                vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values("hostid")
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value=v).values("hostid")
             mode = "difference"
-        elif q == "undef":
+        elif q == Qualifier.UNDEF:
             vals = KeyValue.objects.filter(keyid=key.id).values("hostid")
             mode = "difference"
-        if q in ("leneq", "lengt", "lenlt"):
+        if q in (Qualifier.LEN_LT, Qualifier.LEN_GT, Qualifier.LEN_EQ):
             vals = []
             mode = "noop"
-        elif q == "hostre":
-            vals = [
-                {"hostid": h["id"]}
-                for h in Host.objects.filter(hostname__contains=k).values("id")
-            ]
-            alias = [
-                {"hostid": h["hostid"]}
-                for h in HostAlias.objects.filter(alias__contains=k).values("hostid")
-            ]
+        elif q == Qualifier.HOST_RE:
+            vals = [{"hostid": h["id"]} for h in Host.objects.filter(hostname__contains=k).values("id")]
+            alias = [{"hostid": h["hostid"]} for h in HostAlias.objects.filter(alias__contains=k).values("hostid")]
             vals.extend(alias)
 
         if vals:
@@ -663,23 +658,23 @@ def getMatches(qualifiers):
     # Some queries require post processing
     # Note that these are much slower to process so do them after
     for q, k, v in qualifiers:  # qualifier, key, value
-        if q in ("leneq", "lengt", "lenlt"):
+        if q in (Qualifier.LEN_LT, Qualifier.LEN_GT, Qualifier.LEN_EQ):
             key = getAK(k)
             try:
                 lngth = int(v)
             except ValueError:
-                raise HostinfoException("Length must be an integer, not %s" % str(v))
+                raise HostinfoException(f"Length must be an integer, not {str(v)}")
             for h in get_all_hosts():
                 if h.id not in hostids:
                     continue
                 vals = KeyValue.objects.filter(hostid=h.id, keyid=key.id)
-                if q == "leneq":
+                if q == Qualifier.LEN_EQ:
                     if len(vals) != lngth:
                         hostids.remove(h.id)
-                elif q == "lengt":
+                elif q == Qualifier.LEN_GT:
                     if len(vals) < lngth:
                         hostids.remove(h.id)
-                elif q == "lenlt":
+                elif q == Qualifier.LEN_LT:
                     if len(vals) > lngth:
                         hostids.remove(h.id)
 
@@ -687,14 +682,14 @@ def getMatches(qualifiers):
 
 
 ################################################################################
-def getAliases(hostname):
+def getAliases(hostname: str) -> list[str]:
     """Return the list of aliases that this host has"""
     aliaslist = HostAlias.objects.filter(hostid__hostname=hostname)
     return [a.alias for a in aliaslist]
 
 
 ################################################################################
-def getHost(hostname):
+def getHost(hostname: str) -> Optional[Host]:
     """Return the host object based on the hostname either from the Host or the
     HostAlias. Return None if not found
     """
@@ -717,7 +712,7 @@ def getHost(hostname):
 
 
 ################################################################################
-def getOrigin(origin):
+def getOrigin(origin: str) -> str:
     """Standard 'origin' getter
     Use the origin variable if provided otherwise try and determine who
     is making the change
@@ -741,13 +736,11 @@ def getOrigin(origin):
 
 
 ################################################################################
-def checkHost(host):
+def checkHost(host: str) -> bool:
     """Check to make sure that a host exists"""
-    h = Host.objects.filter(hostname=host)
-    if h:
+    if Host.objects.filter(hostname=host):
         return True
-    else:
-        return False
+    return False
 
 
 ################################################################################
@@ -758,30 +751,31 @@ def clearAKcache():
 
 
 ################################################################################
-def getAK(key):
-    """Lookup AllowedKeys. This is a oft repeated expensive activity so
+def getAK(key: str) -> AllowedKey:
+    """Lookup AllowedKeys. This is an oft repeated expensive activity so
     cache it"""
     global _akcache
     if key not in _akcache:
         try:
             _akcache[key] = AllowedKey.objects.get(key=key)
         except ObjectDoesNotExist:
-            raise HostinfoException("Must use an existing key, not %s" % key)
+            raise HostinfoException(f"Must use an existing key, not {key}")
     return _akcache[key]
 
 
 ################################################################################
 def addKeytoHost(
-    host=None,
-    hostid=None,
-    key=None,
-    keyid=None,
-    value="",
-    origin=None,
-    updateFlag=False,
-    readonlyFlag=False,
-    appendFlag=False,
-):
+    host: Optional[str] = None,
+    hostid: Optional[Host] = None,
+    key: Optional[str] = None,
+    keyid: Optional[AllowedKey] = None,
+    value: str = "",
+    origin: Optional[str] = None,
+    updateFlag: bool = False,
+    readonlyFlag: bool = False,
+    appendFlag: bool = False,
+) -> int:
+    """Add a Key Value pair to a host"""
     retval = 0
     if not keyid:
         keyid = getAK(key)
@@ -789,7 +783,7 @@ def addKeytoHost(
         hostid = getHost(host)
     origin = getOrigin(origin)
     if not hostid:
-        raise HostinfoException("Unknown host: %s" % host)
+        raise HostinfoException(f"Unknown host: {host}")
     keytype = keyid.get_validtype_display()
     if keytype != "list" and appendFlag:
         raise HostinfoException("Can only append to list type keys")
@@ -807,9 +801,7 @@ def addKeytoHost(
                 retval = 0
         else:
             if kv[0].value != value:
-                raise HostinfoException(
-                    "%s:%s already has a value %s" % (host, key, kv[0].value)
-                )
+                raise HostinfoException(f"{host}:{key} already has a value {kv[0].value}")
             else:
                 retval = 1
     else:
@@ -820,30 +812,41 @@ def addKeytoHost(
 
 ###############################################################################
 class HostinfoCommand(object):
-    description = None
-    epilog = None
+    """Base for all hostinfo command lines"""
+
+    description: Optional[str] = None
+    epilog: Optional[str] = None
+    namespace: Optional[argparse.Namespace] = None
 
     def over_parseArgs(self):
-        parser = argparse.ArgumentParser(
-            description=self.description, epilog=self.epilog
-        )
+        """Call parseArgs of the command"""
+        parser = argparse.ArgumentParser(description=self.description, epilog=self.epilog)
         self.parseArgs(parser)
         self.namespace = parser.parse_args(sys.argv[1:])
 
-    def over_handle(self):
+    def over_handle(self) -> tuple[str, int]:
+        """Call the handle() of the command"""
         return self.handle(self.namespace)
+
+    def handle(self, namespace: argparse.Namespace) -> tuple[str, int]:
+        """Do the command"""
+        raise NotImplementedError
+
+    def parseArgs(self, parser: argparse.ArgumentParser) -> argparse.Namespace:
+        """Parse Args"""
+        raise NotImplementedError
 
 
 ###############################################################################
-def run_from_cmdline():
-    import importlib
+def run_from_cmdline() -> int:
+    """Run the command by using the command name"""
 
     start_time = time.time()
-    cmdname = "host.commands.cmd_%s" % os.path.basename(sys.argv[0])
+    cmdname = f"host.commands.cmd_{os.path.basename(sys.argv[0])}"
     try:
         cmd = importlib.import_module(cmdname)
     except ImportError:
-        sys.stderr.write("No such hostinfo command %s\n" % sys.argv[0])
+        sys.stderr.write(f"No such hostinfo command {sys.argv[0]}\n")
         return 255
     c = cmd.Command()
     c.over_parseArgs()
@@ -852,14 +855,12 @@ def run_from_cmdline():
         if output:
             print(output.strip())
     except HostinfoException as exc:
-        sys.stderr.write("%s\n" % exc.msg)
+        sys.stderr.write(str(exc.msg))
         return exc.retval
     if settings.DEBUG:  # pragma: no cover
         end_time = time.time()
-        db_query_time = sum([float(x["time"]) for x in connection.queries])
-        sys.stderr.write(
-            f"DB Queries: {len(connection.queries)} queries in {db_query_time} secs.\n"
-        )
+        db_query_time = sum(float(x["time"]) for x in connection.queries)
+        sys.stderr.write(f"DB Queries: {len(connection.queries)} queries in {db_query_time} secs.\n")
         sys.stderr.write(f"Total time {end_time-start_time} secs\n")
     return retval
 

@@ -1,4 +1,5 @@
-""" hostinfo views for mediawiki interface"""
+"""hostinfo views for mediawiki interface"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -17,19 +18,18 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render
 
 from .models import KeyValue
 from .models import RestrictedValue, HostinfoException
-
 from .views import criteriaFromWeb, getHostList
 from .views import orderHostList, hostData, getLinks
 
 
 ################################################################################
-def getWikiLinks(hostid=None, hostname=None):
-    """ Links """
+def getWikiLinks(hostid=None, hostname=None) -> list[str]:
+    """Links"""
     wikilinks = []
     for url, tag in getLinks(hostid, hostname):
         wikilinks.append(f"[{url} {tag}]")
@@ -37,21 +37,21 @@ def getWikiLinks(hostid=None, hostname=None):
 
 
 ################################################################################
-def displaySummary(request, hostname):
+def displaySummary(request: HttpRequest, hostname: str) -> HttpResponse:
     """Display a single host"""
     d = hostData(request.user, [hostname], linker=getWikiLinks)
     return render(request, "mediawiki/hostpage.wiki", d)
 
 
 ################################################################################
-def displayHost(request, hostname):
+def displayHost(request: HttpRequest, hostname: str) -> HttpResponse:
     """Display a single host"""
     d = hostData(request.user, [hostname], linker=getWikiLinks)
     return render(request, "mediawiki/host.wiki", d)
 
 
 ################################################################################
-def hosttable(request, criturl, options=None):
+def hosttable(request: HttpRequest, criturl, options=None):
     """Generate a table in wiki format - we can't (well, I can't)
     template this as the contents of the formatting are specified
     in the url
@@ -97,7 +97,7 @@ def hosttable(request, criturl, options=None):
 
 
 ################################################################################
-def hostlist(request, criturl):
+def hostlist(request: HttpRequest, criturl) -> HttpResponse:
     """Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)
     try:
@@ -107,7 +107,7 @@ def hostlist(request, criturl):
 
 
 ################################################################################
-def doRestrValList(request, key):
+def doRestrValList(request: HttpRequest, key) -> HttpResponse:
     """Return the list of restricted values for the key"""
     rvlist = RestrictedValue.objects.filter(keyid__key=key)
     d = {"key": key, "rvlist": rvlist}

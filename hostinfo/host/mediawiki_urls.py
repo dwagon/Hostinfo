@@ -1,4 +1,5 @@
 """Local URL handler for hostinfo mediawiki interface"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -18,6 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.urls import path, re_path
+
 from .mediawiki_views import (
     hosttable,
     hostlist,

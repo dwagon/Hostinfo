@@ -1,3 +1,5 @@
+"""hostinfo_deletehost"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -16,27 +18,31 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from host.models import KeyValue, HostAlias, getHost
 from host.models import HostinfoCommand, HostinfoException
+from host.models import KeyValue, HostAlias, getHost
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_deletehost"""
+
     description = "Delete a host"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "--lethal", help="Actually do the delete - NO UNDO", action="store_true"
-        )
+        """Parse args"""
+
+        parser.add_argument("--lethal", help="Actually do the delete - NO UNDO", action="store_true")
         parser.add_argument("host", help="Name of host to delete")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         host = namespace.host.lower()
         h = getHost(host)
         if not h:
-            raise HostinfoException("Host %s doesn't exist" % host)
+            raise HostinfoException(f"Host {host} doesn't exist")
 
         if not namespace.lethal:
             raise HostinfoException("Didn't do delete as no --lethal specified")

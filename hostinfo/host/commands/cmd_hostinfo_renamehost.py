@@ -1,3 +1,5 @@
+"""hostinfo_renamehost command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -16,33 +18,33 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from host.models import getHost, HostinfoException
 from host.models import HostinfoCommand
+from host.models import getHost, HostinfoException
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_renamehost"""
+
     description = "Rename a host"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "--src", help="The current name of the host", nargs=1, dest="srchost"
-        )
-        parser.add_argument(
-            "--dst", help="The new name of the host", nargs=1, dest="dsthost"
-        )
+        """Parse args"""
+
+        parser.add_argument("--src", help="The current name of the host", nargs=1, dest="srchost")
+        parser.add_argument("--dst", help="The new name of the host", nargs=1, dest="dsthost")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         hostobj = getHost(namespace.srchost[0])
         if not hostobj:
-            raise HostinfoException("There is no host called %s" % namespace.srchost[0])
+            raise HostinfoException(f"There is no host called {namespace.srchost[0]}")
         dsthostobj = getHost(namespace.dsthost[0])
         if dsthostobj:
-            raise HostinfoException(
-                "A host already exists with the name %s" % namespace.dsthost[0]
-            )
+            raise HostinfoException(f"A host already exists with the name {namespace.dsthost[0]}")
         hostobj.hostname = namespace.dsthost[0]
         hostobj.save()
         return None, 0

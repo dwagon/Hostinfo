@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#
-# Script to generate nagios view links in bulk
+"""Script to generate nagios view links in bulk"""
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -26,10 +25,7 @@ f = os.popen("/app/hostinfo/bin/hostinfo -p monitored monitored.defined")
 for line in f:
     line = line.strip().replace("monitored=", "")
     host, naghost = line.split()
-    print(
-        "%s http://%s/nagios.cgi-bin/extinfo.cgi?type=1&host=%s Nagios"
-        % (host, naghost, host)
-    )
+    print(f"{host} http://{naghost}/nagios.cgi-bin/extinfo.cgi?type=1&host={host} Nagios")
 f.close()
 
 sys.exit(0)

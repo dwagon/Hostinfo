@@ -1,3 +1,5 @@
+"""hostinfo_history command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -27,11 +29,15 @@ from host.models import HostinfoCommand, Host
 
 ###############################################################################
 class Command(HostinfoCommand):
-    description = "Add alias to a host"
+    """hostinfo_history"""
+
+    description = "History of changes to a hsot"
     _keycache = {}
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument(
             "-o",
             "--origin",
@@ -47,6 +53,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         outstr = ""
         host = getHost(namespace.host)
         if not host:
@@ -54,45 +62,31 @@ class Command(HostinfoCommand):
         hostchanges = Host.history.filter(id=host.id).order_by("history_date")
         for hc in hostchanges:
             if hc.history_type == "+":
-                msg = "Host:%s added on %s" % (host.hostname, hc.history_date)
+                msg = f"Host:{host.hostname} added on {hc.history_date}"
             # simple_history currently can't handle deleted hosts
             #            elif hc.history_type == '-':
             #                msg = "Host:%s deleted on %s" % (host.hostname, hc.history_date)
             if namespace.originFlag:
-                msg = "%s %s" % (msg, hc.origin)
-            outstr += "%s\n" % msg
+                msg = f"{msg} {hc.origin}"
+            outstr += f"{msg}\n"
 
         kvchanges = KeyValue.history.filter(hostid_id=host.id).order_by("history_date")
         for kv in kvchanges:
             key = self.getKeyName(kv.keyid_id)
             if kv.history_type == "+":
-                msg = "added %s:%s=%s on %s" % (
-                    host.hostname,
-                    key,
-                    kv.value,
-                    kv.history_date,
-                )
+                msg = f"added {host.hostname}:{key}={kv.value} on {kv.history_date}"
             elif kv.history_type == "-":
-                msg = "deleted %s:%s=%s on %s" % (
-                    host.hostname,
-                    key,
-                    kv.value,
-                    kv.history_date,
-                )
+                msg = f"deleted {host.hostname}:{key}={kv.value} on {kv.history_date}"
             elif kv.history_type == "~":
-                msg = "changed %s:%s=%s on %s" % (
-                    host.hostname,
-                    key,
-                    kv.value,
-                    kv.history_date,
-                )
+                msg = f"changed {host.hostname}:{key}={kv.value} on {kv.history_date}"
             if namespace.originFlag:
-                msg = "%s %s" % (msg, kv.origin)
-            outstr += "%s\n" % msg
+                msg = f"{msg} {kv.origin}"
+            outstr += f"{msg}\n"
         return outstr, 0
 
     ###########################################################################
     def getKeyName(self, keyid):
+        """Return the name of the key"""
         if keyid in self._keycache:
             return self._keycache[keyid]
         try:

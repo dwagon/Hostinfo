@@ -1,4 +1,4 @@
-""" Test hostinfo commands"""
+"""Test hostinfo commands"""
 
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
@@ -17,12 +17,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.test import TestCase
 import json
 import os
 import sys
 import tempfile
 import time
+
+from django.test import TestCase
 
 try:
     from StringIO import StringIO
@@ -82,7 +83,7 @@ class test_cmd_hostinfo_xml(TestCase):
     def test_xml_numerickey(self):
         namespace = self.parser.parse_args(["--xml", "-p", "xak1"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
         self.assertIn("<name>xak1</name>", output[0])
         self.assertIn("<desc>Test Key</desc>", output[0])
         self.assertIn("<numericFlag>True</numericFlag>", output[0])
@@ -94,7 +95,7 @@ class test_cmd_hostinfo_xml(TestCase):
     def test_xml_restrictedkey(self):
         namespace = self.parser.parse_args(["--xml", "-p", "xak2"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
         self.assertIn("<name>xak2</name>", output[0])
         self.assertIn("<desc>Restricted Test</desc>", output[0])
         self.assertIn("<numericFlag>False</numericFlag>", output[0])
@@ -108,7 +109,7 @@ class test_cmd_hostinfo_xml(TestCase):
         """Test outputting hosts only in xml mode"""
         namespace = self.parser.parse_args(["--xml"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
         self.assertIn("<hostname>xh1</hostname>", output[0])
         self.assertIn("<hostname>xh2</hostname>", output[0])
         self.assertNotIn("confitem", output[0])
@@ -162,41 +163,41 @@ class test_cmd_hostinfo(TestCase):
         namespace = self.parser.parse_args(["--host", hname])
         output = self.cmd.handle(namespace)
         self.assertIn(hname, output[0])
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
         th1.delete()
 
     ###########################################################################
     def test_hostinfo(self):
         namespace = self.parser.parse_args([])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("h1\nh2\n", 0))
+        self.assertEqual(output, ("h1\nh2\n", 0))
 
     ###########################################################################
-    def testnomatches(self):
+    def test_nomatches(self):
         namespace = self.parser.parse_args(["h3"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("", 1))
+        self.assertEqual(output, ("", 1))
 
     ###########################################################################
-    def testnormal_p(self):
+    def test_normal_p(self):
         namespace = self.parser.parse_args(["-p", "ak1"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("h1\tak1=kv1\nh2\tak1=kv2\n", 0))
+        self.assertEqual(output, ("h1\tak1=kv1\nh2\tak1=kv2\n", 0))
 
     ###########################################################################
-    def testnormal_missingp(self):
+    def test_normal_missingp(self):
         namespace = self.parser.parse_args(["-p", "ak1", "-p", "ak2"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("h1\tak1=kv1\tak2=kv3\nh2\tak1=kv2\tak2=\n", 0))
+        self.assertEqual(output, ("h1\tak1=kv1\tak2=kv3\nh2\tak1=kv2\tak2=\n", 0))
 
     ###########################################################################
-    def testnormal_times(self):
+    def test_normal_times(self):
         import time
 
         t = time.strftime("%Y-%m-%d", time.localtime())
         namespace = self.parser.parse_args(["-p", "ak1", "--times"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(
+        self.assertEqual(
             output,
             (
                 f"h1\t[Created: {t} Modified: {t}]\tak1=kv1[Created: {t}, Modified: {t}]\nh2\t[Created: {t} Modified: {t}]\tak1=kv2[Created: {t}, Modified: {t}]\n",
@@ -205,10 +206,10 @@ class test_cmd_hostinfo(TestCase):
         )
 
     ###########################################################################
-    def testnormal_origin(self):
+    def test_normal_origin(self):
         namespace = self.parser.parse_args(["-p", "ak1", "--origin"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(
+        self.assertEqual(
             output,
             (
                 "h1\t[Origin: me]\tak1=kv1[Origin: foo]\nh2\t[Origin: you]\tak1=kv2[Origin: bar]\n",
@@ -217,17 +218,17 @@ class test_cmd_hostinfo(TestCase):
         )
 
     ###########################################################################
-    def testbadkey(self):
+    def test_badkey(self):
         namespace = self.parser.parse_args(["-p", "badkey"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must use an existing key, not badkey")
+        self.assertEqual(cm.exception.msg, "Must use an existing key, not badkey")
 
     ###########################################################################
     def test_hostinfo_json(self):
         namespace = self.parser.parse_args(["--json"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
         data = json.loads(output[0])
         self.assertTrue("h1" in data)
         self.assertTrue("h2" in data)
@@ -237,27 +238,25 @@ class test_cmd_hostinfo(TestCase):
         namespace = self.parser.parse_args(["--json", "-p", "ak1", "-p", "ak2"])
         output = self.cmd.handle(namespace)
         data = json.loads(output[0])
-        self.assertEquals(data["h2"], {"ak1": ["kv2"]})
+        self.assertEqual(data["h2"], {"ak1": ["kv2"]})
 
     ###########################################################################
     def test_hostinfo_csv(self):
         namespace = self.parser.parse_args(["--csv"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("hostname,\nh1\nh2", 0))
+        self.assertEqual(output, ("hostname,\nh1\nh2", 0))
 
     ###########################################################################
     def test_hostinfo_csvp(self):
         namespace = self.parser.parse_args(["--csv", "-p", "ak1", "-p", "ak2"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('hostname,ak1,ak2\nh1,"kv1","kv3"\nh2,"kv2",', 0))
+        self.assertEqual(output, ('hostname,ak1,ak2\nh1,"kv1","kv3"\nh2,"kv2",', 0))
 
     ###########################################################################
     def test_hostinfo_csvsep(self):
-        namespace = self.parser.parse_args(
-            ["-p", "ak1", "-p", "ak2", "--csv", "--sep", "#"]
-        )
+        namespace = self.parser.parse_args(["-p", "ak1", "-p", "ak2", "--csv", "--sep", "#"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ('hostname#ak1#ak2\nh1#"kv1"#"kv3"\nh2#"kv2"#', 0))
+        self.assertEqual(output, ('hostname#ak1#ak2\nh1#"kv1"#"kv3"\nh2#"kv2"#', 0))
 
     ###########################################################################
     def test_hostinfo_showall(self):
@@ -271,19 +270,19 @@ class test_cmd_hostinfo(TestCase):
     def test_hostinfo_count(self):
         namespace = self.parser.parse_args(["--count"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("2", 0))
+        self.assertEqual(output, ("2", 0))
 
     ###########################################################################
     def test_hostinfo_hostsep(self):
         namespace = self.parser.parse_args(["--hsep", ":"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("h1:h2\n", 0))
+        self.assertEqual(output, ("h1:h2\n", 0))
 
     ###########################################################################
     def test_hostinfo_xml_p(self):
         namespace = self.parser.parse_args(["--xml", "-p", "ak1"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
         self.assertIn("<hostname>h1</hostname>", output[0])
         self.assertIn("<hostname>h2</hostname>", output[0])
         self.assertIn('<confitem key="ak1">kv1</confitem>', output[0])
@@ -296,7 +295,7 @@ class test_cmd_hostinfo(TestCase):
     def test_hostinfo_xml_showall(self):
         namespace = self.parser.parse_args(["--xml", "--showall"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
         self.assertIn("<name>ak1</name>", output[0])
         self.assertIn("<name>ak2</name>", output[0])
         self.assertIn('<confitem key="ak1">kv1</confitem>', output[0])
@@ -307,7 +306,7 @@ class test_cmd_hostinfo(TestCase):
     def test_hostinfo_xml_aliases(self):
         namespace = self.parser.parse_args(["--xml", "--aliases", "--showall"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
         self.assertIn("<alias>halias</alias>", output[0])
         self.assertIn("<name>ak1</name>", output[0])
         self.assertIn("<name>ak2</name>", output[0])
@@ -319,17 +318,17 @@ class test_cmd_hostinfo(TestCase):
     def test_hostinfo_valuereport(self):
         namespace = self.parser.parse_args(["--valuereport", "ak1"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(
+        self.assertEqual(
             output[0],
             "ak1 set: 2 100.00%\nak1 unset: 0 0.00%\n\nkv1 1 50.00%\nkv2 1 50.00%\n",
         )
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
 
         # No matches
         namespace = self.parser.parse_args(["--valuereport", "ak1", "ak2=novalue"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[0], "")
-        self.assertEquals(output[1], 1)
+        self.assertEqual(output[0], "")
+        self.assertEqual(output[1], 1)
 
     ###########################################################################
     def test_hostinfo_valuereport_badkey(self):
@@ -357,7 +356,7 @@ class test_cmd_addalias(TestCase):
         namespace = self.parser.parse_args(["host", "alias"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Host host doesn't exist")
+        self.assertEqual(cm.exception.msg, "Host host doesn't exist")
 
     ###########################################################################
     def test_aliasexists(self):
@@ -369,7 +368,7 @@ class test_cmd_addalias(TestCase):
         namespace = self.parser.parse_args(["host", "alias"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Host alias already exists")
+        self.assertEqual(cm.exception.msg, "Host alias already exists")
         host.delete()
         alias.delete()
 
@@ -382,11 +381,11 @@ class test_cmd_addalias(TestCase):
         alias.save()
         namespace = self.parser.parse_args(["oldalias", "newalias"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         newalias = HostAlias.objects.get(alias="newalias")
-        self.assertEquals(newalias.hostid, host)
+        self.assertEqual(newalias.hostid, host)
         newaliases = HostAlias.objects.filter(hostid=host)
-        self.assertEquals(len(newaliases), 2)
+        self.assertEqual(len(newaliases), 2)
         for a in newaliases:
             a.delete()
         host.delete()
@@ -398,10 +397,10 @@ class test_cmd_addalias(TestCase):
         host.save()
         namespace = self.parser.parse_args(["--origin", "test", "host", "alias"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         alias = HostAlias.objects.get(hostid=host)
-        self.assertEquals(alias.origin, "test")
-        self.assertEquals(alias.alias, "alias")
+        self.assertEqual(alias.origin, "test")
+        self.assertEqual(alias.alias, "alias")
         alias.delete()
         host.delete()
 
@@ -425,28 +424,28 @@ class test_cmd_addhost(TestCase):
         namespace = self.parser.parse_args(["host"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Host host already exists")
+        self.assertEqual(cm.exception.msg, "Host host already exists")
         host.delete()
         h = Host.objects.all()
-        self.assertEquals(len(h), 0)
+        self.assertEqual(len(h), 0)
 
     ###########################################################################
     def test_creation(self):
         namespace = self.parser.parse_args(["--origin", "test", "host"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         host = Host.objects.get(hostname="host")
-        self.assertEquals(host.hostname, "host")
-        self.assertEquals(host.origin, "test")
+        self.assertEqual(host.hostname, "host")
+        self.assertEqual(host.origin, "test")
         host.delete()
 
     ###########################################################################
     def test_lowercase(self):
         namespace = self.parser.parse_args(["HOST"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         host = Host.objects.get(hostname="host")
-        self.assertEquals(host.hostname, "host")
+        self.assertEqual(host.hostname, "host")
         host.delete()
 
     ###########################################################################
@@ -454,12 +453,12 @@ class test_cmd_addhost(TestCase):
         namespace = self.parser.parse_args(["--", "-badhost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(
+        self.assertEqual(
             cm.exception.msg,
             "Host begins with a forbidden character ('-') - not adding",
         )
         h = Host.objects.all()
-        self.assertEquals(len(h), 0)
+        self.assertEqual(len(h), 0)
 
 
 ###############################################################################
@@ -487,24 +486,24 @@ class test_cmd_deletelink(TestCase):
     def test_deleteelink(self):
         namespace = self.parser.parse_args(["--tag", "home", "linkhost"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         lnk = Links.objects.filter(hostid=self.host)
-        self.assertEquals(len(lnk), 0)
+        self.assertEqual(len(lnk), 0)
 
     ###########################################################################
     def test_badhost(self):
         namespace = self.parser.parse_args(["--tag", "home", "badhost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Host badhost doesn't exist")
+        self.assertEqual(cm.exception.msg, "Host badhost doesn't exist")
 
     ###########################################################################
     def test_everytag(self):
         namespace = self.parser.parse_args(["--everytag", "linkhost"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         lnk = Links.objects.filter(hostid=self.host)
-        self.assertEquals(len(lnk), 0)
+        self.assertEqual(len(lnk), 0)
 
 
 ###############################################################################
@@ -529,17 +528,17 @@ class test_cmd_addlink(TestCase):
     def test_createlink(self):
         namespace = self.parser.parse_args(["home", "http://dwagon.net", "linkhost"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         lnk = Links.objects.get(hostid=self.host)
-        self.assertEquals(lnk.url, "http://dwagon.net")
-        self.assertEquals(lnk.tag, "home")
+        self.assertEqual(lnk.url, "http://dwagon.net")
+        self.assertEqual(lnk.tag, "home")
 
     ###########################################################################
     def test_badhost(self):
         namespace = self.parser.parse_args(["home", "http://dwagon.net", "badhost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Host badhost doesn't exist")
+        self.assertEqual(cm.exception.msg, "Host badhost doesn't exist")
 
     ###########################################################################
     def test_duplicatetag(self):
@@ -547,20 +546,18 @@ class test_cmd_addlink(TestCase):
         orig.save()
         namespace = self.parser.parse_args(["home", "http://dwagon.net", "linkhost"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, ("Host linkhost already has a link with tag home", 1))
+        self.assertEqual(retval, ("Host linkhost already has a link with tag home", 1))
         orig.delete()
 
     ###########################################################################
     def test_update(self):
         orig = Links(hostid=self.host, tag="home", url="http://google.com")
         orig.save()
-        namespace = self.parser.parse_args(
-            ["--update", "home", "http://dwagon.net", "linkhost"]
-        )
+        namespace = self.parser.parse_args(["--update", "home", "http://dwagon.net", "linkhost"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         lnk = Links.objects.get(hostid=self.host)
-        self.assertEquals(lnk.url, "http://dwagon.net")
+        self.assertEqual(lnk.url, "http://dwagon.net")
 
 
 ###############################################################################
@@ -582,98 +579,92 @@ class test_cmd_addkey(TestCase):
         namespace = self.parser.parse_args(["key_addkey_t1"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(
-            cm.exception.msg, "Key already exists with that name: key_addkey_t1"
-        )
+        self.assertEqual(cm.exception.msg, "Key already exists with that name: key_addkey_t1")
         ak.delete()
 
     ###########################################################################
     def test_addRestricted(self):
         namespace = self.parser.parse_args(["--restricted", "key_addkey_t2"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t2")
-        self.assertEquals(key.restrictedFlag, True)
-        self.assertEquals(key.readonlyFlag, False)
-        self.assertEquals(key.auditFlag, True)
-        self.assertEquals(key.get_validtype_display(), "single")
-        self.assertEquals(key.desc, "")
+        self.assertEqual(key.restrictedFlag, True)
+        self.assertEqual(key.readonlyFlag, False)
+        self.assertEqual(key.auditFlag, True)
+        self.assertEqual(key.get_validtype_display(), "single")
+        self.assertEqual(key.desc, "")
         key.delete()
 
     ###########################################################################
     def test_addReadonly(self):
         namespace = self.parser.parse_args(["--readonly", "key_addkey_t3"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t3")
-        self.assertEquals(key.restrictedFlag, False)
-        self.assertEquals(key.readonlyFlag, True)
-        self.assertEquals(key.auditFlag, True)
+        self.assertEqual(key.restrictedFlag, False)
+        self.assertEqual(key.readonlyFlag, True)
+        self.assertEqual(key.auditFlag, True)
         key.delete()
 
     ###########################################################################
     def test_addSingle(self):
         namespace = self.parser.parse_args(["key_addkey_t4", "single"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t4")
-        self.assertEquals(key.auditFlag, True)
-        self.assertEquals(key.get_validtype_display(), "single")
+        self.assertEqual(key.auditFlag, True)
+        self.assertEqual(key.get_validtype_display(), "single")
         key.delete()
 
     ###########################################################################
     def test_addList(self):
         namespace = self.parser.parse_args(["key_addkey_t5", "list"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t5")
-        self.assertEquals(key.get_validtype_display(), "list")
+        self.assertEqual(key.get_validtype_display(), "list")
         key.delete()
 
     ###########################################################################
     def test_addDate(self):
         namespace = self.parser.parse_args(["key_addkey_t6", "date"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t6")
-        self.assertEquals(key.get_validtype_display(), "date")
+        self.assertEqual(key.get_validtype_display(), "date")
         key.delete()
 
     ###########################################################################
     def test_withDescription(self):
-        namespace = self.parser.parse_args(
-            ["key_addkey_t7", "single", "this", "is", "a", "description"]
-        )
+        namespace = self.parser.parse_args(["key_addkey_t7", "single", "this", "is", "a", "description"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t7")
-        self.assertEquals(key.desc, "this is a description")
+        self.assertEqual(key.desc, "this is a description")
         key.delete()
 
     ###########################################################################
     def test_withExplicitKeyType(self):
         namespace = self.parser.parse_args(["--keytype", "list", "key_addkey_t8"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t8")
         key.delete()
 
     ###########################################################################
     def test_withExplicitKeyTypeAndDesc(self):
-        namespace = self.parser.parse_args(
-            ["--keytype", "date", "key_addkey_t9", "this", "is", "a", "description"]
-        )
+        namespace = self.parser.parse_args(["--keytype", "date", "key_addkey_t9", "this", "is", "a", "description"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t9")
-        self.assertEquals(key.get_validtype_display(), "date")
+        self.assertEqual(key.get_validtype_display(), "date")
         key.delete()
 
     ###########################################################################
     def test_lowercase(self):
         namespace = self.parser.parse_args(["KEY_ADDKEY_T10"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t10")
         key.delete()
 
@@ -681,9 +672,9 @@ class test_cmd_addkey(TestCase):
     def test_addnoaudit(self):
         namespace = self.parser.parse_args(["--noaudit", "key_addkey_t11"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         key = AllowedKey.objects.get(key="key_addkey_t11")
-        self.assertEquals(key.auditFlag, False)
+        self.assertEqual(key.auditFlag, False)
         key.delete()
 
     ###########################################################################
@@ -691,9 +682,7 @@ class test_cmd_addkey(TestCase):
         namespace = self.parser.parse_args(["key_addkey_t12", "invalid", "description"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(
-            cm.exception.msg, "Unknown type invalid - should be one of single,list,date"
-        )
+        self.assertEqual(cm.exception.msg, "Unknown type invalid - should be one of single,list,date")
 
 
 ###############################################################################
@@ -718,17 +707,17 @@ class test_cmd_addrestrictedvalue(TestCase):
     def test_addvalue(self):
         namespace = self.parser.parse_args(["restr=value"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         rv = RestrictedValue.objects.filter()[0]
-        self.assertEquals(rv.value, "value")
-        self.assertEquals(rv.keyid, self.key)
+        self.assertEqual(rv.value, "value")
+        self.assertEqual(rv.keyid, self.key)
 
     ###########################################################################
     def test_missingkey(self):
         namespace = self.parser.parse_args(["key2=value"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "No key key2 found")
+        self.assertEqual(cm.exception.msg, "No key key2 found")
 
     ###########################################################################
     def test_unrestricted(self):
@@ -737,7 +726,7 @@ class test_cmd_addrestrictedvalue(TestCase):
         namespace = self.parser.parse_args(["unrestr=value"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Key unrestr isn't a restrictedvalue key")
+        self.assertEqual(cm.exception.msg, "Key unrestr isn't a restrictedvalue key")
         self.key2.delete()
 
     ###########################################################################
@@ -747,9 +736,7 @@ class test_cmd_addrestrictedvalue(TestCase):
         namespace = self.parser.parse_args(["restr=value"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(
-            cm.exception.msg, "Already a key restr=value in the restrictedvalue list"
-        )
+        self.assertEqual(cm.exception.msg, "Already a key restr=value in the restrictedvalue list")
         self.rv.delete()
 
     ###########################################################################
@@ -757,7 +744,7 @@ class test_cmd_addrestrictedvalue(TestCase):
         namespace = self.parser.parse_args(["key value"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must be specified in key=value format")
+        self.assertEqual(cm.exception.msg, "Must be specified in key=value format")
 
 
 ###############################################################################
@@ -783,15 +770,13 @@ class test_cmd_addvalue(TestCase):
         """Test normal operation of adding a new key/value pair"""
         key = AllowedKey(key="key_addvalue_t1", validtype=1)
         key.save()
-        namespace = self.parser.parse_args(
-            ["--origin", "whence", "key_addvalue_t1=VALUE", "testhost"]
-        )
+        namespace = self.parser.parse_args(["--origin", "whence", "key_addvalue_t1=VALUE", "testhost"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         kv = KeyValue.objects.filter()[0]
-        self.assertEquals(kv.hostid, self.host)
-        self.assertEquals(kv.value, "value")
-        self.assertEquals(kv.origin, "whence")
+        self.assertEqual(kv.hostid, self.host)
+        self.assertEqual(kv.value, "value")
+        self.assertEqual(kv.origin, "whence")
         key.delete()
 
     ###########################################################################
@@ -800,15 +785,13 @@ class test_cmd_addvalue(TestCase):
         key.save()
         host2 = Host(hostname="testhost2")
         host2.save()
-        namespace = self.parser.parse_args(
-            ["--origin", "whence2", "key_addvalue_t2=value2", "testhost", "testhost2"]
-        )
+        namespace = self.parser.parse_args(["--origin", "whence2", "key_addvalue_t2=value2", "testhost", "testhost2"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         for h in (self.host, host2):
             kv = KeyValue.objects.filter(hostid=h)[0]
-            self.assertEquals(kv.value, "value2")
-            self.assertEquals(kv.origin, "whence2")
+            self.assertEqual(kv.value, "value2")
+            self.assertEqual(kv.origin, "whence2")
         key.delete()
         host2.delete()
 
@@ -825,15 +808,15 @@ class test_cmd_addvalue(TestCase):
         namespace = self.parser.parse_args(["rkey=value", "testhost"])
         with self.assertRaises(RestrictedValueException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Cannot add rkey=value to a restricted key")
+        self.assertEqual(cm.exception.msg, "Cannot add rkey=value to a restricted key")
         kv = KeyValue.objects.filter(keyid=key)
-        self.assertEquals(len(kv), 0)
+        self.assertEqual(len(kv), 0)
 
         namespace = self.parser.parse_args(["rkey=restrvalue", "testhost"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         kv = KeyValue.objects.get(keyid=key)
-        self.assertEquals(kv.value, "restrvalue")
+        self.assertEqual(kv.value, "restrvalue")
 
         rv.delete()
         key.delete()
@@ -844,7 +827,7 @@ class test_cmd_addvalue(TestCase):
         namespace = self.parser.parse_args(["badvalue", "testhost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must be specified in key=value format")
+        self.assertEqual(cm.exception.msg, "Must be specified in key=value format")
 
     ###########################################################################
     def test_readonlykey(self):
@@ -858,9 +841,7 @@ class test_cmd_addvalue(TestCase):
         self.assertEqual(list(kv), [])
 
         # Now try with correct options
-        namespace = self.parser.parse_args(
-            ["--readonlyupdate", "rokey=value", "testhost"]
-        )
+        namespace = self.parser.parse_args(["--readonlyupdate", "rokey=value", "testhost"])
         self.cmd.handle(namespace)
         kv = KeyValue.objects.filter(keyid=key)
         self.assertEqual(kv[0].value, "value")
@@ -873,10 +854,10 @@ class test_cmd_addvalue(TestCase):
         key.save()
         namespace = self.parser.parse_args(["key_addvalue_t1= VALUE", "testhost"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         kv = KeyValue.objects.filter()[0]
-        self.assertEquals(kv.hostid, self.host)
-        self.assertEquals(kv.value, "value")
+        self.assertEqual(kv.hostid, self.host)
+        self.assertEqual(kv.value, "value")
         key.delete()
 
     ###########################################################################
@@ -884,7 +865,7 @@ class test_cmd_addvalue(TestCase):
         namespace = self.parser.parse_args(["mkey=value", "testhost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must use an existing key, not mkey")
+        self.assertEqual(cm.exception.msg, "Must use an existing key, not mkey")
 
 
 ###############################################################################
@@ -912,10 +893,10 @@ class test_cmd_deletealias(TestCase):
         alias.save()
         namespace = self.parser.parse_args(["alias"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         alias.delete()
         aliaslist = HostAlias.objects.all()
-        self.assertEquals(len(aliaslist), 0)
+        self.assertEqual(len(aliaslist), 0)
 
     ###########################################################################
     def test_deletemissingalias(self):
@@ -923,7 +904,7 @@ class test_cmd_deletealias(TestCase):
         namespace = self.parser.parse_args(["badalias"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "No alias called badalias")
+        self.assertEqual(cm.exception.msg, "No alias called badalias")
 
 
 ###############################################################################
@@ -946,7 +927,7 @@ class test_cmd_deletehost(TestCase):
         namespace = self.parser.parse_args(["test"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Didn't do delete as no --lethal specified")
+        self.assertEqual(cm.exception.msg, "Didn't do delete as no --lethal specified")
         hosts = Host.objects.all()
         self.assertEqual(len(hosts), 1)
         h.delete()
@@ -965,7 +946,7 @@ class test_cmd_deletehost(TestCase):
 
         namespace = self.parser.parse_args(["--lethal", "test"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
 
         hosts = Host.objects.all()
         self.assertEqual(len(hosts), 0)
@@ -983,7 +964,7 @@ class test_cmd_deletehost(TestCase):
         h.save()
         namespace = self.parser.parse_args(["--lethal", "test"])
         retval = self.cmd.handle(namespace)
-        self.assertEquals(retval, (None, 0))
+        self.assertEqual(retval, (None, 0))
         hosts = Host.objects.all()
         self.assertEqual(len(hosts), 0)
         h.delete()
@@ -994,7 +975,7 @@ class test_cmd_deletehost(TestCase):
         namespace = self.parser.parse_args(["--lethal", "test2"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Host test2 doesn't exist")
+        self.assertEqual(cm.exception.msg, "Host test2 doesn't exist")
 
 
 ###############################################################################
@@ -1024,9 +1005,9 @@ class test_cmd_deleterestrictedvalue(TestCase):
         """Test the deletion of a restricted value"""
         namespace = self.parser.parse_args(["restr=allowed"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         rv = RestrictedValue.objects.all()
-        self.assertEquals(len(rv), 0)
+        self.assertEqual(len(rv), 0)
 
     ###########################################################################
     def test_missingvalue(self):
@@ -1034,9 +1015,7 @@ class test_cmd_deleterestrictedvalue(TestCase):
         namespace = self.parser.parse_args(["restr=bad"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(
-            cm.exception.msg, "No key restr=bad in the restrictedvalue list"
-        )
+        self.assertEqual(cm.exception.msg, "No key restr=bad in the restrictedvalue list")
 
     ###########################################################################
     def test_badkeyname(self):
@@ -1044,9 +1023,7 @@ class test_cmd_deleterestrictedvalue(TestCase):
         namespace = self.parser.parse_args(["bad=allowed"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(
-            cm.exception.msg, "No key bad=allowed in the restrictedvalue list"
-        )
+        self.assertEqual(cm.exception.msg, "No key bad=allowed in the restrictedvalue list")
 
     ###########################################################################
     def test_badkeytype(self):
@@ -1056,9 +1033,7 @@ class test_cmd_deleterestrictedvalue(TestCase):
         namespace = self.parser.parse_args(["free=allowed"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(
-            cm.exception.msg, "No key free=allowed in the restrictedvalue list"
-        )
+        self.assertEqual(cm.exception.msg, "No key free=allowed in the restrictedvalue list")
         k1.delete()
 
     ###########################################################################
@@ -1067,7 +1042,7 @@ class test_cmd_deleterestrictedvalue(TestCase):
         namespace = self.parser.parse_args(["foobar"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must be specified in key=value format")
+        self.assertEqual(cm.exception.msg, "Must be specified in key=value format")
 
 
 ###############################################################################
@@ -1100,17 +1075,17 @@ class test_cmd_deletevalue(TestCase):
         namespace = self.parser.parse_args(["key_dv=deletevalue", "host_delval"])
         output = self.cmd.handle(namespace)
         kvlist = KeyValue.objects.filter(hostid=self.h1)
-        self.assertEquals(output, (None, 0))
-        self.assertEquals(len(kvlist), 0)
+        self.assertEqual(output, (None, 0))
+        self.assertEqual(len(kvlist), 0)
 
     ###########################################################################
     def test_delete_novalue(self):
         """Test the deletion of a value where the value isn't specified"""
         namespace = self.parser.parse_args(["key_dv", "host_delval"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         kvlist = KeyValue.objects.filter(hostid=self.h1)
-        self.assertEquals(len(kvlist), 0)
+        self.assertEqual(len(kvlist), 0)
 
     ###########################################################################
     def test_badhost(self):
@@ -1118,9 +1093,9 @@ class test_cmd_deletevalue(TestCase):
         namespace = self.parser.parse_args(["key_dv=deletevalue", "badhost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Unknown host: badhost")
+        self.assertEqual(cm.exception.msg, "Unknown host: badhost")
         kvlist = KeyValue.objects.filter(hostid=self.h1)
-        self.assertEquals(len(kvlist), 1)
+        self.assertEqual(len(kvlist), 1)
 
     ###########################################################################
     def test_readonlydeletion(self):
@@ -1133,7 +1108,7 @@ class test_cmd_deletevalue(TestCase):
         namespace = self.parser.parse_args(["key2_dv=deletevalue", "host_delval"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Cannot delete a readonly value")
+        self.assertEqual(cm.exception.msg, "Cannot delete a readonly value")
         kv2.delete(readonlychange=True)
         ak2.delete()
 
@@ -1143,7 +1118,7 @@ class test_cmd_deletevalue(TestCase):
         namespace = self.parser.parse_args(["badkey_dv=deletevalue", "host_delval"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must use an existing key, not badkey_dv")
+        self.assertEqual(cm.exception.msg, "Must use an existing key, not badkey_dv")
 
     ###########################################################################
     def test_deletebadkey(self):
@@ -1153,7 +1128,7 @@ class test_cmd_deletevalue(TestCase):
         namespace = self.parser.parse_args(["key3_dv=deletevalue", "host_delval"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Host host_delval doesn't have key key3_dv")
+        self.assertEqual(cm.exception.msg, "Host host_delval doesn't have key key3_dv")
         ak.delete()
 
 
@@ -1174,7 +1149,7 @@ class test_cmd_history(TestCase):
     def test_badhost(self):
         namespace = self.parser.parse_args(["badhost"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("", 1))
+        self.assertEqual(output, ("", 1))
 
     ###########################################################################
     def test_origin(self):
@@ -1256,7 +1231,7 @@ class test_cmd_import(TestCase):
         namespace = self.parser.parse_args(["badfile"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "File badfile doesn't exist")
+        self.assertEqual(cm.exception.msg, "File badfile doesn't exist")
 
     ###########################################################################
     def test_basic_import(self):
@@ -1278,11 +1253,11 @@ class test_cmd_import(TestCase):
             pass
         host = Host.objects.get(hostname="importhost")
         key = AllowedKey.objects.get(key="importkey")
-        self.assertEquals(key.desc, "Testing import key")
-        self.assertEquals(key.readonlyFlag, False)
-        self.assertEquals(key.auditFlag, False)
+        self.assertEqual(key.desc, "Testing import key")
+        self.assertEqual(key.readonlyFlag, False)
+        self.assertEqual(key.auditFlag, False)
         keyval = KeyValue.objects.get(hostid=host, keyid=key)
-        self.assertEquals(keyval.value, "4")
+        self.assertEqual(keyval.value, "4")
 
     ###########################################################################
     def test_list_import(self):
@@ -1304,12 +1279,12 @@ class test_cmd_import(TestCase):
             pass
         host = Host.objects.get(hostname="importhost2")
         key = AllowedKey.objects.get(key="importlistkey")
-        self.assertEquals(key.readonlyFlag, True)
-        self.assertEquals(key.auditFlag, True)
+        self.assertEqual(key.readonlyFlag, True)
+        self.assertEqual(key.auditFlag, True)
         keyvals = KeyValue.objects.filter(hostid=host, keyid=key)
-        self.assertEquals(len(keyvals), 2)
+        self.assertEqual(len(keyvals), 2)
         vals = sorted([kv.value for kv in keyvals])
-        self.assertEquals(["bar", "foo"], vals)
+        self.assertEqual(["bar", "foo"], vals)
 
     ###########################################################################
     def test_restricted_import(self):
@@ -1331,10 +1306,10 @@ class test_cmd_import(TestCase):
             pass
         host = Host.objects.get(hostname="importhost3")
         key = AllowedKey.objects.get(key="importrestkey")
-        self.assertEquals(key.readonlyFlag, False)
-        self.assertEquals(key.auditFlag, True)
+        self.assertEqual(key.readonlyFlag, False)
+        self.assertEqual(key.auditFlag, True)
         keyvals = KeyValue.objects.get(hostid=host, keyid=key)
-        self.assertEquals(keyvals.value, "alpha")
+        self.assertEqual(keyvals.value, "alpha")
 
     ###########################################################################
     def test_change_existingkey(self):
@@ -1365,11 +1340,11 @@ class test_cmd_import(TestCase):
             pass
         host = Host.objects.get(hostname="importhost4")
         newkey = AllowedKey.objects.get(key="importexisting")
-        self.assertEquals(newkey.readonlyFlag, False)
-        self.assertEquals(newkey.auditFlag, True)
-        self.assertEquals(newkey.desc, "New Desc")
+        self.assertEqual(newkey.readonlyFlag, False)
+        self.assertEqual(newkey.auditFlag, True)
+        self.assertEqual(newkey.desc, "New Desc")
         keyvals = KeyValue.objects.get(hostid=host, keyid=newkey)
-        self.assertEquals(keyvals.value, "alpha")
+        self.assertEqual(keyvals.value, "alpha")
         key.delete()
         newkey.delete()
 
@@ -1403,7 +1378,7 @@ class test_cmd_listalias(TestCase):
         """Test listing the aliases of a host"""
         namespace = self.parser.parse_args(["host"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("host\nbar\nfoo\n", 0))
+        self.assertEqual(output, ("host\nbar\nfoo\n", 0))
 
     ###########################################################################
     def test_listnoaliases(self):
@@ -1412,7 +1387,7 @@ class test_cmd_listalias(TestCase):
         h.save()
         namespace = self.parser.parse_args(["test2"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("test2\n", 1))
+        self.assertEqual(output, ("test2\n", 1))
         h.delete()
 
     ###########################################################################
@@ -1421,21 +1396,21 @@ class test_cmd_listalias(TestCase):
         namespace = self.parser.parse_args(["badhost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Host badhost doesn't exist")
+        self.assertEqual(cm.exception.msg, "Host badhost doesn't exist")
 
     ###########################################################################
     def test_listall(self):
         """Test listing all aliases"""
         namespace = self.parser.parse_args(["--all"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("bar host\nfoo host\n", 0))
+        self.assertEqual(output, ("bar host\nfoo host\n", 0))
 
     ###########################################################################
     def test_listnone(self):
         """Test listing neither all or a host"""
         namespace = self.parser.parse_args([])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("bar host\nfoo host\n", 0))
+        self.assertEqual(output, ("bar host\nfoo host\n", 0))
 
 
 ###############################################################################
@@ -1464,7 +1439,7 @@ class test_cmd_listrestrictedvalue(TestCase):
         """Test normal behaviour"""
         namespace = self.parser.parse_args(["restr"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("allowed\n", 0))
+        self.assertEqual(output, ("allowed\n", 0))
 
     ###########################################################################
     def test_badkey(self):
@@ -1472,7 +1447,7 @@ class test_cmd_listrestrictedvalue(TestCase):
         namespace = self.parser.parse_args(["nokey"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "No key nokey found")
+        self.assertEqual(cm.exception.msg, "No key nokey found")
 
 
 ###############################################################################
@@ -1511,7 +1486,7 @@ class test_cmd_mergehost(TestCase):
         kv1 = KeyValue(hostid=self.host1, keyid=self.key1, value="val1")
         kv1.save()
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key1)
         self.assertEqual(kv[0].value, "val1")
 
@@ -1525,7 +1500,7 @@ class test_cmd_mergehost(TestCase):
         addKeytoHost(host="mrghost2", key="mergelist", value="c")
         addKeytoHost(host="mrghost2", key="mergelist", value="d", appendFlag=True)
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key2)
         vals = sorted([k.value for k in kv])
         self.assertEqual(vals, ["a", "b", "c", "d"])
@@ -1547,22 +1522,20 @@ class test_cmd_mergehost(TestCase):
         ]
         for msg in errmsgs:
             self.assertIn(msg, errout)
-        self.assertEquals(output, ("Failed to merge", 1))
+        self.assertEqual(output, ("Failed to merge", 1))
         kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key1)
         self.assertEqual(kv[0].value, "val2")
 
     ###########################################################################
     def test_merge_collide_force(self):
         """Force merge two hosts that have the same key set with a different value"""
-        namespace = self.parser.parse_args(
-            ["--force", "--src", "mrghost1", "--dst", "mrghost2"]
-        )
+        namespace = self.parser.parse_args(["--force", "--src", "mrghost1", "--dst", "mrghost2"])
         kv1 = KeyValue(hostid=self.host1, keyid=self.key1, value="val1")
         kv1.save()
         kv2 = KeyValue(hostid=self.host2, keyid=self.key1, value="val2")
         kv2.save()
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key1)
         self.assertEqual(kv[0].value, "val2")
 
@@ -1575,7 +1548,7 @@ class test_cmd_mergehost(TestCase):
         kv2 = KeyValue(hostid=self.host2, keyid=self.key1, value="vala")
         kv2.save()
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         kv = KeyValue.objects.filter(hostid=self.host2.id, keyid=self.key1)
         self.assertEqual(kv[0].value, "vala")
 
@@ -1585,7 +1558,7 @@ class test_cmd_mergehost(TestCase):
         namespace = self.parser.parse_args(["--src", "badhost", "--dst", "mrghost2"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Source host badhost doesn't exist")
+        self.assertEqual(cm.exception.msg, "Source host badhost doesn't exist")
 
     ###########################################################################
     def test_merge_no_dsthost(self):
@@ -1593,7 +1566,7 @@ class test_cmd_mergehost(TestCase):
         namespace = self.parser.parse_args(["--src", "mrghost1", "--dst", "badhost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Destination host badhost doesn't exist")
+        self.assertEqual(cm.exception.msg, "Destination host badhost doesn't exist")
 
 
 ###############################################################################
@@ -1621,27 +1594,25 @@ class test_cmd_renamehost(TestCase):
     def test_renamehost(self):
         namespace = self.parser.parse_args(["--src", "renhost", "--dst", "newhost"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         hosts = Host.objects.filter(hostname="newhost")
-        self.assertEquals(hosts[0], self.host)
+        self.assertEqual(hosts[0], self.host)
         hosts = Host.objects.filter(hostname="renhost")
-        self.assertEquals(len(hosts), 0)
+        self.assertEqual(len(hosts), 0)
 
     ###########################################################################
     def test_renamehbadost(self):
         namespace = self.parser.parse_args(["--src", "renbadhost", "--dst", "newhost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "There is no host called renbadhost")
+        self.assertEqual(cm.exception.msg, "There is no host called renbadhost")
 
     ###########################################################################
     def test_renameexisting(self):
         namespace = self.parser.parse_args(["--src", "renhost", "--dst", "renhost2"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(
-            cm.exception.msg, "A host already exists with the name renhost2"
-        )
+        self.assertEqual(cm.exception.msg, "A host already exists with the name renhost2")
 
 
 ###############################################################################
@@ -1681,58 +1652,56 @@ class test_cmd_replacevalue(TestCase):
     def test_replacevalue(self):
         namespace = self.parser.parse_args(["repval=before", "after", "rephost"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         kv = KeyValue.objects.filter(hostid=self.host, keyid=self.key)[0]
-        self.assertEquals(kv.value, "after")
+        self.assertEqual(kv.value, "after")
 
     ###########################################################################
     def test_badvalue(self):
         namespace = self.parser.parse_args(["repval=notexists", "newvalue", "rephost"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         kv = KeyValue.objects.filter(hostid=self.host, keyid=self.key)[0]
-        self.assertEquals(kv.value, "before")
+        self.assertEqual(kv.value, "before")
 
     ###########################################################################
     def test_badkey(self):
         namespace = self.parser.parse_args(["badkey=value", "newvalue", "rephost"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must use an existing key, not badkey")
+        self.assertEqual(cm.exception.msg, "Must use an existing key, not badkey")
 
     ###########################################################################
     def test_badexpr(self):
         namespace = self.parser.parse_args(["badexpr", "nobody", "cares"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "Must be in key=value format, not badexpr")
+        self.assertEqual(cm.exception.msg, "Must be in key=value format, not badexpr")
 
     ###########################################################################
     def test_nohosts(self):
         namespace = self.parser.parse_args(["repval=before", "after"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(
-            cm.exception.msg, "Must specify a list of hosts or the --all flag"
-        )
+        self.assertEqual(cm.exception.msg, "Must specify a list of hosts or the --all flag")
 
     ###########################################################################
     def test_all(self):
         namespace = self.parser.parse_args(["repval=before", "after", "--all"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         kvlist = KeyValue.objects.filter(keyid=self.key)
         for k in kvlist:
-            self.assertEquals(k.value, "after")
+            self.assertEqual(k.value, "after")
 
     ###########################################################################
     def test_kidding(self):
         """Test that it doesn't actually do anything in kidding mode"""
         namespace = self.parser.parse_args(["-k", "repval=before", "after", "rephost"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, (None, 0))
+        self.assertEqual(output, (None, 0))
         kv = KeyValue.objects.filter(hostid=self.host, keyid=self.key)[0]
-        self.assertEquals(kv.value, "before")
+        self.assertEqual(kv.value, "before")
 
 
 ###############################################################################
@@ -1746,9 +1715,7 @@ class test_cmd_showkey(TestCase):
         self.cmd = Command()
         self.parser = argparse.ArgumentParser()
         self.cmd.parseArgs(self.parser)
-        self.key1 = AllowedKey(
-            key="showkey1", validtype=1, desc="description", restrictedFlag=True
-        )
+        self.key1 = AllowedKey(key="showkey1", validtype=1, desc="description", restrictedFlag=True)
         self.key1.save()
         self.key2 = AllowedKey(
             key="showkey2",
@@ -1771,7 +1738,7 @@ class test_cmd_showkey(TestCase):
     def test_showkey(self):
         namespace = self.parser.parse_args([])
         output = self.cmd.handle(namespace)
-        self.assertEquals(
+        self.assertEqual(
             output,
             (
                 "showkey1\tsingle\tdescription    [KEY RESTRICTED]\nshowkey2\tlist\tanother description    [NUMERIC][KEY READ ONLY]\nshowkey3\tdate\t    ",
@@ -1783,24 +1750,20 @@ class test_cmd_showkey(TestCase):
     def test_showtype(self):
         namespace = self.parser.parse_args(["--type"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(
-            output, ("showkey1\tsingle\nshowkey2\tlist\nshowkey3\tdate", 0)
-        )
+        self.assertEqual(output, ("showkey1\tsingle\nshowkey2\tlist\nshowkey3\tdate", 0))
 
     ###########################################################################
     def test_showkeylist(self):
         namespace = self.parser.parse_args(["showkey1"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(
-            output, ("showkey1\tsingle\tdescription    [KEY RESTRICTED]", 0)
-        )
+        self.assertEqual(output, ("showkey1\tsingle\tdescription    [KEY RESTRICTED]", 0))
 
     ###########################################################################
     def test_showbadkeylist(self):
         namespace = self.parser.parse_args(["badkey"])
         with self.assertRaises(HostinfoException) as cm:
             self.cmd.handle(namespace)
-        self.assertEquals(cm.exception.msg, "No keys to show")
+        self.assertEqual(cm.exception.msg, "No keys to show")
 
 
 ###############################################################################
@@ -1820,28 +1783,28 @@ class test_cmd_undolog(TestCase):
         """Test normal behaviour for a user"""
         namespace = self.parser.parse_args(["--user", "foo"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output, ("", 0))
+        self.assertEqual(output, ("", 0))
 
     ###########################################################################
     def test_week(self):
         """Test normal behaviour for a week"""
         namespace = self.parser.parse_args(["--week"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
 
     ###########################################################################
     def test_days(self):
         """Test normal behaviour for 5 days"""
         namespace = self.parser.parse_args(["--days", "5"])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
 
     ###########################################################################
     def test_undolog(self):
         """Test normal behaviour"""
         namespace = self.parser.parse_args([])
         output = self.cmd.handle(namespace)
-        self.assertEquals(output[1], 0)
+        self.assertEqual(output[1], 0)
 
 
 ###############################################################################
@@ -1869,7 +1832,7 @@ class test_run_from_cmdline(TestCase):
     def test_badrun(self):
         sys.argv[0] = "notexists"
         rv = run_from_cmdline()
-        self.assertEquals(rv, 255)
+        self.assertEqual(rv, 255)
         errout = sys.stderr.getvalue()
         self.assertIn("No such hostinfo command notexists", errout)
 

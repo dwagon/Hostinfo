@@ -1,3 +1,5 @@
+"""hostinfo_undolog command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -15,21 +17,24 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from host.models import UndoLog
-from host.models import HostinfoCommand
-import os
 import datetime
+import os
+
+from host.models import HostinfoCommand
+from host.models import UndoLog
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_undolog"""
+
     description = "Display the undolog"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "--user", help="Print the undolog for the specified user", nargs=1
-        )
+        """Parse args"""
+
+        parser.add_argument("--user", help="Print the undolog for the specified user", nargs=1)
         parser.add_argument(
             "--week",
             help="Print the undolog the the last week",
@@ -46,6 +51,8 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         outstr = ""
         now = datetime.datetime.now()
         if not namespace.days:
@@ -60,7 +67,7 @@ class Command(HostinfoCommand):
                 user = "unknown"
         ulog = UndoLog.objects.filter(user=user, actiondate__gte=then)
         for undoact in ulog:
-            outstr += "%-55s # %s\n" % (undoact.action, undoact.actiondate)
+            outstr += f"{undoact.actiondate:<55} # {undoact.actiondate}\n"
         return outstr, 0
 
 

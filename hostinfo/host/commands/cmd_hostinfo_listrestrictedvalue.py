@@ -1,3 +1,5 @@
+"""hostinfo_listrestrictedvalue command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -23,26 +25,32 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_listrestrictedvalue"""
+
     description = "List all allowable values of a restricted key"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("key", help="Name of the key to list")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         outstr = ""
         key = namespace.key.lower()
         keyobjlist = AllowedKey.objects.filter(key=key)
         if len(keyobjlist) != 1:
-            raise HostinfoException("No key %s found" % key)
+            raise HostinfoException(f"No key {key} found")
 
         vals = []
         rvallist = RestrictedValue.objects.filter(keyid=keyobjlist[0])
         for rv in rvallist:
             vals.append(rv.value)
         for rv in sorted(vals):
-            outstr += "%s\n" % rv
+            outstr += f"{rv}\n"
         return outstr, 0
 
 

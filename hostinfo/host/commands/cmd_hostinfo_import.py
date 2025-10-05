@@ -1,4 +1,5 @@
-""" Command to import hostinfo data """
+"""hostinfo_import comand"""
+
 # Written by Dougal Scott <dougal.scott@gmail.com>
 
 #    Copyright (C) 2025 Dougal Scott
@@ -17,23 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import xml.etree.ElementTree
+
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from host.models import Host, AllowedKey, KeyValue
 from host.models import HostinfoCommand
 from host.models import HostinfoException
 from host.models import RestrictedValueException, RestrictedValue
-from host.models import Host, AllowedKey, KeyValue
 
 _akcache = {}
 
 
 ###############################################################################
 class Command(HostinfoCommand):
-    """ Base Class"""
+    """hostinfo_history"""
+
     description = "Import data from XML file"
 
     ###########################################################################
     def parseArgs(self, parser):
-        """ Parse command line arguments """
+        """Parse args"""
         parser.add_argument(
             "-k",
             dest="kiddingFlag",
@@ -52,17 +55,14 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
-        """ handle the call """
+        """handle the call"""
         self.namespace = namespace
         try:
             xmltree = xml.etree.ElementTree.parse(namespace.xmlfile)
         except IOError as exc:
             if exc.errno == 2:
-                raise HostinfoException("File %s doesn't exist" % namespace.xmlfile)
-            else:
-                raise HostinfoException(
-                    "File %s not readable (errno=%d)" % (namespace.xmlfile, exc.errno)
-                )
+                raise HostinfoException(f"File {namespace.xmlfile} doesn't exist") from exc
+            raise HostinfoException(f"File {namespace.xmlfile} not readable (errno={exc.errno})") from exc
 
         for key in xmltree.findall("key"):
             self.handleKey(key)
@@ -73,7 +73,7 @@ class Command(HostinfoCommand):
     ###########################################################################
     def verbose(self, msg):
         if self.namespace.verboseFlag:
-            sys.stderr.write("%s\n" % msg)
+            sys.stderr.write(f"{msg}\n")
 
     ###########################################################################
     def validateKeytype(self, keytype):
@@ -90,10 +90,8 @@ class Command(HostinfoCommand):
                 vt = knum
                 break
         if vt < 0:
-            raise HostinfoException(
-                "Unknown type %s - should be one of %s"
-                % (keytype, ",".join([d for k, d in AllowedKey.TYPE_CHOICES]))
-            )
+            key_str = ",".join([d for k, d in AllowedKey.TYPE_CHOICES])
+            raise HostinfoException(f"Unknown type {keytype} - should be one of {key_str}")
         return vt
 
     ###########################################################################
@@ -171,48 +169,32 @@ class Command(HostinfoCommand):
                 docpage=docpage,
                 desc=desc,
             )
-            self.verbose("New key %s" % repr(ak))
+            self.verbose(f"New key {repr(ak)}")
             if not self.namespace.kiddingFlag:
                 ak.save()
         else:
             change = False
             if ak.validtype != keytype:
-                sys.stderr.write(
-                    "Changing key types currently unsupported: %s\n" % name
-                )
+                sys.stderr.write(f"Changing key types currently unsupported: {name}\n")
                 sys.exit(1)
             if ak.restrictedFlag != restrictedFlag:
-                self.verbose(
-                    "Changing %s: restrictedFlag from %s to %s"
-                    % (name, ak.restrictedFlag, restrictedFlag)
-                )
+                self.verbose(f"Changing {name}: restrictedFlag from {ak.restrictedFlag} to {restrictedFlag}")
                 ak.restrictedFlag = restrictedFlag
                 change = True
             if ak.readonlyFlag != readonlyFlag:
-                self.verbose(
-                    "Changing %s: readonlyFlag from %s to %s"
-                    % (name, ak.readonlyFlag, readonlyFlag)
-                )
+                self.verbose(f"Changing {name}: readonlyFlag from {ak.readonlyFlag} to {readonlyFlag}")
                 ak.readonlyFlag = readonlyFlag
                 change = True
             if ak.auditFlag != auditFlag:
-                self.verbose(
-                    "Changing %s: auditFlag from %s to %s"
-                    % (name, ak.auditFlag, auditFlag)
-                )
+                self.verbose(f"Changing {name}: auditFlag from {ak.auditFlag} to {auditFlag}")
                 ak.auditFlag = auditFlag
                 change = True
             if ak.docpage != docpage:
-                self.verbose(
-                    "Changing %s: docpage from '%s' to '%s'"
-                    % (name, ak.docpage, docpage)
-                )
+                self.verbose(f"Changing {name}: docpage from '{ak.docpage}' to '{docpage}'")
                 ak.docpage = docpage
                 change = True
             if ak.desc != desc:
-                self.verbose(
-                    "Changing %s: desc from '%s' to '%s'" % (name, ak.desc, desc)
-                )
+                self.verbose(f"Changing {name}: desc from '{ak.desc}' to '{desc}'")
                 ak.desc = desc
                 change = True
             if change and not self.namespace.kiddingFlag:
@@ -247,7 +229,7 @@ class Command(HostinfoCommand):
                 docpage=hosttree.attrib.get("docpage", None),
                 origin=hosttree.attrib.get("origin", "unknown - import"),
             )
-            self.verbose("New host %s" % repr(host))
+            self.verbose(f"New host {repr(host)}")
             if not self.namespace.kiddingFlag:
                 host.save()
 
@@ -261,10 +243,7 @@ class Command(HostinfoCommand):
             try:
                 self.handleValue(host, key, origin, value)
             except RestrictedValueException:
-                sys.stderr.write(
-                    "Trying to change a restricted value: %s:%s=%s - ignoring\n"
-                    % (hostname, key, value)
-                )
+                sys.stderr.write(f"Trying to change a restricted value: {hostname}:{key}={value} - ignoring\n")
 
     ###########################################################################
     def getAllowedKey(self, key):
@@ -282,7 +261,7 @@ class Command(HostinfoCommand):
                 kv = KeyValue.objects.get(hostid=host.id, keyid__key=key, value=value)
             except ObjectDoesNotExist:
                 kv = KeyValue(hostid=host, keyid=ak, value=value, origin=origin)
-                self.verbose("Appending %s: %s=%s" % (host.hostname, key, value))
+                self.verbose(f"Appending {host.hostname}: {key}={value}")
                 if not self.namespace.kiddingFlag:
                     kv.save(readonlychange=True)
             except MultipleObjectsReturned:
@@ -292,13 +271,13 @@ class Command(HostinfoCommand):
                 kv = KeyValue.objects.get(hostid=host.id, keyid__key=key)
             except ObjectDoesNotExist:
                 kv = KeyValue(hostid=host, keyid=ak, value=value, origin=origin)
-                self.verbose("Creating %s: %s=%s" % (host.hostname, key, value))
+                self.verbose(f"Creating {host.hostname}: {key}={value}")
                 if not self.namespace.kiddingFlag:
                     kv.save(readonlychange=True)
             else:
                 kv.value = value
                 kv.origin = origin
-                self.verbose("Replacing %s: %s=%s" % (host.hostname, key, value))
+                self.verbose(f"Replacing {host.hostname}: {key}={value}")
                 if not self.namespace.kiddingFlag:
                     kv.save(readonlychange=True)
 

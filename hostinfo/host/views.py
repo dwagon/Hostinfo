@@ -1,4 +1,5 @@
-""" hostinfo views"""
+"""hostinfo views"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,17 +23,17 @@ import operator
 import time
 from collections import defaultdict
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from django.shortcuts import render
 
 from .models import Host, KeyValue, AllowedKey, calcKeylistVals
-from .models import RestrictedValue, HostinfoException
 from .models import Links, getHostList, getAliases, getAK
+from .models import RestrictedValue, HostinfoException
 
 
 ################################################################################
-def get_rev_akcache():
-    """ Reverse AllowedKey Cache """
+def get_rev_akcache() -> dict[int, str]:
+    """Reverse AllowedKey Cache"""
     revcache = {}
     for aks in AllowedKey.objects.all():
         revcache[aks.id] = aks.key
@@ -40,7 +41,7 @@ def get_rev_akcache():
 
 
 ################################################################################
-def hostviewrepr(host, printers=None, revcache=None):
+def hostviewrepr(host: str, printers=None, revcache=None):
     """Return a list of KeyValue objects per key for a host
     E.g.  (('keyA',[KVobj]), ('keyB', [KVobj, KVobj, KVobj]), ('keyC',[]))
     """
@@ -69,26 +70,25 @@ def hostviewrepr(host, printers=None, revcache=None):
 
 
 ################################################################################
-def handlePost(request):
-    """ POST call handling """
+def handlePost(request: HttpRequest) -> HttpResponse:
+    """POST call handling"""
     if "hostname" in request.POST:
         return HttpResponseRedirect(f"/hostinfo/host/{request.POST['hostname']}")
-    elif "hostre" in request.POST:
-        return HttpResponseRedirect(
-            "/hostinfo/hostlist/%s.hostre" % request.POST["hostre"].strip()
-        )
-    elif "key0" in request.POST:
+    if "hostre" in request.POST:
+        hostre_str = request.POST["hostre"].strip()
+        return HttpResponseRedirect(f"/hostinfo/hostlist/{hostre_str}.hostre")
+    if "key0" in request.POST:
         expr = ""
         for key in request.POST:
             if key.startswith("key"):
                 num = key.replace("key", "")
-                expr += "%s.%s.%s/" % (
-                    request.POST[f"key{num}"].strip(),
-                    request.POST[f"op{num}"].strip(),
-                    request.POST[f"value{num}"].strip().replace("/", ".slash."),
-                )
+                key_str = request.POST[f"key{num}"].strip()
+                op_str = request.POST[f"op{num}"].strip()
+                val_str = request.POST[f"value{num}"].strip().replace("/", ".slash.")
+                expr += f"{key_str}.{op_str}.{val_str}/"
         expr = expr[:-1]
         return HttpResponseRedirect(f"/hostinfo/hostlist/{expr}")
+    return render(request, "host/index.template", {"error": "Invalid Request"})
 
 
 ################################################################################
@@ -102,7 +102,8 @@ def getLinks(hostid=None, hostname=None):
 
 
 ################################################################################
-def getWebLinks(hostid=None, hostname=None):
+def getWebLinks(hostid=None, hostname=None) -> list[str]:
+    """Return weblinks"""
     weblinks = []
     for url, tag in getLinks(hostid, hostname):
         weblinks.append(f'<a class="foreignlink" href="{url}">{tag}</a>')
@@ -110,14 +111,14 @@ def getWebLinks(hostid=None, hostname=None):
 
 
 ################################################################################
-def doHostSummary(request, hostname):
+def doHostSummary(request: HttpRequest, hostname):
     """Display a single host"""
     d = hostData(request.user, [hostname], linker=getWebLinks)
     return render(request, "host/hostpage.template", d)
 
 
 ################################################################################
-def doHost(request, hostname):
+def doHost(request: HttpRequest, hostname):
     """Display a single host"""
     d = hostData(request.user, [hostname], linker=getWebLinks)
     return render(request, "host/host.template", d)
@@ -162,18 +163,16 @@ def hostData(user, criteria=None, options="", printers=None, order=None, linker=
     for host in hl:
         tmp = {
             "hostname": host.hostname,
-            "hostview": hostviewrepr(
-                host.hostname, printers=printers, revcache=revcache
-            ),
+            "hostview": hostviewrepr(host.hostname, printers=printers, revcache=revcache),
             "aliases": getAliases(host.hostname),
         }
         if linker:
             tmp["links"] = linker(hostid=host.id)
         data.append(tmp)
-
+    elapsed = time.time() - starttime
     d = {
         "hostlist": data,
-        "elapsed": "%0.4f" % (time.time() - starttime),
+        "elapsed": f"{elapsed:0.4f}",
         "csvavailable": f"/hostinfo/csv/{criteriaToWeb(criteria)}",
         "title": " AND ".join(criteria),
         "criteria": criteriaToWeb(criteria),
@@ -191,7 +190,7 @@ def hostData(user, criteria=None, options="", printers=None, order=None, linker=
 
 
 ################################################################################
-def doHostlist(request, criturl="", options=""):
+def doHostlist(request: HttpRequest, criturl="", options=""):
     """Display a list of matching hosts by name only"""
     try:
         starttime = time.time()
@@ -223,7 +222,7 @@ def doHostlist(request, criturl="", options=""):
 
 
 ################################################################################
-def doHostcmp(request, criturl="", options=""):
+def doHostcmp(request: HttpRequest, criturl="", options=""):
     """Display a list of matching hosts with their details"""
     criteria = criteriaFromWeb(criturl)
     if request.method == "POST" and "options" in request.POST:
@@ -232,7 +231,7 @@ def doHostcmp(request, criturl="", options=""):
             options += "dates,"
         if "origin" in request.POST.getlist("options"):
             options += "origin,"
-        return HttpResponseRedirect("/hostinfo/hostcmp/%s/%s" % (criturl, options[:-1]))
+        return HttpResponseRedirect(f"/hostinfo/hostcmp/{criturl}/{options[:-1]}")
     try:
         return render(
             request,
@@ -278,7 +277,7 @@ def orderHostList(hostlist, order):
 
 ################################################################################
 def doCsvreport(_, criturl=""):
-    """ CSV report"""
+    """CSV report"""
     criteria = criteriaFromWeb(criturl)
     hl = getHostList(criteria)
     if not criturl:
@@ -302,7 +301,7 @@ def criteriaFromWeb(criteria):
 
 ################################################################################
 def csvDump(hostlist, filename):
-    """ Dump output in CSV format """
+    """Dump output in CSV format"""
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
@@ -310,9 +309,7 @@ def csvDump(hostlist, filename):
     revcache = get_rev_akcache()
     data = []
     for host in hostlist:
-        data.append(
-            (host.hostname, hostviewrepr(host.hostname, revcache=revcache), None)
-        )
+        data.append((host.hostname, hostviewrepr(host.hostname, revcache=revcache), None))
     data.sort(key=lambda x: x[0])
 
     # Grab all the headings
@@ -338,8 +335,8 @@ def csvDump(hostlist, filename):
 
 
 ################################################################################
-def index(request):
-    """ URL = /"""
+def index(request: HttpRequest) -> HttpResponse:
+    """URL = /"""
     d = {
         "numhosts": Host.objects.count(),
         "keys": AllowedKey.objects.all(),
@@ -350,7 +347,7 @@ def index(request):
 
 
 ################################################################################
-def doRestrValList(request, key):
+def doRestrValList(request: HttpRequest, key):
     """Return the list of restricted values for the key"""
     rvlist = RestrictedValue.objects.filter(keyid__key=key)
     d = {"key": key, "rvlist": rvlist}
@@ -358,7 +355,7 @@ def doRestrValList(request, key):
 
 
 ################################################################################
-def doKeylist(request, key):
+def doKeylist(request: HttpRequest, key):
     """Return all values for the specified key
     Need to count the number of different hosts, not different values to work out
     percentages otherwise you get wierd values for list keys.

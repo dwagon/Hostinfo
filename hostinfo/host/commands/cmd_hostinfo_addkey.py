@@ -1,4 +1,5 @@
-""" Add a new key """
+"""hostinfo_addkey command"""
+
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
 #    Copyright (C) 2025 Dougal Scott
@@ -23,13 +24,14 @@ from host.models import HostinfoCommand
 
 ###############################################################################
 class Command(HostinfoCommand):
-    """ Command to add a new key """
+    """hostinfo_addkey"""
+
     description = "Add a new key"
     type_choices = [d for _, d in AllowedKey.TYPE_CHOICES]
 
     ###########################################################################
     def parseArgs(self, parser):
-        """ The args """
+        """The args"""
         parser.add_argument(
             "--restricted",
             help="The key is resricted - can only take specific values",
@@ -56,9 +58,7 @@ class Command(HostinfoCommand):
             default=False,
             dest="numeric",
         )
-        parser.add_argument(
-            "--keytype", help="Type of key", choices=self.type_choices, default=None
-        )
+        parser.add_argument("--keytype", help="Type of key", choices=self.type_choices, default=None)
         parser.add_argument(
             "key",
             help="Name of the key to add [keytype [description of key]]",
@@ -67,7 +67,7 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def handle(self, namespace):
-        """ Base Command line handler """
+        """Base Command line handler"""
         desc = ""
         if namespace.keytype:
             keytype = namespace.keytype
@@ -99,16 +99,14 @@ class Command(HostinfoCommand):
 
     ###########################################################################
     def validateKeytype(self, keytype):
-        """ Work out which type it should be"""
+        """Work out which type it should be"""
         vt = -1
         for knum, desc in AllowedKey.TYPE_CHOICES:
             if keytype == desc:
                 vt = knum
                 break
         if vt < 0:
-            raise HostinfoException(
-                f"Unknown type {keytype} - should be one of {','.join(self.type_choices)}"
-            )
+            raise HostinfoException(f"Unknown type {keytype} - should be one of {','.join(self.type_choices)}")
         return vt
 
 

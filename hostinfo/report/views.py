@@ -1,8 +1,9 @@
-from django.shortcuts import render
-from django.conf import settings
 import glob
-import imp
 import os
+import importlib
+
+from django.conf import settings
+from django.shortcuts import render
 
 reportdir = settings.HOSTINFO_REPORT_DIR
 
@@ -28,14 +29,15 @@ def getReports():
             desc = repmodule.reportdesc
         else:
             desc = "unknown description"
-        link = "report/%s" % os.path.split(rf)[1].replace(".py", "")
+        new_path = os.path.split(rf)[1].replace(".py", "")
+        link = f"report/{new_path}"
         ans.append((link, name, desc))
     return ans
 
 
 ################################################################################
 def doReport(request, report, args=""):
-    reportmodule = os.path.join(reportdir, "%s.py" % report)
+    reportmodule = os.path.join(reportdir, f"{report}.py")
     if os.path.exists(reportmodule):
         repmodule = module_from_path(reportmodule)
         try:
@@ -50,7 +52,8 @@ def module_from_path(filepath):
     dirname, filename = os.path.split(filepath)
     mod_name = filename.replace(".py", "")
     dot_py_suffix = (".py", "U", 1)  # From imp.get_suffixes()[2]
-    return imp.load_module(mod_name, open(filepath), filepath, dot_py_suffix)
+    # return imp.load_module(mod_name, open(filepath), filepath, dot_py_suffix)
+    return importlib.import_module(mod_name)
 
 
 # EOF

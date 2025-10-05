@@ -1,4 +1,5 @@
-""" hostinfo edit code"""
+"""hostinfo edit code"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -22,19 +23,18 @@
 import re
 import time
 
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import QuerySet
+from django.http import HttpResponseRedirect, HttpRequest
+from django.shortcuts import render
 
+from .forms import hostEditForm
+from .forms import hostMergeForm, hostRenameForm, hostCreateForm
 from .models import Host, KeyValue, AllowedKey
+from .models import RestrictedValueException
 from .models import getAK, RestrictedValue
 from .models import getHost, validateDate
-from .models import RestrictedValueException
-
-from .forms import hostMergeForm, hostRenameForm, hostCreateForm
-from .forms import hostEditForm
-
 from .views import hostviewrepr
 
 _hostcache = None
@@ -42,7 +42,7 @@ _convertercache = None
 
 
 ################################################################################
-def getHostMergeKeyData(srchost, dsthost):
+def getHostMergeKeyData(srchost: str, dsthost: str) -> list[tuple[str, dict[str, list[str]]]]:
     """Get the list of all keys that either or both of the hosts have
     Force everything to be a list as it is easier than trying
     to do type differentiation in the template
@@ -72,12 +72,12 @@ def getHostMergeKeyData(srchost, dsthost):
 
 
 ################################################################################
-def mergeKey(request, srchostobj, dsthostobj, key):
-    """ Merge keys """
-    keyobj = AllowedKey.objects.get(key=key)
+def mergeKey(request: HttpRequest, srchostobj: Host, dsthostobj: Host, key: id) -> None:
+    """Merge keys"""
+    keyobj: AllowedKey = AllowedKey.objects.get(key=key)
     if keyobj.get_validtype_display() == "list":
-        srckeys = KeyValue.objects.filter(hostid=srchostobj, keyid=keyobj)
-        dstkeys = KeyValue.objects.filter(hostid=dsthostobj, keyid=keyobj)
+        srckeys: QuerySet = KeyValue.objects.filter(hostid=srchostobj, keyid=keyobj)
+        dstkeys: QuerySet = KeyValue.objects.filter(hostid=dsthostobj, keyid=keyobj)
         for dkey in dstkeys:
             dkey.delete(request.user)
         for skey in srckeys:
@@ -96,12 +96,12 @@ def mergeKey(request, srchostobj, dsthostobj, key):
 
 ################################################################################
 @login_required
-def doHostMerging(request, srchost, dsthost):
+def doHostMerging(request: HttpRequest, srchost: int, dsthost: int) -> None:
     """Actually perform the merge
     We use underscores to avoid any future clash with keys that may be picked
     """
-    srchostobj = Host.objects.get(hostname=srchost)
-    dsthostobj = Host.objects.get(hostname=dsthost)
+    srchostobj: Host = Host.objects.get(hostname=srchost)
+    dsthostobj: Host = Host.objects.get(hostname=dsthost)
     for key in request.POST:
         if key.startswith("_"):
             continue
@@ -122,9 +122,7 @@ def doHostMergeChoose(request):
         if form.is_valid():
             srchost = form.cleaned_data["srchost"]
             dsthost = form.cleaned_data["dsthost"]
-            return HttpResponseRedirect(
-                f"/hostinfo/hostmerge/{srchost}/{dsthost}"
-            )
+            return HttpResponseRedirect(f"/hostinfo/hostmerge/{srchost}/{dsthost}")
     else:
         d["form"] = hostMergeForm()
     d["elapsed"] = time.time() - starttime
@@ -162,9 +160,7 @@ def doHostRenameChoose(request):
         if form.is_valid():
             srchost = form.cleaned_data["srchost"]
             dsthost = form.cleaned_data["dsthost"]
-            return HttpResponseRedirect(
-                "/hostinfo/hostrename/%s/%s" % (srchost, dsthost)
-            )
+            return HttpResponseRedirect(f"/hostinfo/hostrename/{srchost}/{dsthost}")
     else:
         d["form"] = hostRenameForm()
     d["elapsed"] = time.time() - starttime
@@ -174,6 +170,7 @@ def doHostRenameChoose(request):
 ################################################################################
 @login_required
 def doHostRename(request, srchost, dsthost):
+    """Rename host"""
     starttime = time.time()
     d = {}
     d["srchost"] = srchost
@@ -189,9 +186,7 @@ def doHostRename(request, srchost, dsthost):
 ################################################################################
 @login_required
 def doHostCreateChoose(request):
-    """
-    Get the user to choose a host to create
-    """
+    """Get the user to choose a host to create"""
     starttime = time.time()
     d = {}
     if request.method == "POST":
@@ -209,6 +204,7 @@ def doHostCreateChoose(request):
 ################################################################################
 @login_required
 def doHostCreate(request, hostname):
+    """Create a new host"""
     starttime = time.time()
     d = {}
     d["newhost"] = hostname
@@ -240,7 +236,7 @@ def doHostEditChoose(request):
 ################################################################################
 @login_required
 def doHostEdit(request, hostname):
-    """ Something to do with host editing """
+    """Something to do with host editing"""
     starttime = time.time()
     d = {}
     if "_hostediting" in request.POST:
@@ -248,12 +244,7 @@ def doHostEdit(request, hostname):
         try:
             doHostEditChanges(request, hostname)
         except RestrictedValueException as err:
-            reslist = [
-                v[0]
-                for v in RestrictedValue.objects.filter(keyid=err.key).values_list(
-                    "value"
-                )
-            ]
+            reslist = [v[0] for v in RestrictedValue.objects.filter(keyid=err.key).values_list("value")]
             reserr = ", ".join(reslist)
             d["errorbig"] = err
             d["errorsmall"] = f"Please pick one of: {reserr}"
@@ -268,12 +259,7 @@ def doHostEdit(request, hostname):
         usedkeys.add(key)
         vtype = getAK(key).get_validtype_display()
         if getAK(key).restrictedFlag:
-            reslist = [
-                v[0]
-                for v in RestrictedValue.objects.filter(keyid__key=key).values_list(
-                    "value"
-                )
-            ]
+            reslist = [v[0] for v in RestrictedValue.objects.filter(keyid__key=key).values_list("value")]
             reslist.insert(0, "-Unknown-")
         else:
             reslist = []
@@ -292,7 +278,7 @@ def doHostEdit(request, hostname):
 ################################################################################
 @login_required
 def doHostEditChanges(request, hostname):
-    """ Make the actual changes """
+    """Make the actual changes"""
     hostobj = Host.objects.get(hostname=hostname)
     listdata = {}
     newkey = None
@@ -340,10 +326,7 @@ def doHostEditChanges(request, hostname):
 
     # Now we have to go through the lists to work out what the new values should be
     for key in listdata:
-        existingvals = [
-            str(k.value)
-            for k in KeyValue.objects.filter(keyid__key=key, hostid=hostobj)
-        ]
+        existingvals = [str(k.value) for k in KeyValue.objects.filter(keyid__key=key, hostid=hostobj)]
         keyobj = AllowedKey.objects.get(key=key)
 
         for val in listdata[key]:

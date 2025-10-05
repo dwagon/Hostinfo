@@ -1,3 +1,5 @@
+"""hostinfo_mergehost command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -17,47 +19,44 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from host.models import getHost, HostinfoException, KeyValue
-from host.models import HostinfoCommand
+
 from django.core.exceptions import ObjectDoesNotExist
+from host.models import HostinfoCommand
+from host.models import getHost, HostinfoException, KeyValue
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_mergehost"""
+
     description = "Merge two hosts"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "-f", "--force", help="Force the merge", action="store_true", default=False
-        )
+        """Parse args"""
+
+        parser.add_argument("-f", "--force", help="Force the merge", action="store_true", default=False)
         parser.add_argument(
             "-k",
             "--kidding",
             help="Don't actually make any changes",
             action="store_true",
         )
-        parser.add_argument(
-            "--src", help="The source host", nargs=1, required=True, dest="srchost"
-        )
-        parser.add_argument(
-            "--dst", help="The destination host", nargs=1, required=True, dest="dsthost"
-        )
+        parser.add_argument("--src", help="The source host", nargs=1, required=True, dest="srchost")
+        parser.add_argument("--dst", help="The destination host", nargs=1, required=True, dest="dsthost")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         self.kidding = namespace.kidding
         self.force = namespace.force
         srchostobj = getHost(namespace.srchost[0])
         if not srchostobj:
-            raise HostinfoException(
-                "Source host %s doesn't exist" % namespace.srchost[0]
-            )
+            raise HostinfoException(f"Source host {namespace.srchost[0]} doesn't exist")
         dsthostobj = getHost(namespace.dsthost[0])
         if not dsthostobj:
-            raise HostinfoException(
-                "Destination host %s doesn't exist" % namespace.dsthost[0]
-            )
+            raise HostinfoException(f"Destination host {namespace.dsthost[0]} doesn't exist")
 
         ok = True
 
@@ -80,8 +79,7 @@ class Command(HostinfoCommand):
         keytype = srckey.keyid.get_validtype_display()
         if keytype == "list":
             return self.transferListKey(srckey, srchostobj, dsthostobj)
-        else:
-            return self.transferSingleKey(srckey, srchostobj, dsthostobj)
+        return self.transferSingleKey(srckey, srchostobj, dsthostobj)
 
     ###############################################################################
     def transferListKey(self, srckey, srchostobj, dsthostobj):
@@ -115,29 +113,12 @@ class Command(HostinfoCommand):
                 if not self.kidding:
                     srckey.delete(readonlychange=True)
             else:
+                sys.stderr.write(f"Collision: {srckey.keyid} src={srckey.value} dst={dstkey.value}\n")
                 sys.stderr.write(
-                    "Collision: %s src=%s dst=%s\n"
-                    % (srckey.keyid.key, srckey.value, dstkey.value)
+                    f"To keep dst {dsthostobj.hostname} value {dstkey.value}: hostinfo_addvalue --update {dstkey.keyid.key}='{dstkey.value}' {srchostobj.hostname}\n"
                 )
                 sys.stderr.write(
-                    "To keep dst %s value %s: hostinfo_addvalue --update %s='%s' %s\n"
-                    % (
-                        dsthostobj.hostname,
-                        dstkey.value,
-                        dstkey.keyid.key,
-                        dstkey.value,
-                        srchostobj.hostname,
-                    )
-                )
-                sys.stderr.write(
-                    "To keep src %s value %s: hostinfo_addvalue --update %s='%s' %s\n"
-                    % (
-                        srchostobj.hostname,
-                        srckey.value,
-                        srckey.keyid.key,
-                        srckey.value,
-                        dsthostobj.hostname,
-                    )
+                    f"To keep src {srchostobj.hostname} value {srckey.value}: hostinfo_addvalue --update {srckey.keyid.key}='{srckey.value}' {dsthostobj.hostname}\n"
                 )
                 return False
         else:

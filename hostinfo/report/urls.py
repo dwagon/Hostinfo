@@ -1,4 +1,5 @@
 """Local URL handled for reports"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -18,6 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.urls import path
+
 from .views import index, doReport
 
 urlpatterns = [

@@ -1,4 +1,5 @@
-""" hostinfo forms"""
+"""hostinfo forms"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -21,6 +22,7 @@
 
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
+
 from .models import Host
 
 
@@ -46,7 +48,7 @@ class existingHostField(forms.CharField):
 class newHostField(forms.CharField):
     """A field for a host that should not already exist"""
 
-    def clean(self, value):
+    def clean(self, value: str) -> str:
         if not value:
             raise forms.ValidationError("Supply a valid host name")
         try:

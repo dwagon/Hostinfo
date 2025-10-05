@@ -1,3 +1,5 @@
+"""hostinfo_addvalue command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -19,36 +21,35 @@
 import os
 import re
 import sys
-from host.models import addKeytoHost
-from host.models import RestrictedValueException
-from host.models import ReadonlyValueException, HostinfoException
+
 from host.models import HostinfoCommand
+from host.models import ReadonlyValueException, HostinfoException
+from host.models import RestrictedValueException
+from host.models import addKeytoHost
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_addvalue"""
+
     description = "Add a value to a hosts key"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("-o", "--origin", help="The origin of this data")
-        parser.add_argument(
-            "-a", "--append", help="Append to a list type key", action="store_true"
-        )
-        parser.add_argument(
-            "-u", "--update", help="Replace an existing value", action="store_true"
-        )
-        parser.add_argument(
-            "--readonlyupdate", help="Write to a readonly key", action="store_true"
-        )
-        parser.add_argument(
-            "keyvalue", help="Name of the key/value pair to add (key=value)"
-        )
+        parser.add_argument("-a", "--append", help="Append to a list type key", action="store_true")
+        parser.add_argument("-u", "--update", help="Replace an existing value", action="store_true")
+        parser.add_argument("--readonlyupdate", help="Write to a readonly key", action="store_true")
+        parser.add_argument("keyvalue", help="Name of the key/value pair to add (key=value)")
         parser.add_argument("host", help="Host(s) to add this value to", nargs="+")
 
     ###########################################################################
     def handle(self, namespace):
-        m = re.match("(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
+        """do command"""
+
+        m = re.match(r"(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
         if not m:
             raise HostinfoException("Must be specified in key=value format")
         key = m.group("key").lower()
@@ -67,22 +68,18 @@ class Command(HostinfoCommand):
                     updateFlag=namespace.update,
                     appendFlag=namespace.append,
                 )
-            except RestrictedValueException:
+            except RestrictedValueException as exc:
                 raise RestrictedValueException(
-                    "Cannot add %s=%s to a restricted key" % (key, value),
+                    f"Cannot add {key}={value} to a restricted key",
                     key=key,
                     retval=2,
-                )
-            except ReadonlyValueException:
-                raise ReadonlyValueException(
-                    "Cannot add %s=%s to a readonly key" % (key, value), retval=3
-                )
-            except HostinfoException as err:
+                ) from exc
+            except ReadonlyValueException as exc:
+                raise ReadonlyValueException(f"Cannot add {key}={value} to a readonly key", retval=3) from exc
+            except HostinfoException as exc:
                 raise
-            except TypeError as err:  # pragma: nocover
-                raise HostinfoException(
-                    "Couldn't add value %s to %s - %s" % (value, host, err)
-                )
+            except TypeError as exc:  # pragma: nocover
+                raise HostinfoException(f"Couldn't add value {value} to {host} - {exc}") from exc
         return None, 0
 
 

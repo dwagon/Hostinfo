@@ -1,3 +1,5 @@
+"""hostinfo_deletelink"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -16,26 +18,32 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from host.models import getHost
 from host.models import HostinfoCommand, HostinfoException, Links
+from host.models import getHost
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_deletelink"""
+
     description = "Delete a link to a host"
 
     ###########################################################################
     def parseArgs(self, parser):
+        """Parse args"""
+
         parser.add_argument("--everytag", help="Delete all links", action="store_true")
         parser.add_argument("--tag", help="The link tag", nargs=1)
         parser.add_argument("host", help="The host to delete the link from")
 
     ###########################################################################
     def handle(self, namespace):
+        """do command"""
+
         host = namespace.host.lower()
         targhost = getHost(host)
         if not targhost:
-            raise HostinfoException("Host %s doesn't exist" % host)
+            raise HostinfoException(f"Host {host} doesn't exist")
         links = Links.objects.filter(hostid=targhost)
         if namespace.everytag:
             pass

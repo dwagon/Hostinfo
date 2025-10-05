@@ -1,3 +1,5 @@
+"""hostinfo_addrestrictedvalue command"""
+
 #
 # Written by Dougal Scott <dougal.scott@gmail.com>
 #
@@ -17,38 +19,41 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+
 from host.models import AllowedKey, RestrictedValue, HostinfoException
 from host.models import HostinfoCommand
 
 
 ###############################################################################
 class Command(HostinfoCommand):
+    """hostinfo_addrestrictedvalue"""
+
     description = "Add a new allowable value to a restricted key"
 
     ###########################################################################
     def parseArgs(self, parser):
-        parser.add_argument(
-            "keyvalue", help="Name of the key/value pair to allow (key=value)"
-        )
+        """Parse args"""
+
+        parser.add_argument("keyvalue", help="Name of the key/value pair to allow (key=value)")
 
     ###########################################################################
     def handle(self, namespace):
-        m = re.match("(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
+        """do command"""
+
+        m = re.match(r"(?P<key>\w+)=(?P<value>.+)", namespace.keyvalue)
         if not m:
             raise HostinfoException("Must be specified in key=value format")
         key = m.group("key").lower()
         value = m.group("value").lower()
         keyobjlist = AllowedKey.objects.filter(key=key)
         if len(keyobjlist) != 1:
-            raise HostinfoException("No key %s found" % key)
+            raise HostinfoException(f"No key {key} found")
         keyobj = keyobjlist[0]
         if not keyobj.restrictedFlag:
-            raise HostinfoException("Key %s isn't a restrictedvalue key" % key)
+            raise HostinfoException(f"Key {key} isn't a restrictedvalue key")
         rvallist = RestrictedValue.objects.filter(keyid=keyobj, value=value)
         if rvallist:
-            raise HostinfoException(
-                "Already a key %s=%s in the restrictedvalue list" % (key, value)
-            )
+            raise HostinfoException(f"Already a key {key}={value} in the restrictedvalue list")
         rv = RestrictedValue(keyid=keyobj, value=value)
         rv.save()
         return None, 0
