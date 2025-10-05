@@ -27,7 +27,8 @@ import sys
 import time
 from collections import defaultdict
 from operator import itemgetter
-from typing import Optional, Any, NewType
+from typing import Optional, Any
+from enum import Enum, auto
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -387,7 +388,27 @@ def validateDate(datestr: str) -> str:
 
 
 ################################################################################
-def parseQualifiers(args) -> list[tuple[str, Optional[str], str]]:
+class Qualifier(Enum):
+    """All the operators - to prevent string comparisons"""
+
+    UNEQUAL = auto()
+    EQUAL = auto()
+    LESS_THAN = auto()
+    GREATER_THAN = auto()
+    CONTAINS = auto()
+    NOT_CONTAINS = auto()
+    APPROX = auto()
+    UNDEF = auto()
+    DEF = auto()
+    HOST_RE = auto()
+    LEN_LT = auto()
+    LEN_EQ = auto()
+    LEN_GT = auto()
+    HOST = auto()
+
+
+################################################################################
+def parseQualifiers(args) -> list[tuple[Qualifier, Optional[str], str]]:
     """
     Go through the supplied qualifiers and analyse them, generate
     a list of qualifier tuples: operator, key, value
@@ -396,22 +417,22 @@ def parseQualifiers(args) -> list[tuple[str, Optional[str], str]]:
     # Table of all the operators:
     #    tag of operator, regexp, threepart (i.e. has value)?
     optable = [
-        ("unequal", r"!=|\.ne\.", {"threeparts": True}),
-        ("equal", r"=|\.eq\.", {"threeparts": True}),  # Has to be after !=
-        ("lessthan", r"<|\.lt\.", {"threeparts": True}),
-        ("greaterthan", r">|\.gt\.", {"threeparts": True}),
-        ("contains", r"~|\.ss\.", {"threeparts": True}),
-        ("notcontains", r"%|\.ns\.", {"threeparts": True}),
-        ("approx", r"@|\.ap\.", {"threeparts": True}),
-        ("undef", r"\.undef|\.undefined|\.unset", {"threeparts": False}),
-        ("def", r"\.def|\.defined|\.set", {"threeparts": False}),
-        ("hostre", r"\.hostre", {"threeparts": False, "validkey": False}),
-        ("lenlt", r"\.lenlt\.", {"threeparts": True}),
-        ("leneq", r"\.leneq\.", {"threeparts": True}),
-        ("lengt", r"\.lengt\.", {"threeparts": True}),
+        (Qualifier.UNEQUAL, r"!=|\.ne\.", {"threeparts": True}),
+        (Qualifier.EQUAL, r"=|\.eq\.", {"threeparts": True}),  # Has to be after !=
+        (Qualifier.LESS_THAN, r"<|\.lt\.", {"threeparts": True}),
+        (Qualifier.GREATER_THAN, r">|\.gt\.", {"threeparts": True}),
+        (Qualifier.CONTAINS, r"~|\.ss\.", {"threeparts": True}),
+        (Qualifier.NOT_CONTAINS, r"%|\.ns\.", {"threeparts": True}),
+        (Qualifier.APPROX, r"@|\.ap\.", {"threeparts": True}),
+        (Qualifier.UNDEF, r"\.undef|\.undefined|\.unset", {"threeparts": False}),
+        (Qualifier.DEF, r"\.def|\.defined|\.set", {"threeparts": False}),
+        (Qualifier.HOST_RE, r"\.hostre", {"threeparts": False, "validkey": False}),
+        (Qualifier.LEN_LT, r"\.lenlt\.", {"threeparts": True}),
+        (Qualifier.LEN_EQ, r"\.leneq\.", {"threeparts": True}),
+        (Qualifier.LEN_GT, r"\.lengt\.", {"threeparts": True}),
     ]
 
-    qualifiers: list[tuple[str, Optional[str], str]] = []
+    qualifiers: list[tuple[Qualifier, Optional[str], str]] = []
     for arg in args:
         if arg == "":
             continue
@@ -420,7 +441,7 @@ def parseQualifiers(args) -> list[tuple[str, Optional[str], str]]:
         # embedded operator like subdomain - e.g. host.lt.example.com
         ishostname = Host.objects.filter(hostname=arg.lower())
         if ishostname:
-            qualifiers.append(("host", None, arg.lower()))
+            qualifiers.append((Qualifier.HOST, None, arg.lower()))
             matched = True
             continue
         for op, reg, opts in optable:
@@ -443,7 +464,7 @@ def parseQualifiers(args) -> list[tuple[str, Optional[str], str]]:
         if not matched:
             hm = re.match(r"\w+", arg)
             if hm:
-                qualifiers.append(("host", None, arg.lower()))
+                qualifiers.append((Qualifier.HOST, None, arg.lower()))
                 matched = True
 
         if not matched:
@@ -553,7 +574,7 @@ def getHostList(criteria: list[tuple[str, Optional[str], str]]):
 
 
 ################################################################################
-def getMatches(qualifiers: list[tuple[str, Optional[str], str]]) -> list[int]:
+def getMatches(qualifiers: list[tuple[Qualifier, Optional[str], str]]) -> list[int]:
     """Get a list of matching hostids that satisfy the qualifiers
 
     Create a set of all the hostids and then go through each qualifier
@@ -565,8 +586,9 @@ def getMatches(qualifiers: list[tuple[str, Optional[str], str]]) -> list[int]:
     difference between all hosts and the hosts that have that value set.
     """
     hostids = set([host.id for host in get_all_hosts()])
+    checknum = False
     for q, k, v in qualifiers:  # qualifier, key, value
-        if q != "hostre":  # hostre doesn't put a key into key
+        if q != Qualifier.HOST_RE:  # hostre doesn't put a key into key
             key = getAK(k)
             checknum = False
             # Numeric keys can be queried for non-numeric values
@@ -578,48 +600,48 @@ def getMatches(qualifiers: list[tuple[str, Optional[str], str]]) -> list[int]:
                     pass
         mode = "intersection"
         queryset = set([])  # Else if no match it won't have a queryset defined
-        if q == "host":
+        if q == Qualifier.HOST:
             hostqs = set([h.id for h in Host.objects.filter(hostname=v)])
             aliasqs = set([ha.hostid.id for ha in HostAlias.objects.filter(alias=v)])
             queryset = hostqs | aliasqs
             vals = []
-        elif q == "equal":
+        elif q == Qualifier.EQUAL:
             if checknum:
                 vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values("hostid")
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value=v).values("hostid")
-        elif q == "lessthan":
+        elif q == Qualifier.LESS_THAN:
             if checknum:
                 vals = KeyValue.objects.filter(keyid=key.id, numvalue__lt=v).values("hostid")
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value__lt=v).values("hostid")
-        elif q == "approx":
+        elif q == Qualifier.APPROX:
             vals = getApproxObjects(keyid=key.id, value=v)
-        elif q == "greaterthan":
+        elif q == Qualifier.GREATER_THAN:
             if checknum:
                 vals = KeyValue.objects.filter(keyid=key.id, numvalue__gt=v).values("hostid")
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value__gt=v).values("hostid")
-        elif q == "contains":
+        elif q == Qualifier.CONTAINS:
             vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values("hostid")
-        elif q == "notcontains":
+        elif q == Qualifier.NOT_CONTAINS:
             vals = KeyValue.objects.filter(keyid=key.id, value__contains=v).values("hostid")
             mode = "difference"
-        elif q == "def":
+        elif q == Qualifier.DEF:
             vals = KeyValue.objects.filter(keyid=key.id).values("hostid")
-        elif q == "unequal":
+        elif q == Qualifier.UNEQUAL:
             if checknum:
                 vals = KeyValue.objects.filter(keyid=key.id, numvalue=v).values("hostid")
             else:
                 vals = KeyValue.objects.filter(keyid=key.id, value=v).values("hostid")
             mode = "difference"
-        elif q == "undef":
+        elif q == Qualifier.UNDEF:
             vals = KeyValue.objects.filter(keyid=key.id).values("hostid")
             mode = "difference"
-        if q in ("leneq", "lengt", "lenlt"):
+        if q in (Qualifier.LEN_LT, Qualifier.LEN_GT, Qualifier.LEN_EQ):
             vals = []
             mode = "noop"
-        elif q == "hostre":
+        elif q == Qualifier.HOST_RE:
             vals = [{"hostid": h["id"]} for h in Host.objects.filter(hostname__contains=k).values("id")]
             alias = [{"hostid": h["hostid"]} for h in HostAlias.objects.filter(alias__contains=k).values("hostid")]
             vals.extend(alias)
@@ -636,7 +658,7 @@ def getMatches(qualifiers: list[tuple[str, Optional[str], str]]) -> list[int]:
     # Some queries require post processing
     # Note that these are much slower to process so do them after
     for q, k, v in qualifiers:  # qualifier, key, value
-        if q in ("leneq", "lengt", "lenlt"):
+        if q in (Qualifier.LEN_LT, Qualifier.LEN_GT, Qualifier.LEN_EQ):
             key = getAK(k)
             try:
                 lngth = int(v)
@@ -646,13 +668,13 @@ def getMatches(qualifiers: list[tuple[str, Optional[str], str]]) -> list[int]:
                 if h.id not in hostids:
                     continue
                 vals = KeyValue.objects.filter(hostid=h.id, keyid=key.id)
-                if q == "leneq":
+                if q == Qualifier.LEN_EQ:
                     if len(vals) != lngth:
                         hostids.remove(h.id)
-                elif q == "lengt":
+                elif q == Qualifier.LEN_GT:
                     if len(vals) < lngth:
                         hostids.remove(h.id)
-                elif q == "lenlt":
+                elif q == Qualifier.LEN_LT:
                     if len(vals) > lngth:
                         hostids.remove(h.id)
 
